@@ -1,0 +1,32 @@
+<header class="top-bar">
+  <div class="search-box">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      class="search-input"
+      type="text"
+      [placeholder]="searchPlaceholderKey() | translate"
+    />
+  </div>
+
+  <div class="actions">
+    <button mat-icon-button class="action-btn" [attr.aria-label]="'shared.topBar.notificationsAria' | translate">
+      <mat-icon>notifications</mat-icon>
+    </button>
+    <button mat-icon-button class="action-btn" [attr.aria-label]="'shared.topBar.helpAria' | translate">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+
+    <div class="divider"></div>
+
+    <div class="user-profile">
+      <div class="avatar">
+        @if (userAvatarUrl()) {
+          <img [src]="userAvatarUrl()" [alt]="userName()" />
+        } @else {
+          <mat-icon>account_circle</mat-icon>
+        }
+      </div>
+      <span class="user-name">{{ userName() }}</span>
+    </div>
+  </div>
+</header>

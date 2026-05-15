@@ -1,0 +1,135 @@
+.navigator {
+  width: 256px;
+  min-height: 100vh;
+  background: #111827;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: #006d4e;
+}
+
+.brand-icon {
+  color: #fff;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.brand-name {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: Inter, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-block {
+  margin: 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.nav-item.active {
+  background: rgba(0, 109, 78, 0.22);
+  color: #34d399;
+  border-left-color: #10b981;
+}
+
+.nav-parent.active {
+  background: rgba(0, 109, 78, 0.18);
+  color: #e5e7eb;
+  border-left-color: #10b981;
+}
+
+.nav-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.nav-label {
+  line-height: 1;
+}
+
+.nav-sublist {
+  list-style: none;
+  margin: 2px 0 8px 0;
+  padding: 0 0 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-subitem {
+  display: block;
+  padding: 8px 12px 8px 36px;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.nav-subitem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.nav-subitem.active-sub {
+  color: #34d399;
+  background: rgba(0, 109, 78, 0.12);
+  border-left-color: #10b981;
+}

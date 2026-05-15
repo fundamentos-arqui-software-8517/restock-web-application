@@ -1,0 +1,93 @@
+{
+  "app": {
+    "brand": "Restock"
+  },
+  "nav": {
+    "overview": "Resumen",
+    "inventory": "Inventario",
+    "stock": "Existencias",
+    "discrepancies": "Discrepancias",
+    "recipes": "Recetas",
+    "sales": "Ventas",
+    "alerts": "Alertas",
+    "devices": "Dispositivos",
+    "settings": "Ajustes"
+  },
+  "layout": {
+    "search": {
+      "default": "Buscar recetas, ingredientes o SKUs...",
+      "batches": "Buscar lotes..."
+    }
+  },
+  "shared": {
+    "topBar": {
+      "notificationsAria": "Notificaciones",
+      "helpAria": "Ayuda"
+    }
+  },
+  "home": {
+    "title": "Resumen"
+  },
+  "placeholder": {
+    "notImplemented": "Esta sección aún no está implementada."
+  },
+  "resource": {
+    "inventory": {
+      "discrepancies": {
+        "crumbs": "INVENTARIO > DISCREPANCIAS",
+        "title": "Discrepancias",
+        "body": "Aquí se listarán las discrepancias de stock. La interfaz llegará después."
+      },
+      "stock": {
+        "crumbs": "INVENTARIO > LOTES",
+        "title": "Lotes",
+        "transferBatch": "Transferir stock de lote",
+        "customSupplies": "Insumos personalizados",
+        "addBatch": "Añadir lote",
+        "errorLoad": "No se pudo cargar el inventario. Revisa la API o la conexión.",
+        "loading": "Cargando lotes…",
+        "kpi": {
+          "totalBatches": "LOTES ACTIVOS TOTALES",
+          "fromLastMonth": "↗ {{percent}}% respecto al mes pasado",
+          "nearExpiry": "PRÓXIMOS A VENCER (30 D)",
+          "requiresAttention": "⚠ Requiere atención"
+        },
+        "filter": {
+          "categoryAria": "Filtro de categoría",
+          "categoryAll": "Todas las categorías",
+          "stockLevelAria": "Filtro de nivel de stock",
+          "stockLevelAny": "Nivel de stock: cualquiera",
+          "stockLevelLow": "Bajo (por debajo del mín.)",
+          "stockLevelOk": "Dentro del rango",
+          "stockLevelHigh": "Alto (por encima del máx.)"
+        },
+        "toolbar": {
+          "filtersAria": "Filtros",
+          "exportAria": "Exportar"
+        },
+        "table": {
+          "supplyName": "INSUMO",
+          "category": "CATEGORÍA",
+          "uom": "UDM",
+          "expiration": "VENCIMIENTO",
+          "stock": "STOCK",
+          "perishable": "PERECIBLE",
+          "actions": "ACCIONES",
+          "emptyFiltered": "Ningún lote coincide con los filtros.",
+          "expDash": "—",
+          "editAria": "Editar lote",
+          "deleteAria": "Eliminar lote"
+        },
+        "perishable": {
+          "yes": "SÍ",
+          "no": "NO"
+        },
+        "pagination": {
+          "aria": "Paginación",
+          "range": "Mostrando {{from}}–{{to}} de {{total}} lotes",
+          "rangeEmpty": "Mostrando 0 de {{total}} lotes"
+        }
+      }
+    }
+  }
+}

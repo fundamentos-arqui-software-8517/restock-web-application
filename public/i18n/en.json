@@ -1,0 +1,93 @@
+{
+  "app": {
+    "brand": "Restock"
+  },
+  "nav": {
+    "overview": "Overview",
+    "inventory": "Inventory",
+    "stock": "Stock",
+    "discrepancies": "Discrepancies",
+    "recipes": "Recipes",
+    "sales": "Sales",
+    "alerts": "Alerts",
+    "devices": "Devices",
+    "settings": "Settings"
+  },
+  "layout": {
+    "search": {
+      "default": "Search recipes, ingredients, or SKUs...",
+      "batches": "Search batches..."
+    }
+  },
+  "shared": {
+    "topBar": {
+      "notificationsAria": "Notifications",
+      "helpAria": "Help"
+    }
+  },
+  "home": {
+    "title": "Overview"
+  },
+  "placeholder": {
+    "notImplemented": "This area is not implemented yet."
+  },
+  "resource": {
+    "inventory": {
+      "discrepancies": {
+        "crumbs": "INVENTORY > DISCREPANCIES",
+        "title": "Discrepancies",
+        "body": "This section will list stock discrepancies. UI coming next."
+      },
+      "stock": {
+        "crumbs": "INVENTORY > BATCHES",
+        "title": "Batches",
+        "transferBatch": "Transfer Batch Stock",
+        "customSupplies": "Custom Supplies",
+        "addBatch": "Add Batch",
+        "errorLoad": "Could not load inventory. Check the API or your network.",
+        "loading": "Loading batches…",
+        "kpi": {
+          "totalBatches": "TOTAL ACTIVE BATCHES",
+          "fromLastMonth": "↗ {{percent}}% from last month",
+          "nearExpiry": "NEAR EXPIRY (30D)",
+          "requiresAttention": "⚠ Requires attention"
+        },
+        "filter": {
+          "categoryAria": "Category filter",
+          "categoryAll": "All Categories",
+          "stockLevelAria": "Stock level filter",
+          "stockLevelAny": "Stock Level: Any",
+          "stockLevelLow": "Low (below min)",
+          "stockLevelOk": "Within range",
+          "stockLevelHigh": "High (above max)"
+        },
+        "toolbar": {
+          "filtersAria": "Filters",
+          "exportAria": "Export"
+        },
+        "table": {
+          "supplyName": "SUPPLY NAME",
+          "category": "CATEGORY",
+          "uom": "UOM",
+          "expiration": "EXPIRATION DATE",
+          "stock": "STOCK",
+          "perishable": "PERISHABLE",
+          "actions": "ACTIONS",
+          "emptyFiltered": "No batches match the current filters.",
+          "expDash": "—",
+          "editAria": "Edit batch",
+          "deleteAria": "Delete batch"
+        },
+        "perishable": {
+          "yes": "YES",
+          "no": "NO"
+        },
+        "pagination": {
+          "aria": "Pagination",
+          "range": "Showing {{from}}–{{to}} of {{total}} batches",
+          "rangeEmpty": "Showing 0 of {{total}} batches"
+        }
+      }
+    }
+  }
+}

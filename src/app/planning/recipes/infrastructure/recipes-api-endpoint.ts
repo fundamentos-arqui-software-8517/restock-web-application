@@ -33,10 +33,10 @@ export class RecipesApiEndpoint extends BaseApiEndpoint<
 
   constructor(
     protected override readonly http: HttpClient,
-    private readonly recipesAssembler: RecipesAssembler 
+    private readonly recipesAssembler: RecipesAssembler
   ) {
     const primary = '/api/v1';
-    const fallback = 'http://localhost:8080/api/v1'; 
+    const fallback = '/api/v1';
 
     super(http, `${primary}/products`, recipesAssembler);
 
@@ -49,12 +49,12 @@ export class RecipesApiEndpoint extends BaseApiEndpoint<
   private withFallback<T>(operation: () => Observable<T>): Observable<T> {
     this.currentBaseUrl = this.fallbackBaseUrl;
     this.endpointUrl = `${this.fallbackBaseUrl}/products`;
-    
+
     const result$ = operation();
-    
+
     this.currentBaseUrl = this.primaryBaseUrl;
     this.endpointUrl = `${this.primaryBaseUrl}/products`;
-    
+
     return result$;
   }
 

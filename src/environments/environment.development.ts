@@ -26,7 +26,7 @@ export const environment = {
   },
 
   // IAM & Profiles
-  platformProviderApiBaseUrl: 'http://localhost:8080/api/v1',
+  platformProviderApiBaseUrl: '/api/v1',
   platformProviderSignInEndpointPath: 'auth/sign-in',
   platformProviderSignUpEndpointPath: 'auth/sign-up',
   platformProviderRegistrationBusinessDetailsEndpointPath: 'businesses',

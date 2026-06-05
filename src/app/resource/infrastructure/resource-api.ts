@@ -49,7 +49,7 @@ type BranchRootResponse =
 export class ResourceApi {
   private readonly http = inject(HttpClient);
   private readonly primaryBaseUrl = environment.platformProviderApiBaseUrl;
-  private readonly fallbackBaseUrl = 'http://localhost:8080/api/v1';
+  private readonly fallbackBaseUrl = '/api/v1';
   private currentBaseUrl = this.primaryBaseUrl;
 
   private withFallback<T>(operation: () => Observable<T>): Observable<T> {
@@ -71,14 +71,16 @@ export class ResourceApi {
 
   /**
    * Loads batch data from the backend.
-   * 
+   *
    * @param accountId Optional account filter.
    * @param customSupplies Supplies used to enrich table rows.
    * @returns An observable with assembled batch data.
    */
   getBatch(accountId?: string, customSupplies: CustomSupply[] = []): Observable<BatchData> {
     const operation = () => {
-      const options = accountId ? { params: new HttpParams().set('accountId', accountId) } : undefined;
+      const options = accountId
+        ? { params: new HttpParams().set('accountId', accountId) }
+        : undefined;
 
       return this.http
         .get<BatchRootResponse | BatchItemResponse[]>(this.batchesUrl, options)
@@ -102,10 +104,8 @@ export class ResourceApi {
    * Updates a batch.
    */
   updateBatch(batchId: string, body: UpdateBatchRequest): Observable<BatchItemResponse> {
-    const operation = () => this.http.patch<BatchItemResponse>(
-      `${this.batchesUrl}/${encodeURIComponent(batchId)}`,
-      body,
-    );
+    const operation = () =>
+      this.http.patch<BatchItemResponse>(`${this.batchesUrl}/${encodeURIComponent(batchId)}`, body);
 
     return operation().pipe(catchError(() => this.withFallback(operation)));
   }
@@ -114,7 +114,8 @@ export class ResourceApi {
    * Deletes a batch.
    */
   deleteBatch(batchId: string): Observable<void> {
-    const operation = () => this.http.delete<void>(`${this.batchesUrl}/${encodeURIComponent(batchId)}`);
+    const operation = () =>
+      this.http.delete<void>(`${this.batchesUrl}/${encodeURIComponent(batchId)}`);
 
     return operation().pipe(catchError(() => this.withFallback(operation)));
   }
@@ -123,16 +124,19 @@ export class ResourceApi {
    * Transfers stock from one batch to another branch.
    */
   transferBatch(batchId: string, body: TransferBatchRequest): Observable<BatchItemResponse> {
-    const operation = () => this.http.post<BatchItemResponse>(
-      `${this.batchesUrl}/${encodeURIComponent(batchId)}/transfer`,
-      body,
-    );
+    const operation = () =>
+      this.http.post<BatchItemResponse>(
+        `${this.batchesUrl}/${encodeURIComponent(batchId)}/transfer`,
+        body,
+      );
 
     return operation().pipe(catchError(() => this.withFallback(operation)));
   }
 
   getBranches(accountId = ''): Observable<BranchResource[]> {
-    const options = accountId ? { params: new HttpParams().set('accountId', accountId) } : undefined;
+    const options = accountId
+      ? { params: new HttpParams().set('accountId', accountId) }
+      : undefined;
     const operation = () =>
       this.http
         .get<BranchRootResponse>(this.branchesUrl, options)

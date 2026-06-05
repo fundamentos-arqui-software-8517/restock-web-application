@@ -1,0 +1,119 @@
+<div class="sales-overview">
+
+  <div class="overview-header">
+    <h1>Sales overview</h1>
+    <div class="header-actions">
+      <button mat-stroked-button>
+        <mat-icon>download</mat-icon>
+        Export CSV
+      </button>
+      <button mat-stroked-button>
+        <mat-icon>tune</mat-icon>
+        Advanced filters
+      </button>
+      <button mat-flat-button color="primary" [routerLink]="['/sales/new']">
+        <mat-icon>add</mat-icon>
+        New sale
+      </button>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <mat-card class="metric-card">
+      <mat-card-content>
+        <span class="metric-label">Total sales (MTD)</span>
+        <span class="metric-value primary">
+            {{ store.sales().reduce((sum, s) => sum + s.saleTotal.total, 0) | number:'1.2-2' }}
+        </span>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="metric-card">
+      <mat-card-content>
+        <span class="metric-label">Transaction count</span>
+        <span class="metric-value">{{ store.salesCount() }}</span>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  @if (store.loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  <mat-card class="table-card">
+    <table mat-table [dataSource]="store.sales()">
+
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let sale"
+            [class.failed]="sale.saleStatus === 'cancelled'">
+          #{{ sale.id }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="saleDate">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let sale">
+          {{ sale.date | date:'mediumDate' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="itemsCount">
+        <th mat-header-cell *matHeaderCellDef>Items count</th>
+        <td mat-cell *matCellDef="let sale">
+          {{ sale.saleItems.length }} items
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef>Total value</th>
+        <td mat-cell *matCellDef="let sale" class="amount">
+          {{ sale.currency.symbol + " " + (sale.saleTotal.total | number:'1.2-2') }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="saleStatus">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let sale">
+          <mat-chip [class]="'status-' + sale.saleStatus">
+            {{ sale.saleStatus }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let sale">
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          class="clickable-row"
+          (click)="openDrawer(row)"></tr>
+    </table>
+
+    @if (store.sales().length === 0) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">receipt_long</mat-icon>
+
+        <h3>No sales for now</h3>
+        <p>Register your first sale to start viewing metrics and transaction history.</p>
+      </div>
+    }
+
+    <mat-paginator
+      [length]="store.salesCount()"
+      [pageSize]="5"
+      [pageSizeOptions]="[5, 10, 25]"
+    />
+  </mat-card>
+
+</div>
+
+@if (selectedSale()) {
+  <app-sale-detail-drawer
+    [sale]="selectedSale()!"
+    (closed)="closeDrawer()"
+  />
+}

@@ -1,1 +1,113 @@
-<p>authentication-section works!</p>
+<div class="role-selection-container">
+  <div class="selection-card">
+    <div class="logo-block">
+      <div class="logo-box">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 8V21H3V8"></path>
+          <path d="M1 3H23V8H1V3Z"></path>
+          <path d="M10 12H14"></path>
+        </svg>
+      </div>
+      <h2 class="logo-text">{{ 'app.brand' | translate }}</h2>
+    </div>
+
+    <h1>{{ 'iam.authenticationSection.title' | translate }}</h1>
+    <p class="subtitle">
+      {{ 'iam.authenticationSection.subtitle' | translate }}
+    </p>
+
+    <div class="roles-grid">
+      <div
+        class="role-card"
+        [class.selected]="selectedRole() === 'restaurant'"
+        (click)="selectRole('restaurant')"
+      >
+        <div class="role-icon-wrapper">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            <line x1="6" y1="1" x2="6" y2="4"></line>
+            <line x1="10" y1="1" x2="10" y2="4"></line>
+            <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+        </div>
+        <h3>{{ 'iam.authenticationSection.restaurantAdmin' | translate }}</h3>
+        <p>{{ 'iam.authenticationSection.restaurantDesc' | translate }}</p>
+        <div class="selection-indicator"></div>
+      </div>
+
+      <div
+        class="role-card"
+        [class.selected]="selectedRole() === 'retail'"
+        (click)="selectRole('retail')"
+      >
+        <div class="role-icon-wrapper">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
+        <h3>{{ 'iam.authenticationSection.retailAdmin' | translate }}</h3>
+        <p>{{ 'iam.authenticationSection.retailDesc' | translate }}</p>
+        <div class="selection-indicator"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="continue-btn" [disabled]="!selectedRole()" (click)="onContinue()">
+        {{ 'iam.authenticationSection.continue' | translate }}
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+      <a routerLink="/sign-in" class="back-link">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        {{ 'iam.authenticationSection.returnToLogin' | translate }}
+      </a>
+    </div>
+  </div>
+</div>

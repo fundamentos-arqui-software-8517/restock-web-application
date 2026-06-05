@@ -1,0 +1,137 @@
+<div class="page-wrapper">
+
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="header-left">
+      <h1 class="page-title">Recipes</h1>
+      <p class="page-subtitle">Manage and track all your production recipes</p>
+    </div>
+    <div class="header-right">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none">
+          <path d="M17.5 17.5L13.875 13.875M15.833 9.167a6.667 6.667 0 1 1-13.333 0 6.667 6.667 0 0 1 13.333 0Z"
+                stroke="currentColor" stroke-width="1.667" stroke-linecap="round"/>
+        </svg>
+        <input type="text" placeholder="Search recipes…" class="search-input"
+          [value]="store.searchQuery()" (input)="onSearch($event)" />
+      </div>
+      <button class="btn-add" (click)="store.openCreateModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+          <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+        </svg>
+        Add Recipe
+      </button>
+    </div>
+  </header>
+
+  <!-- METRICS -->
+  <section class="metrics-row">
+    <div class="metric-card">
+      <span class="metric-label">Total Recipes</span>
+      <span class="metric-value metric-neutral">{{ store.metrics().total }}</span>
+      <span class="metric-sub">All registered</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Active Recipes</span>
+      <span class="metric-value metric-positive">{{ store.metrics().active }}</span>
+      <span class="metric-sub">Currently in production</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Alerts</span>
+      <span class="metric-value metric-alert">{{ store.metrics().lowStock }}</span>
+      <span class="metric-sub">Low stock warnings</span>
+    </div>
+  </section>
+
+  <!-- ERROR BANNER -->
+  <div *ngIf="store.error()" class="error-banner">
+    ⚠️ {{ store.error() }}
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="store.loading()" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading recipes…</p>
+  </div>
+
+  <!-- EMPTY -->
+  <div *ngIf="!store.loading() && store.filteredRecipes().length === 0 && !store.error()" class="empty-state">
+    <svg viewBox="0 0 64 64" width="56" fill="none">
+      <rect x="8" y="16" width="48" height="40" rx="4" stroke="#D1D5DB" stroke-width="2"/>
+      <path d="M20 16V12a12 12 0 0124 0v4" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <p>No recipes found</p>
+    <button class="btn-add" (click)="store.openCreateModal()">Create your first recipe</button>
+  </div>
+
+  <!-- GRID -->
+  <section *ngIf="!store.loading()" class="recipes-grid">
+    <div *ngFor="let recipe of store.filteredRecipes()" class="recipe-card">
+
+      <!-- IMAGE -->
+      <div class="card-image-wrapper" (click)="goToDetail(recipe)">
+        <img [src]="recipe.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=300&fit=crop'"
+             [alt]="recipe.name" class="card-image" loading="lazy" />
+        <span class="status-badge" [ngClass]="{
+          'badge-active':   recipe.status === 'ACTIVE',
+          'badge-inactive': recipe.status === 'INACTIVE',
+          'badge-lowstock': recipe.status === 'LOW_STOCK'
+        }">
+          <span class="badge-dot"></span>
+          {{ recipe.status === 'LOW_STOCK' ? 'LOW STOCK' : recipe.status }}
+        </span>
+      </div>
+
+      <!-- BODY -->
+      <div class="card-body">
+        <!-- 3-dot menu -->
+        <div class="card-menu-wrapper" (click)="stopProp($event)">
+          <button class="btn-menu">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16">
+              <circle cx="10" cy="4"  r="1.5"/>
+              <circle cx="10" cy="10" r="1.5"/>
+              <circle cx="10" cy="16" r="1.5"/>
+            </svg>
+          </button>
+          <div class="dropdown-menu">
+            <button (click)="goToDetail(recipe)">View Details</button>
+            <button (click)="store.openEditModal(recipe)">Edit Recipe</button>
+            <button class="danger" (click)="store.confirmDelete(recipe)">Delete</button>
+          </div>
+        </div>
+
+        <h3 class="card-title" (click)="goToDetail(recipe)">{{ recipe.name }}</h3>
+        <p class="card-description">{{ recipe.description }}</p>
+
+        <div class="card-footer">
+          <span class="price-label">UNIT PRICE</span>
+          <span class="price-value">S/. {{ recipe.sellingPrice | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- MODALS -->
+<app-recipe-modal
+  *ngIf="store.modalMode() !== null"
+  [mode]="store.modalMode()!"
+  [recipe]="store.modalMode() === 'edit' ? store.selectedRecipe() : null"
+  [availableSupplies]="store.customSupplies()"
+  [accountId]="store.accountId()"
+  [saving]="store.saving()"
+  (onClose)="store.closeModal()"
+  (onCreate)="store.create($event.cmd, $event.pendingIngredients)"
+  (onUpdate)="store.update($event.cmd)"
+  (onAddIngredient)="store.addIngredient($event)"
+  (onRemoveIngredient)="store.removeIngredient($event.productId, $event.customSupplyId)"
+  (onDeleteRequest)="store.confirmDelete($event)"
+/>
+
+<app-delete-modal
+  *ngIf="store.showDeleteModal()"
+  [recipe]="store.recipeToDelete()"
+  (onCancel)="store.closeDeleteModal()"
+  (onConfirm)="store.executeDelete()"
+/>

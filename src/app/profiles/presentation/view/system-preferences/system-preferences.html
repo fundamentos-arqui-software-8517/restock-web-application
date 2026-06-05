@@ -1,0 +1,296 @@
+<div class="preferences-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span class="breadcrumb-root">{{ 'settings.breadcrumb.root' | translate }}</span>
+      <span class="breadcrumb-chevron">›</span>
+      <span class="breadcrumb-current">{{ ('settings.breadcrumb.' + activeTab()) | translate | uppercase }}</span>
+    </div>
+    <h1 class="page-title">{{ 'settings.title' | translate }}</h1>
+    <p class="page-subtitle">{{ 'settings.subtitle' | translate }}</p>
+
+    <div class="tabs">
+      <button
+        class="tab"
+        [class.tab--active]="activeTab() === 'general'"
+        (click)="setTab('general')">
+        {{ 'settings.breadcrumb.general' | translate }}
+      </button>
+      <button
+        class="tab"
+        [class.tab--active]="activeTab() === 'profile'"
+        (click)="setTab('profile')">
+        {{ 'settings.breadcrumb.profile' | translate }}
+      </button>
+      <button
+        class="tab"
+        [class.tab--active]="activeTab() === 'branches'"
+        (click)="setTab('branches')">
+        {{ 'settings.breadcrumb.branches' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ GENERAL TAB ══════════════════ -->
+  @if (activeTab() === 'general') {
+    <div class="preferences-body">
+
+      <div class="main-column">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon material-icons">language</span>
+            <h2 class="card-title">{{ 'settings.regional.title' | translate }}</h2>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">{{ 'settings.regional.timezone' | translate }}</label>
+            <select class="field-select" [ngModel]="timezone()" (ngModelChange)="timezone.set($event)">
+              @for (tz of timezones; track tz) {
+                <option [value]="tz">{{ tz }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">{{ 'settings.regional.currency' | translate }}</label>
+            <select class="field-select" [ngModel]="currency()" (ngModelChange)="currency.set($event)">
+              @for (c of currencies; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">{{ 'settings.regional.language' | translate }}</label>
+            <select class="field-select" [ngModel]="language()" (ngModelChange)="setLanguage($event)">
+              @for (lang of languageOptions; track lang.code) {
+                <option [value]="lang.code">{{ lang.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon material-icons">account_tree</span>
+            <h2 class="card-title">{{ 'settings.branch.title' | translate }}</h2>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">{{ 'settings.branch.label' | translate }}</label>
+            <select class="field-select" [ngModel]="branch()" (ngModelChange)="branch.set($event)">
+              @for (b of branchOptions(); track b.id) {
+                <option [value]="b.id">{{ b.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-column">
+        <div class="card">
+          <p class="section-label">{{ 'settings.communication' | translate }}</p>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="material-icons toggle-icon">mail_outline</span>
+              <span class="toggle-label">{{ 'settings.notifications.email' | translate }}</span>
+            </div>
+            <button
+              class="toggle"
+              [class.toggle--on]="emailNotifications()"
+              (click)="emailNotifications.set(!emailNotifications())"
+              [attr.aria-checked]="emailNotifications()"
+              role="switch"
+              aria-label="{{ 'settings.notifications.email' | translate }}">
+              <span class="toggle-thumb"></span>
+            </button>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="material-icons toggle-icon">sms</span>
+              <span class="toggle-label">{{ 'settings.notifications.sms' | translate }}</span>
+            </div>
+            <button
+              class="toggle"
+              [class.toggle--on]="smsAlerts()"
+              (click)="smsAlerts.set(!smsAlerts())"
+              [attr.aria-checked]="smsAlerts()"
+              role="switch"
+              aria-label="{{ 'settings.notifications.sms' | translate }}">
+              <span class="toggle-thumb"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card card--status">
+          <div class="card-header">
+            <span class="material-icons status-icon">info</span>
+            <span class="status-title">{{ 'settings.status.title' | translate }}</span>
+          </div>
+
+          <div class="status-row">
+            <span class="status-key">{{ 'settings.status.version' | translate }}</span>
+            <span class="status-value status-value--bold">v4.5.12-prod</span>
+          </div>
+          <div class="status-row">
+            <span class="status-key">{{ 'settings.status.sync' | translate }}</span>
+            <span class="status-value">{{ 'settings.status.syncTime' | translate }}</span>
+          </div>
+
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            <span class="status-badge-label">{{ 'settings.status.nominal' | translate }}</span>
+          </div>
+          <p class="status-description">{{ 'settings.status.description' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="preferences-footer">
+      <button class="btn btn--secondary" (click)="discardChanges()">{{ 'settings.actions.discard' | translate }}</button>
+      <button class="btn btn--primary" (click)="savePreferences()">{{ 'settings.actions.save' | translate }}</button>
+    </div>
+  }
+
+  <!-- ══════════════════ PROFILE TAB ══════════════════ -->
+  @if (activeTab() === 'profile') {
+    <div class="preferences-body">
+
+      <!-- Personal Information form card -->
+      <div class="profile-card">
+        <h2 class="profile-card__title">{{ 'settings.profile.title' | translate }}</h2>
+
+        @if (profileLoading()) {
+          <div class="profile-loading">{{ 'settings.profile.loading' | translate }}</div>
+        }
+        @if (profileError(); as err) {
+          <div class="profile-error" role="alert">{{ err }}</div>
+        }
+
+        <!-- Avatar section -->
+        <div class="avatar-section">
+          <div class="avatar-wrapper">
+            <img
+              [src]="avatarUrl() || 'https://placehold.co/96x96'"
+              class="avatar-img"
+              alt="Profile photo" />
+            <button class="avatar-edit-btn" type="button" aria-label="Edit photo">
+              <span class="material-icons">edit</span>
+            </button>
+          </div>
+          <div class="avatar-meta">
+            <span class="avatar-meta__label">{{ 'settings.profile.photo.label' | translate }}</span>
+            <span class="avatar-meta__hint">{{ 'settings.profile.photo.hint' | translate }}</span>
+            <div class="avatar-meta__actions">
+              <button class="btn-outline-sm" type="button">{{ 'settings.profile.photo.upload' | translate }}</button>
+              <button class="btn-danger-ghost-sm" type="button">{{ 'settings.profile.photo.remove' | translate }}</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Name row -->
+        <div class="name-row">
+          <div class="field-group">
+            <label class="field-label" for="firstName">{{ 'settings.profile.fields.firstName' | translate }}</label>
+            <input
+              id="firstName"
+              class="field-input"
+              type="text"
+              [ngModel]="firstName()"
+              (ngModelChange)="firstName.set($event)"
+              [placeholder]="'settings.profile.placeholders.firstName' | translate" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="lastName">{{ 'settings.profile.fields.lastName' | translate }}</label>
+            <input
+              id="lastName"
+              class="field-input"
+              type="text"
+              [ngModel]="lastName()"
+              (ngModelChange)="lastName.set($event)"
+              [placeholder]="'settings.profile.placeholders.lastName' | translate" />
+          </div>
+        </div>
+
+        <!-- Gender -->
+        <div class="field-group">
+          <label class="field-label" for="gender">{{ 'settings.profile.fields.gender' | translate }}</label>
+          <div class="field-with-icon">
+            <span class="field-with-icon__icon material-icons">person_outline</span>
+            <input
+              id="gender"
+              class="field-input field-input--indented"
+              type="text"
+              [ngModel]="gender()"
+              (ngModelChange)="gender.set($event)"
+              [placeholder]="'settings.profile.placeholders.gender' | translate" />
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="field-group">
+          <label class="field-label" for="phone">{{ 'settings.profile.fields.phone' | translate }}</label>
+          <div class="field-with-icon">
+            <span class="field-with-icon__icon material-icons">phone</span>
+            <input
+              id="phone"
+              class="field-input field-input--indented"
+              type="tel"
+              [ngModel]="phone()"
+              (ngModelChange)="phone.set($event)"
+              [placeholder]="'settings.profile.placeholders.phone' | translate" />
+          </div>
+        </div>
+
+        <!-- Action bar -->
+        <div class="profile-action-bar">
+          <button class="btn btn--secondary" type="button" (click)="discardProfileChanges()">
+            {{ 'settings.profile.actions.discard' | translate }}
+          </button>
+          <button class="btn btn--primary" type="button" (click)="saveProfileChanges()">
+            {{ 'settings.profile.actions.save' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Business sidebar -->
+      <div class="side-column">
+        <div class="card">
+          <p class="section-label">{{ 'settings.business.title' | translate }}</p>
+          @if (profileLoading()) {
+            <p class="branch-empty">{{ 'settings.business.loading' | translate }}</p>
+          }
+          @if (business(); as b) {
+            <div class="branch-item">
+              <span class="material-icons branch-item__icon">business</span>
+              <div class="branch-item__info">
+                <span class="branch-item__name">{{ b.companyName }}</span>
+                <span class="branch-item__status">{{ b.mainLocation.getValue() }}</span>
+              </div>
+            </div>
+          }
+          @if (!business() && !profileLoading()) {
+            <p class="branch-empty">{{ 'settings.business.empty' | translate }}</p>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+
+  <!-- ══════════════════ BRANCHES TAB ══════════════════ -->
+  @if (activeTab() === 'branches') {
+    <div class="preferences-body">
+      <div class="main-column">
+        <div class="card">
+          <h2 class="card-title">{{ 'settings.branches.title' | translate }}</h2>
+          <p class="page-subtitle">{{ 'settings.branches.comingSoon' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

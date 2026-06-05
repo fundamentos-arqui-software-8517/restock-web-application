@@ -7,5 +7,5 @@ export interface BaseResponse {}
  * Base shape for infrastructure resources exchanged with remote APIs.
  */
 export interface BaseResource {
-  id: number;
+  id: string;
 }

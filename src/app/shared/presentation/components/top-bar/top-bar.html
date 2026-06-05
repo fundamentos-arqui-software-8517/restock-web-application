@@ -18,7 +18,12 @@
 
     <div class="divider"></div>
 
-    <div class="user-profile">
+    <button
+      mat-button
+      class="user-profile"
+      [matMenuTriggerFor]="userMenu"
+      [attr.aria-label]="'shared.topBar.userMenuAria' | translate"
+    >
       <div class="avatar">
         @if (userAvatarUrl()) {
           <img [src]="userAvatarUrl()" [alt]="userName()" />
@@ -27,6 +32,14 @@
         }
       </div>
       <span class="user-name">{{ userName() }}</span>
-    </div>
+      <mat-icon class="menu-chevron">expand_more</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item type="button" (click)="onSignOut()">
+        <mat-icon>logout</mat-icon>
+        <span>{{ 'shared.topBar.signOut' | translate }}</span>
+      </button>
+    </mat-menu>
   </div>
 </header>

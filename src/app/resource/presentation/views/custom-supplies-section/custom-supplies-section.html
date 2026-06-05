@@ -1,0 +1,60 @@
+<div class="custom-supplies-section">
+  <div class="header-container">
+    <div class="header-text">
+      <h1>Custom Supplies</h1>
+      <p>Manage and audit your organization's custom master supply list.</p>
+    </div>
+    <button class="add-supply-btn" (click)="showCreateModal = true">
+      + Add Custom Supply
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="empty-state">
+      <p>Loading supplies…</p>
+    </div>
+  } @else if (customSupplies().length === 0) {
+    <div class="empty-state">
+      <p>No custom supplies found. Click <strong>+ Add Custom Supply</strong> to create one.</p>
+    </div>
+  } @else {
+    <div class="cards-grid">
+      @for (supply of customSupplies(); track supply.id) {
+        <app-custom-supply-card
+          [customSupply]="supply"
+          (onView)="onViewSupply(supply.id)"
+          (onEdit)="onEditSupply(supply)"
+          (onDelete)="onDeleteSupply(supply)">
+        </app-custom-supply-card>
+      }
+    </div>
+  }
+
+  @if (showCreateModal) {
+    <app-create-custom-supply-dialog
+      (onClose)="showCreateModal = false"
+      (onCreate)="showCreateModal = false">
+    </app-create-custom-supply-dialog>
+  }
+
+  @if (selectedSupplyToEdit; as supplyToEdit) {
+    <app-edit-custom-supply-dialog
+      [customSupply]="supplyToEdit"
+      (onClose)="closeEditModal()"
+      (onUpdate)="closeEditModal()">
+    </app-edit-custom-supply-dialog>
+  }
+
+  @if (supplyPendingDelete; as supplyToDelete) {
+    <div class="modal-overlay">
+      <div class="confirm-modal">
+        <h2>Delete custom supply?</h2>
+        <p>Are you sure you want to delete {{ supplyToDelete.name }} custom supply?</p>
+        <div class="confirm-actions">
+          <button type="button" class="btn btn-cancel" (click)="cancelDeleteSupply()">Cancel</button>
+          <button type="button" class="btn btn-delete" (click)="confirmDeleteSupply()">Delete</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

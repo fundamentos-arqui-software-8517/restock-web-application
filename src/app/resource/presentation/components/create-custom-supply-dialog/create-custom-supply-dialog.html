@@ -1,0 +1,103 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create Custom Supply</h2>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group">
+        <label>NAME</label>
+        <input type="text" [(ngModel)]="formData.name" class="form-control" placeholder="Supply name">
+      </div>
+
+      <div class="form-group">
+        <label>CATEGORY</label>
+        <select [(ngModel)]="formData.categoryId" class="form-control">
+          <option value="" disabled selected>Select a category</option>
+          <option *ngFor="let cat of uniqueCategories" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>SUPPLY</label>
+        <select [(ngModel)]="formData.supplyId" class="form-control">
+          <option value="" disabled selected>Select a supply</option>
+          <ng-container *ngFor="let sup of supplyTemplates()">
+            <option *ngIf="!formData.categoryId || sup.category === formData.categoryId" [value]="sup.id">
+              {{ sup.name }}
+            </option>
+          </ng-container>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label>MINIMUM CAPACITY</label>
+          <input type="number" [(ngModel)]="formData.minimumStock" class="form-control" placeholder="100">
+        </div>
+        <div class="form-group half-width">
+          <label>MAXIMUM CAPACITY</label>
+          <input type="number" [(ngModel)]="formData.maximumStock" class="form-control" placeholder="1000">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label>UNIT PRICE</label>
+          <input type="number" step="0.01" [(ngModel)]="formData.unitPriceAmount" class="form-control" placeholder="19.99">
+        </div>
+        <div class="form-group half-width">
+          <label>CURRENCY</label>
+          <select [(ngModel)]="formData.unitPriceCurrencyCode" class="form-control">
+            <option value="PEN">PEN</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>UOM (UNIT OF MEASURE)</label>
+          <select [(ngModel)]="formData.unitMeasurement" class="form-control">
+            <option value="" disabled selected>Select unit</option>
+            <option *ngFor="let unit of unitMeasurements" [value]="unit">{{ unit }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>DESCRIPTION</label>
+        <textarea [(ngModel)]="formData.description" class="form-control" rows="3" placeholder="Add specific details about the supply sourcing or storage requirements..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>SUPPLY IMAGE</label>
+        <div class="image-upload-area" (click)="imageInput.click()" (dragover)="$event.preventDefault()" (drop)="onImageDrop($event)">
+          <img *ngIf="imagePreviewUrl" [src]="imagePreviewUrl" class="image-preview" alt="Preview">
+          <div *ngIf="!imagePreviewUrl" class="upload-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9e9e9e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span>Click to upload or drag & drop</span>
+            <small>PNG, JPG up to 5MB</small>
+          </div>
+          <input #imageInput type="file" accept="image/*" class="hidden-input" (change)="onImageSelected($event)">
+        </div>
+        <div *ngIf="imagePreviewUrl" class="image-url-row">
+          <input type="text" [(ngModel)]="formData.imageUrl" class="form-control" placeholder="Or paste an image URL">
+        </div>
+        <div *ngIf="!imagePreviewUrl" class="image-url-row">
+          <input type="text" [(ngModel)]="formData.imageUrl" class="form-control" placeholder="Or paste an image URL">
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-cancel" (click)="cancel()">Cancel</button>
+      <button class="btn btn-create" (click)="create()">Create Supply</button>
+    </div>
+  </div>
+</div>
+

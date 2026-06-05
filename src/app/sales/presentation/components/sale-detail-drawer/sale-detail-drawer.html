@@ -1,0 +1,90 @@
+<div class="drawer-backdrop" (click)="close()">
+  <div class="drawer-panel" (click)="$event.stopPropagation()">
+
+    <header class="drawer-header">
+      <div class="header-top">
+        <div class="header-title-group">
+          <h2 class="drawer-title">Transaction #{{ sale.id }}</h2>
+          <span class="status-badge" [class]="'status-badge--' + sale.saleStatus.toLowerCase()">
+            {{ sale.saleStatus }}
+          </span>
+        </div>
+        <button class="close-btn" (click)="close()" aria-label="Close">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <p class="header-timestamp">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Processed at {{ sale.date | date:'HH:mm:ss' }} UTC
+      </p>
+    </header>
+
+    <div class="drawer-body">
+
+      <section class="section">
+        <div class="section-header">
+          <span class="section-label">Sold Items</span>
+          <span class="section-count">{{ sale.saleItems.length }} items</span>
+        </div>
+
+        <div class="items-list">
+          @for (item of sale.saleItems; track $index) {
+            <div class="sale-item">
+              <div class="item-thumbnail">
+                @if (item.imageUrl) {
+                  <img [src]="item.imageUrl" [alt]="item.nameSnapshot" class="item-image" />
+                } @else {
+                  <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                  </svg>
+                }
+              </div>
+              <div class="item-info">
+                <div class="item-row">
+                  <span class="item-name">{{ item.nameSnapshot }}</span>
+                  <span class="item-price">{{ sale.currency.symbol }} {{ item.lineTotal | number:'1.2-2' }}</span>
+                </div>
+                <p class="item-meta">QTY: {{ item.quantity }} | ID: {{ item.id }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="section section--total">
+        <span class="total-label">Total</span>
+        <span class="total-value">{{ sale.currency.symbol }} {{ sale.saleTotal.total | number:'1.2-2' }}</span>
+      </section>
+
+      <section class="section">
+        <span class="section-label">Inventory Deduction Log</span>
+        <div class="log-list">
+          @for (item of sale.saleItems; track $index) {
+            <div class="log-entry">
+              <div class="log-icon">
+                <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <span class="log-text">
+                Deducted: {{ item.nameSnapshot }} (-{{ item.quantity }} unit)
+              </span>
+              <span class="log-time">{{ sale.date | date:'HH:mm:ss' }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+    </div>
+
+    <footer class="drawer-footer">
+      <button class="close-details-btn" (click)="close()">Close Details</button>
+    </footer>
+
+  </div>
+</div>

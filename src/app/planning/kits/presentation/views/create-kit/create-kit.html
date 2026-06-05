@@ -1,0 +1,176 @@
+@if (isOpen()) {
+  <div class="modal-overlay">
+    <div class="modal-container">
+
+      <header class="modal-header">
+        <div class="header-left">
+          <div class="icon-wrapper">
+            <svg width="22" height="19" viewBox="0 0 24 24" fill="none" stroke="#006C49" stroke-width="2">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            </svg>
+          </div>
+          <h2 class="modal-title">{{ 'kits.create' | translate }}</h2>
+        </div>
+        <button type="button" class="close-btn" (click)="onClose()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3C4A42" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <main class="modal-body">
+
+        <section class="form-top-section">
+
+          <div class="image-column">
+            <label class="input-label">KIT IMAGE</label>
+            <div class="image-upload-zone" (click)="fileInput.click()">
+              <img class="upload-placeholder-bg"
+                   [src]="selectedImage() ? selectedImage() : 'https://placehold.co/209x201'"
+                   alt="Kit Preview" />
+
+              @if (!selectedImage()) {
+                <div class="upload-trigger-content">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7A71" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <span class="upload-text">Upload Image</span>
+                </div>
+              }
+            </div>
+            <input type="file" #fileInput style="display: none;" accept="image/*" (change)="onFileSelected($event)" />
+          </div>
+
+          <div class="inputs-column">
+
+            <div class="form-field">
+              <label class="input-label">KIT NAME</label>
+              <input type="text"
+                     class="form-input"
+                     placeholder="e.g. Gourmet Italian Dinner Kit"
+                     [ngModel]="kitName()"
+                     (ngModelChange)="kitName.set($event)" />
+            </div>
+
+            <div class="form-field">
+              <label class="input-label">COMBO PRICE (USD)</label>
+              <div class="price-input-wrapper">
+                <span class="currency-prefix">S/</span>
+                <input type="number"
+                       class="form-input price-input"
+                       placeholder="0.00"
+                       [ngModel]="kitPrice()"
+                       (ngModelChange)="kitPrice.set($event)" />
+              </div>
+              <span class="recommendation-hint">Recommended price based on components: S/ {{ recommendedPrice() | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="form-field">
+              <label class="input-label">KIT DESCRIPTION</label>
+              <textarea class="form-input form-textarea"
+                        placeholder="e.g. This premium kit contains selective ingredients for a traditional Italian family dinner..."
+                        rows="3"
+                        [ngModel]="kitDescription()"
+                        (ngModelChange)="kitDescription.set($event)"></textarea>
+            </div>
+
+          </div>
+
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="product-selector-section">
+          <h3 class="section-title">Product Selector</h3>
+
+          @if (loadingProducts()) {
+            <div class="loading-supplies">
+              Loading supplies from Beeceptor...
+            </div>
+          } @else {
+            <div class="selector-controls">
+              <div class="control-field flex-grow">
+                <label class="input-label">SELECT PRODUCT</label>
+                <select class="form-select" [ngModel]="selectedProductId()" (ngModelChange)="selectedProductId.set($event)">
+
+                  <option value="" disabled selected>--- Select a product ---</option>
+
+                  @for (prod of availableProducts(); track prod.id) {
+                    <option [value]="prod.id">{{ prod.name }} (S/ {{ prod.price | number:'1.2-2' }})</option>
+                  }
+                </select>
+              </div>
+
+              <div class="control-field quantity-width">
+                <label class="input-label">QUANTITY</label>
+                <input type="number" class="form-input" [ngModel]="inputQuantity()" (ngModelChange)="inputQuantity.set($event)" min="1" />
+              </div>
+
+              <button type="button" class="add-supply-btn" (click)="addSupply()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Supply
+              </button>
+            </div>
+          }
+        </section>
+
+        <section class="included-products-section">
+          <div class="table-header-row">
+            <span class="table-title">INCLUDED PRODUCTS ({{ includedProducts().length }})</span>
+            <span class="total-cost-tag">Total Cost: S/ {{ totalCost() | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="products-table">
+            <div class="thead">
+              <div class="th col-product">Product</div>
+              <div class="th col-sku">SKU</div>
+              <div class="th col-qty">Qty</div>
+              <div class="th col-price">Price</div>
+              <div class="th col-actions">Actions</div>
+            </div>
+
+            <div class="tbody">
+              @if (includedProducts().length === 0) {
+                <div class="table-blank-row">
+                  No products added to this kit yet.
+                </div>
+              }
+
+              @for (prod of includedProducts(); track prod.id; let i = $index) {
+                <div class="table-row">
+                  <div class="td col-product">
+                    <img src="https://placehold.co/38x40" class="table-prod-img" alt="Product" />
+                    <span class="table-prod-name">{{ prod.name }}</span>
+                  </div>
+                  <div class="td col-sku text-secondary">{{ prod.sku }}</div>
+                  <div class="td col-qty text-center font-medium">{{ prod.quantity }}</div>
+                  <div class="td col-price text-right font-medium">S/ {{ prod.price | number:'1.2-2' }}</div>
+                  <div class="td col-actions text-center">
+                    <button type="button" class="delete-row-btn" (click)="removeProduct(i)">
+                      <svg width="14" height="16" viewBox="0 0 24 24" fill="none" stroke="#BA1A1A" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="onClose()">Cancel</button>
+        <button type="button" class="btn-save" (click)="onSave()">Save Kit</button>
+      </footer>
+
+    </div>
+  </div>
+}

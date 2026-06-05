@@ -1,35 +1,51 @@
-import { Injectable } from '@angular/core';
-import { BaseResponse } from '../../../shared/infrastructure/base-response';
 import { BaseAssembler } from '../../../shared/infrastructure/base-assembler';
 import { Business } from '../../domain/model/business.entity';
-import { BusinessResource } from './businesses.response';
+import { BusinessResource, BusinessesListResponse } from './businesses.response';
 
-@Injectable({ providedIn: 'root' })
-export class BusinessesAssembler implements BaseAssembler<Business, BusinessResource, BaseResponse> {
+export class BusinessesAssembler implements BaseAssembler<
+  Business,
+  BusinessResource,
+  BusinessesListResponse
+> {
+  /**
+   * @param response - Envelope possibly containing a `businesses` array.
+   */
+  toEntitiesFromResponse(response: BusinessesListResponse): Business[] {
+    const list = response.businesses;
+    if (!list?.length) {
+      return [];
+    }
+    return list.map((resource) => this.toEntityFromResource(resource));
+  }
+
+  /**
+   * @param resource - Single business document from the API.
+   */
   toEntityFromResource(resource: BusinessResource): Business {
-    return {
-      id: resource._id ?? String(resource.id),
-      userId: resource.user_id ?? '',
+    const businessId = resource.id ?? String(resource.id);
+    const ownerId = resource.owner_id ?? resource.user_id ?? '';
+
+    return new Business({
+      businessId,
+      ownerId,
       ruc: resource.ruc ?? '',
       pictureUrl: resource.picture_url ?? '',
       companyName: resource.company_name ?? '',
       mainLocation: resource.main_location ?? '',
-    };
+    });
   }
 
+  /**
+   * @param entity - Domain aggregate to send on create/update.
+   */
   toResourceFromEntity(entity: Business): BusinessResource {
     return {
-      id: 0,
-      _id: entity.id,
-      user_id: entity.userId,
+      id: entity.id,
+      owner_id: entity.ownerId.getValue(),
       ruc: entity.ruc,
-      picture_url: entity.pictureUrl,
+      picture_url: entity.pictureUrl.getValue(),
       company_name: entity.companyName,
-      main_location: entity.mainLocation,
+      main_location: entity.mainLocation.getValue(),
     };
-  }
-
-  toEntitiesFromResponse(_response: BaseResponse): Business[] {
-    return [];
   }
 }

@@ -1,0 +1,413 @@
+.detail-section {
+  padding: 16px 32px 28px;
+  background-color: #f5f5f5;
+  min-height: 100%;
+}
+
+/* ── Page Header ── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.breadcrumb {
+  display: none;
+}
+
+.breadcrumb .sep {
+  color: #bdbdbd;
+}
+
+.breadcrumb .current {
+  color: #1a5c3a;
+  font-weight: 500;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.3px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  height: auto;
+  margin-bottom: 35px;
+  color: #1a5c3a;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: #13462b;
+}
+
+.page-header-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.15s;
+}
+
+.btn-edit {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-edit:hover {
+  background-color: #f9fafb;
+}
+
+.btn-add-batch {
+  background-color: #1a5c3a;
+  color: #ffffff;
+}
+
+.btn-add-batch:hover {
+  background-color: #13462b;
+}
+
+/* ── Top Row ── */
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: stretch;
+}
+
+/* ── Info Card ── */
+.info-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-card-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.supply-thumbnail {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.perishable-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.badge-perishable {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-non-perishable {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.supply-sku {
+  margin: 0;
+  font-size: 12px;
+  color: #9ca3af;
+  font-family: monospace;
+}
+
+.info-card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.info-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-label {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.field-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  text-align: right;
+}
+
+/* ── KPI Cards ── */
+.kpi-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kpi-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.kpi-card-title {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.kpi-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.kpi-icon-teal {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.kpi-icon-blue {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.kpi-big-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.kpi-unit {
+  font-size: 16px;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.kpi-delta {
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.kpi-delta-up {
+  color: #059669;
+}
+
+.kpi-bar-container {
+  margin-top: 8px;
+}
+
+.kpi-bar {
+  height: 5px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.kpi-bar-fill {
+  height: 100%;
+  background-color: #2563eb;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* ── Batches Panel ── */
+.batches-panel {
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.batches-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.batches-panel-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.view-history-link {
+  font-size: 13px;
+  color: #1a5c3a;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.view-history-link:hover {
+  text-decoration: underline;
+}
+
+.batches-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.batches-table thead th {
+  padding: 10px 24px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  text-align: left;
+  background-color: #fafafa;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.batches-table tbody td {
+  padding: 15px 24px;
+  font-size: 13px;
+  color: #374151;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.batches-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.batches-table tbody tr:hover td {
+  background-color: #fafafa;
+}
+
+.health-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.health-badge::before {
+  content: '•';
+  font-size: 14px;
+  line-height: 1;
+}
+
+.badge-fresh {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-expiring {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.badge-critical {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.col-code {
+  font-family: monospace;
+  font-size: 12px;
+  color: #6b7280;
+  letter-spacing: 0.3px;
+}
+
+.empty-row td {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-text {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.not-found {
+  padding: 60px 24px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .top-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .info-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .detail-section {
+    padding: 16px;
+  }
+  .top-row {
+    grid-template-columns: 1fr;
+  }
+  .info-card {
+    grid-column: unset;
+  }
+  .page-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

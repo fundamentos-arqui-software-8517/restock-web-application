@@ -1,0 +1,25 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-container" role="alertdialog" aria-modal="true">
+
+    <div class="danger-icon-box">
+      <svg viewBox="0 0 24 24" fill="none" width="32" height="32">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="12" y1="9" x2="12" y2="13" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>
+        <line x1="12" y1="17" x2="12.01" y2="17" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <h2 class="delete-title">Delete Recipe?</h2>
+    <p class="delete-body">
+      Are you sure? This action cannot be undone. This will permanently remove
+      <strong>{{ recipe?.name }}</strong>.
+    </p>
+
+    <div class="delete-actions">
+      <button class="btn-cancel" (click)="onCancel.emit()">Cancel</button>
+      <button class="btn-confirm" (click)="onConfirm.emit()">Yes, delete recipe</button>
+    </div>
+
+  </div>
+</div>

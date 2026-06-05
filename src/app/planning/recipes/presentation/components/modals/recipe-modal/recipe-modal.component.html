@@ -1,0 +1,131 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-container" role="dialog" aria-modal="true">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+      <h2 class="modal-title">{{ mode === 'create' ? 'Create Recipe' : 'Edit Recipe' }}</h2>
+      <button class="btn-close" (click)="onClose.emit()" aria-label="Close">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18">
+          <path fill-rule="evenodd"
+            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+            clip-rule="evenodd"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- TOP ROW: Image + Fields -->
+      <div class="top-row">
+        <!-- Image box -->
+        <div class="image-upload-box">
+          <div class="image-preview" *ngIf="imageUrl">
+            <img [src]="imageUrl" alt="Recipe preview" />
+          </div>
+          <div class="upload-placeholder" *ngIf="!imageUrl">
+            <svg class="camera-icon" viewBox="0 0 24 24" fill="none">
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11z"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span class="upload-text">Upload Image</span>
+          </div>
+          <input type="text" class="url-input" placeholder="Paste image URL…" [(ngModel)]="imageUrl" />
+        </div>
+
+        <!-- Fields -->
+        <div class="fields-col">
+          <div class="form-group">
+            <label class="form-label">Recipe Name *</label>
+            <input type="text" class="form-input" placeholder="e.g. Torta de Chocolate" [(ngModel)]="name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">SKU *</label>
+            <input type="text" class="form-input" placeholder="e.g. RCP-007" [(ngModel)]="sku" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Selling Price (S/.) *</label>
+            <input type="number" class="form-input" placeholder="0.00" [(ngModel)]="sellingPrice" min="0" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              Estimated Cost
+              <span class="label-hint">(auto)</span>
+            </label>
+            <input type="text" class="form-input readonly"
+              [value]="'S/. ' + (estimatedCost | number:'1.2-2')" readonly />
+          </div>
+        </div>
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="form-group mt-12">
+        <label class="form-label">Description</label>
+        <textarea class="form-input textarea" rows="2"
+          placeholder="Brief description of the recipe…" [(ngModel)]="description"></textarea>
+      </div>
+
+      <!-- INGREDIENT CONSTRUCTOR -->
+      <div class="section-divider">
+        <span class="divider-label">Ingredient Constructor</span>
+      </div>
+
+      <div class="ingredient-builder">
+        <select class="form-select" [(ngModel)]="selectedSupplyId">
+          <option value="">Select custom supply…</option>
+          <option *ngFor="let s of availableToAdd" [value]="s.id">
+            {{ s.name }} — S/. {{ s.unitPriceAmount | number:'1.2-2' }} / {{ s.unitMeasurement }}
+          </option>
+        </select>
+        <input type="number" class="qty-input" [(ngModel)]="ingredientQty"
+          min="0.001" step="0.001" placeholder="Qty" />
+        <button class="btn-add-ing" (click)="addIngredient()" [disabled]="!selectedSupplyId || saving">
+          + Add
+        </button>
+      </div>
+
+      <!-- ADDED INGREDIENTS -->
+      <div class="ingredients-list" *ngIf="pendingIngredients.length > 0">
+        <div class="ing-item" *ngFor="let pi of pendingIngredients; let i = index">
+          <div class="ing-avatar">
+            <img *ngIf="pi.supply.pictureUrl" [src]="pi.supply.pictureUrl" [alt]="pi.supply.name" />
+            <span *ngIf="!pi.supply.pictureUrl">{{ pi.supply.name.charAt(0) }}</span>
+          </div>
+          <div class="ing-info">
+            <span class="ing-name">{{ pi.supply.name }}</span>
+            <span class="ing-unit-price">S/. {{ pi.supply.unitPriceAmount | number:'1.2-2' }} / {{ pi.supply.unitMeasurement }}</span>
+          </div>
+          <span class="qty-badge">×{{ pi.quantity }}</span>
+          <span class="ing-total">S/. {{ pi.localCost | number:'1.2-2' }}</span>
+          <button class="btn-remove" (click)="removeIngredient(i)" [disabled]="saving" aria-label="Remove">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14">
+              <path fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="empty-ing" *ngIf="pendingIngredients.length === 0">
+        <p>No ingredients added yet.</p>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+      <button *ngIf="mode === 'edit'" class="btn-delete-footer" (click)="requestDelete()" [disabled]="saving">
+        🗑 Delete Recipe
+      </button>
+      <div class="footer-actions">
+        <button class="btn-cancel" (click)="onClose.emit()" [disabled]="saving">Cancel</button>
+        <button class="btn-save" (click)="submit()" [disabled]="saving || !name || !sku">
+          <span *ngIf="saving" class="spinner-sm"></span>
+          {{ mode === 'create' ? 'Save Recipe' : 'Update Recipe' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

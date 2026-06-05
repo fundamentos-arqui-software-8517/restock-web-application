@@ -106,3 +106,16 @@
   font-weight: 600;
   color: #181c1c;
 }
+
+.menu-chevron {
+  color: #6b7280;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.user-profile.mat-mdc-button {
+  min-width: unset;
+  padding: 4px 8px;
+  height: auto;
+}

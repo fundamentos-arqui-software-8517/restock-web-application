@@ -1,0 +1,195 @@
+<div class="devices-page">
+  <div class="devices-header">
+    <div class="section-title">Device Management</div>
+    <button mat-flat-button class="register-btn" type="button" (click)="$any(registerDevice)()">
+      <mat-icon class="register-icon">add</mat-icon>
+      Register Device
+    </button>
+  </div>
+
+  @if (store.loading()) {
+    <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+  }
+
+  @if (store.error()) {
+    <mat-error> {{ 'devices.list-error' | translate }} </mat-error>
+  }
+
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <div class="stat-icon live-icon">
+          <mat-icon>wifi_tethering</mat-icon>
+        </div>
+        <div class="live-badge">LIVE</div>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Active Scales</div>
+        <div class="stat-value">{{ activeScalesCount() }}</div>
+        <div class="stat-change positive">
+          <mat-icon class="trend-icon">trending_up</mat-icon>
+          +4 from yesterday
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <div class="stat-icon alert-icon">
+          <mat-icon>inventory_2</mat-icon>
+        </div>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Stock Alerts</div>
+        <div class="stat-value">12</div>
+        <div class="stat-change critical">
+          <mat-icon class="trend-icon">warning_amber</mat-icon>
+          8 items critical
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <div class="stat-icon env-icon">
+          <mat-icon>device_thermostat</mat-icon>
+        </div>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Environmental Alerts</div>
+        <div class="stat-value">3</div>
+        <div class="stat-change info">
+          <mat-icon class="trend-icon">info_outline</mat-icon>
+          Temp deviation detected
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <div class="stat-icon offline-icon">
+          <mat-icon>wifi_off</mat-icon>
+        </div>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Offline</div>
+        <div class="stat-value">{{ offlineDevicesCount() }}</div>
+        <div class="stat-change critical">
+          <mat-icon class="trend-icon">error_outline</mat-icon>
+          Check connectivity
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="devices-table-wrapper">
+    <div class="table-toolbar">
+      <div class="table-title">Active Device Directory</div>
+      <div class="table-actions">
+        <button class="icon-btn" type="button" (click)="openFilters()">
+          <mat-icon>filter_list</mat-icon>
+        </button>
+        <button class="icon-btn" type="button" (click)="exportTable()">
+          <mat-icon>file_download</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <table
+      mat-table
+      [dataSource]="dataSource()"
+      class="devices-table"
+      matSort
+      matSortActive="macAddress"
+      matSortDirection="asc"
+      matSortDisableClear
+    >
+      <ng-container matColumnDef="macAddress">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>MAC ADDRESS</th>
+        <td mat-cell *matCellDef="let device" class="mac-cell">{{ device.macAddress }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="assignedSupply">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ASSIGNED SUPPLY</th>
+        <td mat-cell *matCellDef="let device" class="supply-cell">
+          @if (device.assignedSupplyName && device.assignedSupplyName.includes('(Lote Frío)')) {
+            <span class="supply-name text-red">{{ device.assignedSupplyName }}</span>
+          } @else {
+            <span class="supply-name">{{ device.assignedSupplyName }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="network">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>NETWORK</th>
+        <td mat-cell *matCellDef="let device">
+          <div
+            class="network-badge"
+            [class.online]="device.networkState === 'online'"
+            [class.offline]="device.networkState === 'offline'"
+            [class.unstable]="device.networkState === 'unstable'"
+          >
+            <span class="network-dot" aria-hidden="true"></span>
+            <span class="network-text">{{ device.networkState | uppercase }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="deviceStatus">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>SENSOR HEALTH</th>
+        <td mat-cell *matCellDef="let device">
+          <div class="sensor-health-container">
+            <div class="health-bar-bg">
+              <div
+                class="health-bar-fill"
+                [class.online]="device.networkState === 'online'"
+                [class.unstable]="device.networkState === 'unstable'"
+                [class.offline]="device.networkState === 'offline'"
+                [style.width]="
+                  device.networkState === 'offline'
+                    ? '100%'
+                    : (device.sensorHealthPercentage ||
+                        (device.networkState === 'unstable' ? 20 : 80)) + '%'
+                "
+              ></div>
+            </div>
+            <div class="health-icons">
+              @if (device.networkState === 'unstable') {
+                <mat-icon class="icon-unstable">error_outline</mat-icon>
+              }
+              @if (device.networkState === 'offline') {
+                <mat-icon class="icon-offline">cancel</mat-icon>
+              } @else {
+                <mat-icon class="icon-normal">device_thermostat</mat-icon>
+                <mat-icon class="icon-normal">shopping_bag</mat-icon>
+              }
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>ACTIONS</th>
+        <td mat-cell *matCellDef="let device" class="actions-cell">
+          @if (device.networkState === 'online') {
+            <button mat-icon-button class="action-btn"><mat-icon>more_vert</mat-icon></button>
+          } @else if (device.networkState === 'unstable') {
+            <mat-icon class="action-alert-icon">report</mat-icon>
+          } @else if (device.networkState === 'offline') {
+            <div class="reboot-btn">REBOOT</div>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <div class="table-footer">
+      <div class="footer-left">Showing {{ dataSource().data.length || 0 }} of 1,248 devices</div>
+      <div class="footer-right">
+        <mat-paginator [hidePageSize]="true"></mat-paginator>
+      </div>
+    </div>
+  </div>
+</div>

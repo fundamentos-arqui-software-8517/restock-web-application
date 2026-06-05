@@ -1,4 +1,4 @@
-.inv-placeholder {
+.discrepancies-page {
   padding: 24px 28px;
   max-width: 960px;
 }
@@ -19,8 +19,24 @@
   color: #111827;
 }
 
-.muted {
+.empty-state {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.empty-state h2 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 26px;
+}
+
+.empty-state p {
+  max-width: 460px;
   margin: 0;
   color: #6b7280;
   font-size: 14px;
+  line-height: 1.5;
 }

@@ -1,0 +1,89 @@
+<div class="modal-backdrop" *ngIf="isOpen">
+  <div class="edit-modal-box" [formGroup]="editForm">
+
+    <div class="modal-header">
+      <div class="header-text-group">
+        <h3 class="modal-title">Edit Kit</h3>
+        <p class="modal-subtitle">Modify assembly details and component quantities.</p>
+      </div>
+      <button type="button" class="close-icon-btn" (click)="handleCancel()">
+        <span class="close-x">×</span>
+      </button>
+    </div>
+
+    <div class="modal-scroll-body">
+      <div class="fields-stack">
+
+        <div class="form-row-2col">
+          <div class="input-field-group">
+            <label class="field-label">KIT NAME</label>
+            <div class="input-wrapper">
+              <input type="text" formControlName="name" class="styled-input" />
+            </div>
+          </div>
+
+          <div class="input-field-group">
+            <label class="field-label">SKU / REFERENCE</label>
+            <div class="input-wrapper disabled-wrapper">
+              <input type="text" formControlName="sku" class="styled-input readonly-input" />
+            </div>
+          </div>
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">DESCRIPTION</label>
+          <div class="input-wrapper">
+            <textarea formControlName="description" class="styled-textarea" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="components-section">
+          <div class="section-header-row">
+            <label class="field-label">COMPONENT CONFIGURATION</label>
+            <button type="button" class="add-supply-btn">
+              <span class="plus-icon">⊕</span> Add Supply
+            </button>
+          </div>
+
+          <div class="components-list" formArrayName="items">
+            @for (itemGroup of itemsFormArray.controls; track $index) {
+              <div class="component-item-card" [formGroupName]="$index">
+                <div class="component-info">
+                  <span class="component-name">{{ itemGroup.get('productName')?.value }}</span>
+                </div>
+
+                <div class="right-controls">
+                  <div class="quantity-input-box">
+                    <input type="number" formControlName="quantity" class="qty-field" min="1" />
+                  </div>
+                  <button type="button" class="remove-item-btn" (click)="removeComponent($index)">
+                    <span class="trash-icon">🗑</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="monitoring-status-card">
+          <div class="status-layout">
+            <div class="status-icon-container">
+              <span class="wifi-icon">((•))</span>
+            </div>
+            <div class="status-text-block">
+              <span class="status-title">Active Monitoring</span>
+              <span class="status-description">Linked to Device #09. Temperature stable.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn-cancel" (click)="handleCancel()">Cancel</button>
+      <button type="button" class="btn-update" [disabled]="editForm.invalid" (click)="handleUpdate()">Update Kit</button>
+    </div>
+
+  </div>
+</div>

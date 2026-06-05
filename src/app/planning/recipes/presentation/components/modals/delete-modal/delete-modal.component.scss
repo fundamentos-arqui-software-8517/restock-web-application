@@ -1,0 +1,44 @@
+$red: #DC2626;
+$red-light: #FEF2F2;
+$gray-100: #F3F4F6;
+$gray-500: #6B7280;
+$gray-700: #374151;
+$gray-900: #111827;
+$white: #FFFFFF;
+
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(17,24,39,.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1100; padding: 20px; backdrop-filter: blur(2px);
+}
+.modal-container {
+  background: $white; border-radius: 14px; width: 100%; max-width: 380px;
+  padding: 32px 28px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25); animation: pop-in .2s ease;
+}
+@keyframes pop-in { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
+
+.danger-icon-box {
+  width: 64px; height: 64px; background: $red-light; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 4px;
+}
+.delete-title  { font-size: 1.1rem; font-weight: 700; color: $gray-900; margin: 0; text-align: center; }
+.delete-body   {
+  font-size: 0.875rem; color: $gray-500; text-align: center; margin: 0; line-height: 1.6;
+  strong { color: $gray-700; font-weight: 600; }
+}
+
+.delete-actions {
+  display: flex; width: 100%; margin-top: 8px;
+  border-radius: 10px; overflow: hidden; border: 1px solid #E5E7EB;
+}
+.btn-cancel {
+  flex: 1; background: $gray-100; border: none; padding: 12px 0;
+  font-size: 0.875rem; font-weight: 600; color: $gray-700; cursor: pointer;
+  &:hover { background: #E5E7EB; }
+}
+.btn-confirm {
+  flex: 1; background: $red; border: none; padding: 12px 0;
+  font-size: 0.875rem; font-weight: 600; color: $white; cursor: pointer;
+  &:hover { background: #B91C1C; }
+}

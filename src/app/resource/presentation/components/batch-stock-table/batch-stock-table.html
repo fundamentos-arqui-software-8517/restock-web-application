@@ -1,0 +1,233 @@
+<div class="table-card">
+  <div class="table-toolbar">
+    <div class="toolbar-filters">
+      <label class="select-wrap">
+        <span class="visually-hidden">
+          {{ 'resource.inventory.stock.filter.categoryAria' | translate }}
+        </span>
+
+        <select
+          class="rs-select"
+          [value]="categoryFilter"
+          (change)="onCategoryChange($any($event.target).value)"
+        >
+          <option value="all">
+            {{ 'resource.inventory.stock.filter.categoryAll' | translate }}
+          </option>
+
+          @for (category of categories; track category) {
+            <option [value]="category">{{ category }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="select-wrap">
+        <span class="visually-hidden">
+          {{ 'resource.inventory.stock.filter.stockLevelAria' | translate }}
+        </span>
+
+        <select
+          class="rs-select"
+          [value]="stockLevelFilter"
+          (change)="onStockLevelChange($any($event.target).value)"
+        >
+          <option value="any">
+            {{ 'resource.inventory.stock.filter.stockLevelAny' | translate }}
+          </option>
+          <option value="low">
+            {{ 'resource.inventory.stock.filter.stockLevelLow' | translate }}
+          </option>
+          <option value="ok">
+            {{ 'resource.inventory.stock.filter.stockLevelOk' | translate }}
+          </option>
+          <option value="high">
+            {{ 'resource.inventory.stock.filter.stockLevelHigh' | translate }}
+          </option>
+        </select>
+      </label>
+    </div>
+
+    <div class="toolbar-icons">
+      <button
+        type="button"
+        class="icon-only"
+        [attr.aria-label]="'resource.inventory.stock.toolbar.filtersAria' | translate"
+      >
+        <mat-icon>filter_list</mat-icon>
+      </button>
+
+      <button
+        type="button"
+        class="icon-only"
+        [attr.aria-label]="'resource.inventory.stock.toolbar.exportAria' | translate"
+      >
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+      <tr>
+        <th scope="col">{{ 'resource.inventory.stock.table.supplyName' | translate }}</th>
+        <th scope="col">{{ 'resource.inventory.stock.table.category' | translate }}</th>
+        <th scope="col">{{ 'resource.inventory.stock.table.uom' | translate }}</th>
+        <th scope="col">{{ 'resource.inventory.stock.table.expiration' | translate }}</th>
+        <th scope="col">{{ 'resource.inventory.stock.table.stock' | translate }}</th>
+        <th scope="col">{{ 'resource.inventory.stock.table.perishable' | translate }}</th>
+        <th scope="col" class="col-actions">
+          {{ 'resource.inventory.stock.table.actions' | translate }}
+        </th>
+      </tr>
+      </thead>
+
+      <tbody>
+        @for (row of rows; track trackById($index, row)) {
+          <tr [class.row-warning]="row.rowHighlight === 'warning'">
+            <td>
+              <div class="cell-name">
+                <span class="supply-name">{{ row.supplyName }}</span>
+
+                @if (row.subtitle) {
+                  <span
+                    class="supply-sub"
+                    [class.supply-sub-warn]="row.rowHighlight === 'warning'"
+                  >
+                    {{ row.subtitle }}
+                  </span>
+                }
+              </div>
+            </td>
+
+            <td>{{ row.category }}</td>
+            <td>{{ row.uomLabel }}</td>
+
+            <td>
+              @if (row.expirationDate) {
+                <span
+                  [class.exp-warn]="
+                    row.rowHighlight === 'warning' ||
+                    row.perishableBadgeTone === 'warning'
+                  "
+                >
+                  {{ row.expirationDate | date: 'MMM d, y' }}
+                </span>
+              } @else {
+                <span class="exp-dash">
+                  {{ 'resource.inventory.stock.table.expDash' | translate }}
+                </span>
+              }
+            </td>
+
+            <td class="num">{{ row.stock | number: '1.2-2' }}</td>
+
+            <td>
+              @if (row.isPerishable) {
+                <span
+                  class="pill"
+                  [class.pill-warn]="row.perishableBadgeTone === 'warning'"
+                  [class.pill-info]="row.perishableBadgeTone === 'info'"
+                >
+                  {{ 'resource.inventory.stock.perishable.yes' | translate }}
+                </span>
+              } @else {
+                <span class="pill pill-neutral">
+                  {{ 'resource.inventory.stock.perishable.no' | translate }}
+                </span>
+              }
+            </td>
+
+            <td class="col-actions">
+              <button
+                type="button"
+                class="row-action"
+                aria-label="View batch details"
+                (click)="onViewBatch(row)"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+
+              <button
+                type="button"
+                class="row-action"
+                [attr.aria-label]="'resource.inventory.stock.table.editAria' | translate"
+                (click)="onEditBatch(row)"
+              >
+                <mat-icon [class.icon-warn]="row.rowHighlight === 'warning'">
+                  edit
+                </mat-icon>
+              </button>
+
+              <button
+                type="button"
+                class="row-action"
+                [attr.aria-label]="'resource.inventory.stock.table.deleteAria' | translate"
+                (click)="onDeleteBatch(row)"
+              >
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="empty-cell">
+              {{ 'resource.inventory.stock.table.emptyFiltered' | translate }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="table-footer">
+    @if (paginationFooter; as footer) {
+      @if (footer.mode === 'empty') {
+        <span class="footer-range">
+          {{
+            'resource.inventory.stock.pagination.rangeEmpty'
+              | translate: { total: footer.total }
+          }}
+        </span>
+      } @else {
+        <span class="footer-range">
+          {{
+            'resource.inventory.stock.pagination.range'
+              | translate: { from: footer.from, to: footer.to, total: footer.total }
+          }}
+        </span>
+      }
+    }
+
+    <nav class="pager" [attr.aria-label]="'resource.inventory.stock.pagination.aria' | translate">
+      <button
+        type="button"
+        class="pager-btn"
+        [disabled]="pageIndex === 0 || pageCount === 0"
+        (click)="goPage(pageIndex - 1)"
+      >
+        &lt;
+      </button>
+
+      @for (page of pageNumbers; track page) {
+        <button
+          type="button"
+          class="pager-num"
+          [class.active]="page === pageIndex"
+          (click)="goPage(page)"
+        >
+          {{ page + 1 }}
+        </button>
+      }
+
+      <button
+        type="button"
+        class="pager-btn"
+        [disabled]="pageIndex >= pageCount - 1 || pageCount === 0"
+        (click)="goPage(pageIndex + 1)"
+      >
+        &gt;
+      </button>
+    </nav>
+  </footer>
+</div>

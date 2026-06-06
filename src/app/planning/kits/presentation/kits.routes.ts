@@ -1,18 +1,10 @@
 import { Routes } from '@angular/router';
 
 const kitList = () =>
-  import('./views/kits-list/kits-list').then(
-    (m) => m.PlanningDashboardComponent
-  );
+  import('./views/kits-list/kits-list').then((m) => m.PlanningDashboardComponent);
 
-const createKit = () =>
-  import('./views/create-kit/create-kit').then(
-    (m) => m.KitFormModalComponent
-  );
+const kitDetail = () => import('./views/kit-detail/kit-detail').then((m) => m.KitDetailComponent);
 
-/**
- * Route tree for planning presentation views.
- */
 export const kitsRoutes: Routes = [
   {
     path: '',
@@ -20,8 +12,8 @@ export const kitsRoutes: Routes = [
     title: 'Kits Catalog',
   },
   {
-    path: 'id',
-    loadComponent: createKit,
-    title: 'Create Kit',
+    path: ':id',
+    loadComponent: kitDetail,
+    title: 'Kit Detail',
   },
 ];

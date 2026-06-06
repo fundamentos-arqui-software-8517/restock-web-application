@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, output } from '@angular/core';
+import { Component, Input, Output, EventEmitter, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Kit } from '../../../domain/model/kit.entity';
 import { TranslatePipe } from '@ngx-translate/core';
+import { KitEntity } from '../../../domain/model/kit.entity';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-kit-card',
@@ -11,11 +12,16 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: 'kit-cad.css',
 })
 export class KitCardComponent {
-  @Input({ required: true }) kit!: Kit;
+  @Input({ required: true }) kit!: KitEntity;
+  edit = output<KitEntity>();
+  private readonly router = inject(Router);
+  readonly fallbackImage = 'assets/placeholder-kit.png';
 
-  edit = output<Kit>();
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.fallbackImage;
+  }
 
-  onEdit(): void {
-    this.edit.emit(this.kit);
+  onViewDetail(): void {
+    this.router.navigate(['/kits', this.kit.id]);
   }
 }

@@ -1,8 +1,10 @@
 import { Component, Input, Output, EventEmitter, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
-import { Kit } from '../../../domain/model/kit.entity';
-import { KitsStore } from '../../../application/kits.store';
+import { KitEntity } from '../../../domain/model/kit.entity';
+import { UpdateKitCommand } from '../../../domain/command/update-kit.command';
+import { KitStore } from '../../../application/kits.store';
+import { RemoveKitItemCommand } from '../../../domain/command/remove-kit-item.command';
 
 @Component({
   selector: 'app-edit-kit-modal',
@@ -13,18 +15,23 @@ import { KitsStore } from '../../../application/kits.store';
 })
 export class EditKitModalComponent {
   private readonly fb = inject(FormBuilder);
-  protected readonly kitsStore = inject(KitsStore);
+  protected readonly kitsStore = inject(KitStore);
 
   @Input() isOpen = false;
-  @Input() set kitToEdit(kit: Kit | null) {
+  @Input() set kitToEdit(kit: KitEntity | null) {
     if (kit) {
       this._activeKit.set(kit);
-      this.populateForm(kit);
+      if (!kit.items || kit.items.length === 0) {
+        this.kitsStore.loadById(kit.id);
+      } else {
+        this.populateForm(kit);
+      }
     }
   }
+
   @Output() closeModal = new EventEmitter<void>();
 
-  private _activeKit = signal<Kit | null>(null);
+  private _activeKit = signal<KitEntity | null>(null);
   public readonly activeKit = this._activeKit.asReadonly();
 
   public editForm: FormGroup = this.fb.group({
@@ -34,31 +41,27 @@ export class EditKitModalComponent {
     items: this.fb.array([]),
   });
 
-  get itemsFormArray(): FormArray {
-    return this.editForm.get('items') as FormArray;
-  }
-
-  private populateForm(kit: Kit): void {
+  private populateForm(kit: KitEntity): void {
     this.editForm.patchValue({
       name: kit.name,
-      sku: kit.sku || `${kit.name.replace(/\s+/g, '-').toUpperCase()}`,
-      description: kit.description || 'No description provided.',
+      sku: kit.sku,
+      description: kit.description,
     });
-    this.itemsFormArray.clear();
-    if (kit.items && kit.items.length > 0) {
-      kit.items.forEach((item) => {
-        this.itemsFormArray.push(
-          this.fb.group({
-            productName: [item.name],
-            quantity: [item.quantity, [Validators.required, Validators.min(1)]],
-          }),
-        );
-      });
-    }
-  }
+    const itemsArray = this.editForm.get('items') as FormArray;
+    itemsArray.clear();
+    (kit.items ?? []).forEach((item) => {
+      const supply = this.kitsStore.availableSupplies().find((s) => s.id === item.customSupplyId);
 
-  public removeComponent(index: number): void {
-    this.itemsFormArray.removeAt(index);
+      itemsArray.push(
+        this.fb.group({
+          id: [item.id],
+          productId: [kit.id],
+          customSupplyId: [item.customSupplyId],
+          productName: [supply ? supply.name : 'Desconocido'],
+          quantity: [item.quantity, Validators.required],
+        }),
+      );
+    });
   }
 
   public handleCancel(): void {
@@ -67,15 +70,52 @@ export class EditKitModalComponent {
 
   public handleUpdate(): void {
     if (this.editForm.invalid) return;
+    const kit = this._activeKit();
+    if (!kit) return;
 
-    const updatedData = {
-      ...this.activeKit(),
+    console.log('kit.id:', kit.id);
+    console.log('kit.sellingPrice:', kit.sellingPrice);
+    const command: UpdateKitCommand = {
+      id: kit.id,
       name: this.editForm.value.name,
       description: this.editForm.value.description,
-      items: this.editForm.getRawValue().items,
+      sku: kit.sku,
+      imageUrl: kit.imageUrl,
+      sellingPrice: kit.sellingPrice,
     };
-
-    console.log('Enviando actualización estratégica a Restock:', updatedData);
+    this.kitsStore.update(command);
     this.closeModal.emit();
+  }
+
+  constructor() {
+    effect(() => {
+      const kit = this._activeKit();
+      const supplies = this.kitsStore.availableSupplies();
+      if (kit && supplies.length > 0) {
+        this.populateForm(kit);
+      } else if (kit && kit.items === undefined) {
+        console.warn('El kit seleccionado no tiene items. ¿Debes buscarlos por ID?');
+      }
+    });
+  }
+
+  get itemsFormArray(): FormArray {
+    return this.editForm.get('items') as FormArray;
+  }
+
+  removeComponent(index: number): void {
+    const itemsArray = this.editForm.get('items') as FormArray;
+    const itemGroup = itemsArray.at(index);
+    const productId = itemGroup.get('productId')?.value;
+    const customSupplyId = itemGroup.get('customSupplyId')?.value;
+
+    if (productId && customSupplyId) {
+      const command: RemoveKitItemCommand = {
+        productId: productId,
+        customSupplyId: customSupplyId,
+      };
+      this.kitsStore.removeItem(command);
+    }
+    itemsArray.removeAt(index);
   }
 }

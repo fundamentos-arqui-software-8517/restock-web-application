@@ -1,139 +1,156 @@
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { catchError, finalize, map, of, tap } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Kit } from '../domain/model/kit.entity';
-import { KitItem } from '../domain/model/kit-item.entity';
-import { KitsApi } from '../infrastructure/kits-api';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { KitEntity } from '../domain/model/kit.entity';
 import { RegisterKitCommand } from '../domain/command/register-kit.command';
 import { UpdateKitCommand } from '../domain/command/update-kit.command';
+import { AddKitItemCommand } from '../domain/command/add-kit-item.command';
+import { RemoveKitItemCommand } from '../domain/command/remove-kit-item.command';
+import { DeleteKitCommand } from '../domain/command/delete-kit.command';
+import { KitsApiEndpoint } from '../infrastructure/kits-api';
+import { CustomSupplyEntity } from '../domain/model/custom-supply.entity';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class KitsStore {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly kitsApi = inject(KitsApi);
+export type ModalMode = 'create' | 'edit' | null;
 
-  readonly #kits = signal<Kit[]>([]);
-  readonly #products = signal<KitItem[]>([]);
-  readonly #isLoading = signal<boolean>(false);
-  readonly #loadingProducts = signal<boolean>(false);
-  readonly #error = signal<string | null>(null);
+@Injectable({ providedIn: 'root' })
+export class KitStore {
+  private readonly api = inject(KitsApiEndpoint);
 
-  readonly kits = this.#kits.asReadonly();
-  readonly products = this.#products.asReadonly();
-  readonly activeKits = computed(() => this.#kits());
-  readonly isLoading = this.#isLoading.asReadonly();
-  readonly loadingProducts = this.#loadingProducts.asReadonly();
-  readonly error = this.#error.asReadonly();
-
-  readonly totalKits = computed(() => this.#kits().length);
+  readonly kits = signal<KitEntity[]>([]);
+  readonly availableSupplies = signal<CustomSupplyEntity[]>([]);
+  readonly accountId = signal<string>('6a21a239af5d1ab5fca17747');
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly modalMode = signal<ModalMode>(null);
+  readonly totalKits = computed(() => this.kits().length);
+  readonly activeKits = computed(() => this.kits().filter((k) => k.type === 'KIT'));
 
   loadAllKits(): void {
-    console.log('Intentando cargar kits...');
-    this.#isLoading.set(true);
-    this.#error.set(null);
+    if (this.loading()) return;
 
-    this.kitsApi
-      .getAllKits()
-      .pipe(
-        tap((kits) => {
-          console.log('Kits recibidos de la API:', kits);
-          this.#kits.set(kits);
-        }),
-        catchError((error) => {
-          console.error('Error al cargar kits:', error);
-          this.#error.set(this.formatError(error, 'Failed to fetch kits collection.'));
-          return of([]);
-        }),
-        finalize(() => this.#isLoading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
+    this.loading.set(true);
+
+    this.api.getAllKits(this.accountId()).subscribe({
+      next: (data) => {
+        this.kits.set(data);
+        this.loading.set(false);
+        this.error.set(null);
+      },
+      error: (err) => {
+        console.error('Error detectado en la API:', err);
+        this.error.set('No pudimos conectar con el servidor.');
+        this.loading.set(false);
+      },
+    });
   }
 
-  loadAllProducts(): void {
-    if (this.#products().length > 0) return;
-
-    this.#loadingProducts.set(true);
-    this.#error.set(null);
-
-    this.kitsApi
-      .getAllProducts()
-      .pipe(
-        map((rawProducts: any[]) =>
-          rawProducts.map(
-            (p) =>
-              new KitItem({
-                id: p.id,
-                name: p.name,
-                sku: p.sku,
-                price: p.price,
-                quantity: 1,
-              }),
-          ),
-        ),
-        tap((kitItems) => this.#products.set(kitItems)),
-        catchError((error) => {
-          this.#error.set(this.formatError(error, 'Failed to load available products.'));
-          return of([]);
-        }),
-        finalize(() => this.#loadingProducts.set(false)),
-        takeUntilDestroyed(this.destroyRef), // ◄ Protegido
-      )
-      .subscribe();
+  create(cmd: RegisterKitCommand, onCreated: (id: string) => void): void {
+    this.saving.set(true);
+    this.api.register(cmd).subscribe({
+      next: (newKit) => {
+        this.kits.update((currentKits) => [...currentKits, newKit]);
+        this.saving.set(false);
+        onCreated(newKit.id);
+      },
+      error: (err) => {
+        this.saving.set(false);
+        if (err.status === 409) {
+          console.error('El SKU ya existe, intenta con otro.');
+        } else {
+          console.error('Error al crear:', err);
+        }
+      },
+    });
   }
 
-  registerKit(command: RegisterKitCommand, onSuccess?: () => void): void {
-    this.#isLoading.set(true);
-    this.#error.set(null);
-
-    this.kitsApi
-      .registerKit(command)
-      .pipe(
-        tap(() => {
-          this.loadAllKits();
-          onSuccess?.();
-        }),
-        catchError((error) => {
-          this.#error.set(this.formatError(error, 'Failed to register the new kit.'));
-          return of(null);
-        }),
-        finalize(() => this.#isLoading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
+  update(cmd: UpdateKitCommand): void {
+    this.saving.set(true);
+    this.api.update(cmd).subscribe({
+      next: (updatedKit) => {
+        this.kits.update((currentKits) =>
+          currentKits.map((kit) => (kit.id === updatedKit.id ? updatedKit : kit)),
+        );
+        this.saving.set(false);
+      },
+      error: (err) => {
+        console.error('Error al actualizar:', err);
+        this.saving.set(false);
+      },
+    });
   }
 
-  updateKit(command: UpdateKitCommand, onSuccess?: () => void): void {
-    this.#isLoading.set(true);
-    this.#error.set(null);
-
-    this.kitsApi
-      .updateKit(command)
-      .pipe(
-        tap((updatedKit) => {
-          this.#kits.update((currentKits) =>
-            currentKits.map((kit) => (kit.id === updatedKit.id ? updatedKit : kit)),
-          );
-          onSuccess?.();
-        }),
-        catchError((error) => {
-          this.#error.set(this.formatError(error, 'Failed to update the kit setup.'));
-          return of(null);
-        }),
-        finalize(() => this.#isLoading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
+  addItem(cmd: AddKitItemCommand): void {
+    this.saving.set(true);
+    this.api.addItem(cmd).subscribe({
+      next: (entity) => {
+        this._patchKit(entity);
+        this.saving.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.message);
+        this.saving.set(false);
+      },
+    });
   }
 
-  private formatError(error: any, fallback: string): string {
-    if (error instanceof Error) {
-      return error.message.includes('Resource not found')
-        ? `${fallback}: Not found`
-        : error.message;
-    }
-    return fallback;
+  removeItem(cmd: RemoveKitItemCommand): void {
+    this.saving.set(true);
+    this.api.removeItem(cmd).subscribe({
+      next: () => {
+        this.loadAllKits();
+        this.saving.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.message);
+        this.saving.set(false);
+      },
+    });
+  }
+
+  delete(cmd: DeleteKitCommand): void {
+    this.saving.set(true);
+    this.api.delete(cmd).subscribe({
+      next: () => {
+        this.kits.update((list) => list.filter((k) => k.id !== cmd.id));
+        this.saving.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.message);
+        this.saving.set(false);
+      },
+    });
+  }
+
+  loadSupplies(): void {
+    this.loading.set(true);
+    this.api.getSupplies(this.accountId()).subscribe({
+      next: (supplies) => {
+        this.availableSupplies.set(supplies);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.message);
+        this.loading.set(false);
+      },
+    });
+  }
+
+  loadById(id: string): void {
+    this.loading.set(true);
+    this.api.getKitById(id).subscribe({
+      next: (detailedKit) => {
+        console.log('loadById response:', detailedKit);
+        console.log('items after mapping:', detailedKit.items);
+        this._patchKit(detailedKit);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('loadById error:', err);
+        this.loading.set(false);
+      },
+    });
+  }
+
+  private _patchKit(updated: KitEntity): void {
+    this.kits.update((list) => list.map((k) => (k.id === updated.id ? updated : k)));
   }
 }

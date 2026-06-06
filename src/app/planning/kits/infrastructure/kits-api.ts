@@ -1,71 +1,91 @@
-import { Injectable, inject } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { Kit } from '../domain/model/kit.entity';
-import { KitsApiEndpoint } from './kits/kits-api-endpoint';
-import { RegisterKitApiEndpoint } from './kits/register-kit/register-kit-api-endpoint';
-import { UpdateKitApiEndpoint } from './kits/update-kit/update-kit-api-endpoint';
-import { KitItem } from '../domain/model/kit-item.entity';
-import { BaseApi } from '../../../shared/infrastructure/base-api';
-import { ProductsApiEndpoint } from './products-api';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { KitEntity } from '../domain/model/kit.entity';
 import { RegisterKitCommand } from '../domain/command/register-kit.command';
 import { UpdateKitCommand } from '../domain/command/update-kit.command';
+import { AddKitItemCommand } from '../domain/command/add-kit-item.command';
+import { RemoveKitItemCommand } from '../domain/command/remove-kit-item.command';
+import { DeleteKitCommand } from '../domain/command/delete-kit.command';
+import { RegisterKitApiEndpoint } from './kits/register-kit/register-kit-api-endpoint';
+import { UpdateKitApiEndpoint } from './kits/update-kit/update-kit-api-endpoint';
+import { RemoveKitItemApiEndpoint } from './kits/remove-kit-item/remove-kit-item-api-endpoint';
+import { DeleteKitApiEndpoint } from './kits/delete-kit/delete-kit-api-endpoint';
+import { environment } from '../../../../environments/environment';
+import { CustomSupplyEntity } from '../../recipes';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+import { KitItemEntity } from '../domain/model/kit-item.entity';
+import { AddKitItemApiEndpoint } from './kits/add-kit-item/add-kit-item-api-endpoint';
 
-/**
- * Infrastructure Context Facade for Kits management.
- * Acts as a single entry point for all network/API interactions regarding the Kits context,
- * abstracting individual specialized endpoints from the application layer.
- */
-@Injectable({
-  providedIn: 'root',
-})
-export class KitsApi extends BaseApi {
-  private readonly kitsEndpoint = inject(KitsApiEndpoint);
-  private readonly registerEndpoint = inject(RegisterKitApiEndpoint);
-  private readonly updateEndpoint = inject(UpdateKitApiEndpoint);
-  private readonly productsEndpoint = inject(ProductsApiEndpoint);
-  /**
-   * Retrieves the complete collection of kits for the catalog view.
-   * Delegates the operation to the general Kits query endpoint (GET).
-   * * @returns An Observable array of domain Kit entities.
-   */
-  getAllKits(): Observable<Kit[]> {
-    return this.kitsEndpoint.getAllKits();
+@Injectable({ providedIn: 'root' })
+export class KitsApiEndpoint {
+  constructor(
+    private registerService: RegisterKitApiEndpoint,
+    private updateService: UpdateKitApiEndpoint,
+    private addItemService: AddKitItemApiEndpoint,
+    private removeItemService: RemoveKitItemApiEndpoint,
+    private deleteService: DeleteKitApiEndpoint,
+    private http: HttpClient,
+  ) {}
+
+  register(command: RegisterKitCommand): Observable<KitEntity> {
+    return this.registerService.registerKit(command);
   }
 
-  /**
-   * Dispatches a command to register a brand new kit configuration.
-   * Delegates the operation to the specialized registration endpoint (POST).
-   * * @param command The semantic intent containing the new kit details and items.
-   * @returns An Observable of the newly created domain Kit entity.
-   */
-  registerKit(command: RegisterKitCommand): Observable<Kit> {
-    return this.registerEndpoint.registerKit(command);
+  update(command: UpdateKitCommand): Observable<KitEntity> {
+    return this.updateService.updateKit(command);
   }
 
-  /**
-   * Dispatches a command to update an explicit existing kit contract.
-   * Delegates the operation to the specialized update endpoint (PUT).
-   * * @param command The semantic intent containing the target ID and modified attributes.
-   * @returns An Observable of the updated domain Kit entity.
-   */
-  updateKit(command: UpdateKitCommand): Observable<Kit> {
-    return this.updateEndpoint.updateKit(command);
+  addItem(command: AddKitItemCommand): Observable<KitEntity> {
+    return this.addItemService.addKitItem(command.productId, command);
   }
 
-  getAllProducts(): Observable<KitItem[]> {
-    return this.productsEndpoint.getAllProducts().pipe(
-      map((jsonArray) =>
-        jsonArray.map(
-          (json) =>
-            new KitItem({
-              id: json.id,
-              name: json.name,
-              sku: json.sku,
-              price: json.price,
-              quantity: json.quantity,
-            }),
-        ),
-      ),
+  removeItem(command: RemoveKitItemCommand): Observable<KitEntity> {
+    return this.removeItemService.removeKitItem(command);
+  }
+
+  delete(command: DeleteKitCommand): Observable<void> {
+    return this.deleteService.deleteKit(command);
+  }
+
+  getSupplies(accountId: string): Observable<CustomSupplyEntity[]> {
+    const url = `${environment.platformProviderApiBaseUrl}/custom-supplies?accountId=${accountId}`;
+    return this.http.get<CustomSupplyEntity[]>(url);
+  }
+
+  getAllKits(accountId: string) {
+    return this.http.get<KitEntity[]>(
+      `${environment.platformProviderApiBaseUrl}/products?accountId=${accountId}`,
     );
+  }
+
+  getKitById(kitId: string): Observable<KitEntity> {
+    return this.http
+      .get<any>(`${environment.platformProviderApiBaseUrl}/products/${kitId}`)
+      .pipe(map((r) => this._mapToKitEntity(r)));
+  }
+
+  private _mapToKitEntity(r: any): KitEntity {
+    return new KitEntity({
+      id: r.id,
+      accountId: r.accountId,
+      name: r.name,
+      description: r.description,
+      sku: r.sku,
+      type: r.type,
+      status: r.status,
+      imageUrl: r.imageUrl,
+      sellingPrice: r.sellingPrice,
+      items: (r.ingredients ?? r.items ?? []).map(
+        (ing: any) =>
+          new KitItemEntity({
+            id: ing.id,
+            productId: ing.productId,
+            customSupplyId: ing.customSupplyId,
+            quantity: ing.quantity,
+            totalCost: ing.totalCost,
+          }),
+      ),
+    });
   }
 }

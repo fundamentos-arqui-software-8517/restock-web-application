@@ -224,41 +224,6 @@
   align-items: center;
 }
 
-.monitoring-status-card {
-  padding: 16px;
-  background: #F1F4F3;
-  border-radius: 6px;
-  border: 1px dashed #BBCABF;
-}
-
-.status-layout {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.wifi-icon {
-  color: #006C49;
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.status-text-block {
-  display: flex;
-  flex-direction: column;
-}
-
-.status-title {
-  color: #181C1C;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.status-description {
-  color: #575E70;
-  font-size: 12px;
-}
-
 .modal-footer-bar {
   padding: 18px 32px;
   background: #F9FAFB;

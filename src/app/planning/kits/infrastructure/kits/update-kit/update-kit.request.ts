@@ -1,7 +1,7 @@
 export interface UpdateKitRequest {
   name: string;
-  price: number;
   description: string;
+  sku: string;
   imageUrl: string;
-  items: Array<{ productId: string; quantity: number }>;
+  sellingPrice: number;
 }

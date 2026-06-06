@@ -1,191 +1,241 @@
 <section class="batches-page">
   @if (loadError()) {
-    <p class="error-banner" role="alert">{{ 'resource.inventory.stock.errorLoad' | translate }}</p>
+    <p class="error-banner" role="alert">
+      {{ 'resource.inventory.stock.errorLoad' | translate }}
+    </p>
   }
 
   <header class="page-head">
     <div class="page-head-text">
-      <p class="crumbs">{{ 'resource.inventory.stock.crumbs' | translate }}</p>
       <h1 class="title">{{ 'resource.inventory.stock.title' | translate }}</h1>
     </div>
+
     <div class="page-head-actions">
-      <button mat-stroked-button type="button" class="btn-outline">
+      <button mat-stroked-button type="button" class="btn-outline" (click)="openTransferPanel()">
         <mat-icon>swap_horiz</mat-icon>
         {{ 'resource.inventory.stock.transferBatch' | translate }}
       </button>
-      <button mat-stroked-button type="button" class="btn-outline">
-        <mat-icon>calendar_view_month</mat-icon>
-        {{ 'resource.inventory.stock.customSupplies' | translate }}
-      </button>
-      <button mat-flat-button type="button" class="btn-primary">
+
+      <button mat-flat-button type="button" class="btn-primary" (click)="openAddBatchModal()">
         <mat-icon>add</mat-icon>
         {{ 'resource.inventory.stock.addBatch' | translate }}
       </button>
     </div>
   </header>
 
-  @if (snapshot(); as snap) {
+  @if (loading()) {
+    <p class="loading-line">{{ 'resource.inventory.stock.loading' | translate }}</p>
+  } @else {
     <div class="kpi-row">
       <article class="kpi-card">
-        <p class="kpi-label">{{ 'resource.inventory.stock.kpi.totalBatches' | translate }}</p>
-        <p class="kpi-value">{{ snap.totalActiveBatches | number }}</p>
+        <p class="kpi-label">
+          {{ 'resource.inventory.stock.kpi.totalBatches' | translate }}
+        </p>
+
+        <p class="kpi-value">{{ totalActiveBatches() | number }}</p>
+
         <p class="kpi-foot kpi-foot-up">
-          {{ 'resource.inventory.stock.kpi.fromLastMonth' | translate: { percent: snap.totalActiveBatchesDeltaPercent } }}
+          {{
+            'resource.inventory.stock.kpi.fromLastMonth'
+              | translate: { percent: totalActiveBatchesDeltaPercent() }
+          }}
         </p>
       </article>
+
       <article class="kpi-card">
-        <p class="kpi-label">{{ 'resource.inventory.stock.kpi.nearExpiry' | translate }}</p>
-        <p class="kpi-value kpi-value-warn">{{ snap.nearExpiry30Days | number }}</p>
-        <p class="kpi-foot kpi-foot-warn">{{ 'resource.inventory.stock.kpi.requiresAttention' | translate }}</p>
+        <p class="kpi-label">
+          {{ 'resource.inventory.stock.kpi.nearExpiry' | translate }}
+        </p>
+
+        <p class="kpi-value kpi-value-warn">{{ nearExpiry30Days() | number }}</p>
+
+        <p class="kpi-foot kpi-foot-warn">
+          {{ 'resource.inventory.stock.kpi.requiresAttention' | translate }}
+        </p>
       </article>
     </div>
 
-    <div class="table-card">
-      <div class="table-toolbar">
-        <div class="toolbar-filters">
-          <label class="select-wrap">
-            <span class="visually-hidden">{{ 'resource.inventory.stock.filter.categoryAria' | translate }}</span>
-            <select
-              class="rs-select"
-              [value]="categoryFilter()"
-              (change)="onCategoryChange($any($event.target).value)"
-            >
-              <option value="all">{{ 'resource.inventory.stock.filter.categoryAll' | translate }}</option>
-              @for (c of categories(); track c) {
-                <option [value]="c">{{ c }}</option>
+    <app-batch-stock-table
+      [rows]="pagedRows()"
+      [categories]="categories()"
+      [categoryFilter]="categoryFilter()"
+      [stockLevelFilter]="stockLevelFilter()"
+      [pageIndex]="pageIndex()"
+      [pageCount]="pageCount()"
+      [pageNumbers]="pageNumbers()"
+      [paginationFooter]="paginationFooter()"
+      (categoryFilterChange)="onCategoryChange($event)"
+      (stockLevelFilterChange)="onStockLevelChange($event)"
+      (pageChange)="goPage($event)"
+      (viewBatch)="openBatchDetailModal($event)"
+      (editBatch)="openEditBatchModal($event)"
+      (deleteBatch)="askDeleteBatch($event)"
+    />
+  }
+
+  @if (showAddBatchModal() || showEditBatchModal()) {
+    <div class="modal-backdrop" role="dialog" aria-modal="true">
+      <form class="inventory-modal" (ngSubmit)="showAddBatchModal() ? createBatch() : updateBatch()">
+        <header class="modal-titlebar">
+          <h2>{{ showAddBatchModal() ? 'Add New Batch' : 'Edit Batch' }}</h2>
+        </header>
+
+        @if (batchFormWarning()) {
+          <p class="warning-banner" role="alert">{{ batchFormWarning() }}</p>
+        }
+
+        <label class="form-field">
+          <span>Batch code</span>
+          <input name="code" type="text" [(ngModel)]="batchForm.code" placeholder="BATCH-0001" required>
+        </label>
+
+        @if (showAddBatchModal()) {
+          <label class="form-field">
+            <span>Select supply</span>
+            <select name="customSupplyId" [ngModel]="batchForm.customSupplyId" (ngModelChange)="onBatchSupplyChange($event)" required>
+              <option value="" disabled>Choose an existing supply...</option>
+              @for (supply of customSupplies(); track supply.id) {
+                <option [value]="supply.id">{{ supply.name }}</option>
               }
             </select>
           </label>
-          <label class="select-wrap">
-            <span class="visually-hidden">{{ 'resource.inventory.stock.filter.stockLevelAria' | translate }}</span>
-            <select
-              class="rs-select"
-              [value]="stockLevelFilter()"
-              (change)="onStockLevelChange($any($event.target).value)"
-            >
-              <option value="any">{{ 'resource.inventory.stock.filter.stockLevelAny' | translate }}</option>
-              <option value="low">{{ 'resource.inventory.stock.filter.stockLevelLow' | translate }}</option>
-              <option value="ok">{{ 'resource.inventory.stock.filter.stockLevelOk' | translate }}</option>
-              <option value="high">{{ 'resource.inventory.stock.filter.stockLevelHigh' | translate }}</option>
-            </select>
-          </label>
-        </div>
-        <div class="toolbar-icons">
-          <button type="button" class="icon-only" [attr.aria-label]="'resource.inventory.stock.toolbar.filtersAria' | translate">
-            <mat-icon>filter_list</mat-icon>
-          </button>
-          <button type="button" class="icon-only" [attr.aria-label]="'resource.inventory.stock.toolbar.exportAria' | translate">
-            <mat-icon>download</mat-icon>
-          </button>
-        </div>
-      </div>
 
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th scope="col">{{ 'resource.inventory.stock.table.supplyName' | translate }}</th>
-              <th scope="col">{{ 'resource.inventory.stock.table.category' | translate }}</th>
-              <th scope="col">{{ 'resource.inventory.stock.table.uom' | translate }}</th>
-              <th scope="col">{{ 'resource.inventory.stock.table.expiration' | translate }}</th>
-              <th scope="col">{{ 'resource.inventory.stock.table.stock' | translate }}</th>
-              <th scope="col">{{ 'resource.inventory.stock.table.perishable' | translate }}</th>
-              <th scope="col" class="col-actions">{{ 'resource.inventory.stock.table.actions' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of pagedRows(); track trackById($index, row)) {
-              <tr [class.row-warning]="row.rowHighlight === 'warning'">
-                <td>
-                  <div class="cell-name">
-                    <span class="supply-name">{{ row.supplyName }}</span>
-                    @if (row.subtitle) {
-                      <span class="supply-sub" [class.supply-sub-warn]="row.rowHighlight === 'warning'">{{
-                        row.subtitle
-                      }}</span>
-                    }
-                  </div>
-                </td>
-                <td>{{ row.category }}</td>
-                <td>{{ row.uomLabel }}</td>
-                <td>
-                  @if (row.expirationDate) {
-                    <span [class.exp-warn]="row.rowHighlight === 'warning' || row.perishableBadgeTone === 'warning'">{{
-                      row.expirationDate | date: 'MMM d, y'
-                    }}</span>
-                  } @else {
-                    <span class="exp-dash">{{ 'resource.inventory.stock.table.expDash' | translate }}</span>
-                  }
-                </td>
-                <td class="num">{{ row.stock | number: '1.2-2' }}</td>
-                <td>
-                  @if (row.isPerishable) {
-                    <span
-                      class="pill"
-                      [class.pill-warn]="row.perishableBadgeTone === 'warning'"
-                      [class.pill-info]="row.perishableBadgeTone === 'info'"
-                      >{{ 'resource.inventory.stock.perishable.yes' | translate }}</span
-                    >
-                  } @else {
-                    <span class="pill pill-neutral">{{ 'resource.inventory.stock.perishable.no' | translate }}</span>
-                  }
-                </td>
-                <td class="col-actions">
-                  <button type="button" class="row-action" [attr.aria-label]="'resource.inventory.stock.table.editAria' | translate">
-                    <mat-icon [class.icon-warn]="row.rowHighlight === 'warning'">edit</mat-icon>
-                  </button>
-                  <button type="button" class="row-action" [attr.aria-label]="'resource.inventory.stock.table.deleteAria' | translate">
-                    <mat-icon>delete_outline</mat-icon>
-                  </button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="7" class="empty-cell">{{ 'resource.inventory.stock.table.emptyFiltered' | translate }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <footer class="table-footer">
-        @if (paginationFooter(); as pf) {
-          @if (pf.mode === 'empty') {
-            <span class="footer-range">{{
-              'resource.inventory.stock.pagination.rangeEmpty' | translate: { total: pf.total }
-            }}</span>
-          } @else {
-            <span class="footer-range">{{
-              'resource.inventory.stock.pagination.range' | translate: { from: pf.from, to: pf.to, total: pf.total }
-            }}</span>
-          }
         }
-        <nav class="pager" [attr.aria-label]="'resource.inventory.stock.pagination.aria' | translate">
-          <button
-            type="button"
-            class="pager-btn"
-            [disabled]="pageIndex() === 0 || pageCount() === 0"
-            (click)="goPage(pageIndex() - 1)"
-          >
-            &lt;
+
+        <div class="stock-row">
+          <label class="form-field stock-input">
+            <span>Initial stock</span>
+            <input name="currentStock" type="number" min="0" step="0.01" [(ngModel)]="batchForm.currentStock" placeholder="0.00" required>
+          </label>
+          <span class="stock-unit">{{ selectedCustomSupplyUnit() }}</span>
+        </div>
+
+        @if (selectedCustomSupplyRequiresExpiration()) {
+          <label class="form-field">
+            <span>Expiration date</span>
+            <input name="expirationDate" type="date" [(ngModel)]="batchForm.expirationDate" required>
+          </label>
+          <p class="field-hint">Required for perishable items</p>
+        }
+
+        <footer class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeBatchDialogs()">Cancel</button>
+          <button type="submit" class="btn-submit">
+            {{ showAddBatchModal() ? 'Add Batch' : 'Update Batch' }}
           </button>
-          @for (p of pageNumbers(); track p) {
-            <button type="button" class="pager-num" [class.active]="p === pageIndex()" (click)="goPage(p)">
-              {{ p + 1 }}
-            </button>
-          }
-          <button
-            type="button"
-            class="pager-btn"
-            [disabled]="pageIndex() >= pageCount() - 1 || pageCount() === 0"
-            (click)="goPage(pageIndex() + 1)"
-          >
-            &gt;
-          </button>
-        </nav>
-      </footer>
+        </footer>
+      </form>
     </div>
-  } @else if (loading()) {
-    <p class="loading-line">{{ 'resource.inventory.stock.loading' | translate }}</p>
+  }
+
+  @if (showTransferBatchPanel()) {
+    <div class="drawer-backdrop" role="dialog" aria-modal="true">
+      <aside class="transfer-drawer">
+        <header class="modal-titlebar">
+          <div>
+            <h2>Transfer Batch Stock</h2>
+            <p>Initiate inter-branch logistics</p>
+          </div>
+        </header>
+
+        <label class="form-field">
+          <span>Origin branch</span>
+          <input name="originBranch" type="text" [value]="currentOriginBranchName()" readonly>
+        </label>
+
+        <label class="form-field">
+          <span>Select batch</span>
+          <select name="transferBatchId" [(ngModel)]="transferForm.batchId" required>
+            <option value="" disabled>Choose active batch ID...</option>
+            @for (row of rows(); track row.id) {
+              <option [value]="row.id">{{ row.code }} · {{ row.supplyName }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Destination branch</span>
+          <select name="targetBranchId" [(ngModel)]="transferForm.targetBranchId" required>
+            <option value="" disabled>Select destination...</option>
+            @for (branch of branches(); track branch.id) {
+              <option [value]="branch.id">{{ branch.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Quantity</span>
+          <input name="quantity" type="number" min="0" step="0.01" [(ngModel)]="transferForm.quantity" required>
+        </label>
+
+        <label class="form-field">
+          <span>Unit measurement</span>
+          <input name="unitMeasurement" type="text" [(ngModel)]="transferForm.unitMeasurement" placeholder="kg">
+        </label>
+
+        <label class="form-field">
+          <span>Reason</span>
+          <textarea name="reason" rows="3" [(ngModel)]="transferForm.reason" placeholder="Operational transfer"></textarea>
+        </label>
+
+        <footer class="drawer-actions">
+          <button type="button" class="btn-secondary" (click)="closeBatchDialogs()">Cancel</button>
+          <button type="button" class="btn-submit" (click)="transferBatch()">Confirm Transfer</button>
+        </footer>
+      </aside>
+    </div>
+  }
+
+  @if (showBatchDetailModal()) {
+    @if (selectedBatch(); as batch) {
+    <div class="modal-backdrop" role="dialog" aria-modal="true">
+      <section class="batch-detail-modal">
+        <header class="detail-titlebar">
+          <h2>Batch Details - {{ batch.code }}</h2>
+        </header>
+
+        <div class="detail-body">
+          <p class="detail-label">Supply name</p>
+          <h3>{{ batch.supplyName }}</h3>
+
+          <div class="detail-grid">
+            <article>
+              <span>Current stock</span>
+              <strong>{{ batch.stock | number: '1.2-2' }}</strong>
+            </article>
+            <article>
+              <span>Expiration date</span>
+              <strong class="detail-exp">{{ batch.expirationDate ? (batch.expirationDate | date: 'MMM d, y') : 'No expiration' }}</strong>
+            </article>
+            <article>
+              <span>UOM</span>
+              <strong>{{ batchDetailUnitLabel(batch) }}</strong>
+            </article>
+            <article>
+              <span>Origin branch</span>
+              <strong>{{ branchName(batch.branchId) }}</strong>
+            </article>
+          </div>
+        </div>
+
+        <footer class="detail-actions">
+          <button type="button" class="btn-secondary" (click)="closeBatchDialogs()">Close</button>
+        </footer>
+      </section>
+    </div>
+    }
+  }
+
+  @if (batchPendingDelete(); as batchToDelete) {
+    <div class="modal-backdrop" role="dialog" aria-modal="true">
+      <section class="confirm-modal">
+        <h2>Delete batch?</h2>
+        <p>Are you sure you want to delete {{ batchToDelete.code }} batch?</p>
+        <footer class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="cancelDeleteBatch()">Cancel</button>
+          <button type="button" class="btn-danger" (click)="confirmDeleteBatch()">Delete Batch</button>
+        </footer>
+      </section>
+    </div>
   }
 </section>

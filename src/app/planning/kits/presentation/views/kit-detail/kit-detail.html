@@ -1,0 +1,181 @@
+@if (kit(); as k) {
+  <div class="detail-container">
+    <div class="page-header">
+
+      <div class="breadcrumb" (click)="goBack()" style="cursor: pointer;">
+        <span class="back-arrow">←</span>
+        <span class="bc-link">BACK TO INVENTORY</span>
+      </div>
+
+      <div class="breadcrumb">
+        <span class="bc-link">INVENTORY</span>
+        <span class="bc-sep">›</span>
+        <span class="bc-link">KITS</span>
+      </div>
+      <div class="header-row">
+        <h1 class="page-title">{{ k.name }}</h1>
+        <div class="header-actions">
+          <button class="btn-secondary" (click)="openEditModal()">✎ Edit Kit</button>
+
+          @if (isEditOpen()) {
+            <app-edit-kit-modal
+              [isOpen]="isEditOpen()"
+              [kitToEdit]="kit()"
+              (closeModal)="closeEditModal()">
+            </app-edit-kit-modal>
+          }
+
+          <button class="btn-primary">✓ Fulfill Orders</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-section">
+
+      <div class="hero-card">
+        <div class="hero-image-wrapper">
+          <img
+            [src]="k.imageUrl || 'assets/placeholder-kit.png'"
+            [alt]="k.name"
+            class="hero-image"
+            (error)="onImageError($event)"
+          />
+        </div>
+        <div class="hero-info">
+          <div class="hero-top">
+            <div class="hero-name-row">
+              <h2 class="hero-name">{{ k.name }}</h2>
+              <span class="status-badge status-{{ k.status.toLowerCase() }}">{{ k.status }}</span>
+            </div>
+            <div class="price-block">
+              <span class="price-label">COMBO PRICE</span>
+              <span class="price-value">S/ {{ k.sellingPrice.toFixed(2) }}</span>
+            </div>
+            <p class="hero-description">{{ k.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="demand-card">
+        <div class="demand-header">
+          <span class="demand-label">WEEKLY DEMAND</span>
+          <span class="demand-trend">↗</span>
+        </div>
+        <div class="demand-stat">
+          <span class="demand-number">12</span>
+          <span class="demand-unit">Kits / day</span>
+        </div>
+        <p class="demand-sub">Average fulfillment rate</p>
+        <div class="chart-bars">
+          @for (bar of chartBars; track $index) {
+            <div
+              class="chart-bar"
+              [class.chart-bar--last]="$last"
+              [style.height.%]="bar * 100"
+            ></div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ingredients-card">
+      <div class="ingredients-header">
+        <h3 class="ingredients-title">Included Ingredients</h3>
+        <div class="ingredients-hint">
+          <span class="hint-icon">ⓘ</span>
+          <span>Available kits are limited by the lowest component stock.</span>
+        </div>
+      </div>
+
+      <table class="ingredients-table">
+        <thead>
+        <tr>
+          <th class="th-ingredient">INGREDIENT</th>
+          <th>SKU</th>
+          <th class="th-center">QTY PER<br/>KIT</th>
+          <th class="th-center">CURRENT<br/>STOCK</th>
+          <th class="th-right">ACTIONS</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (item of (k.items ?? []); track item.id) {
+            <tr class="ingredient-row">
+              <td>
+                <div class="ingredient-cell">
+                  <div class="ingredient-thumb">
+                    @if (getSupplyImage(item.customSupplyId)) {
+                      <img [src]="getSupplyImage(item.customSupplyId)" [alt]="getSupplyName(item.customSupplyId)" (error)="onImageError($event)" />
+                    } @else {
+                      <span class="thumb-icon">📦</span>
+                    }
+                  </div>
+                  <div class="ingredient-text">
+                    <span class="ingredient-name">{{ getSupplyName(item.customSupplyId) }}</span>
+                    <span class="ingredient-desc">{{ getSupplyDescription(item.customSupplyId) }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="td-sku">{{ getSupplySku(item.customSupplyId) }}</td>
+              <td class="td-center td-bold">{{ item.quantity }}</td>
+              <td class="td-center">
+                <span [class]="getSupplyStock(item.customSupplyId) > 50 ? 'stock-ok' : 'stock-low'">
+                  {{ getSupplyStock(item.customSupplyId) }}
+                </span>
+              </td>
+              <td class="td-right">
+                <button class="btn-view" title="View supply">
+                  <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 0.5C6 0.5 1.73 3.61 0 8c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C20.27 3.61 16 .5 11 .5zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" fill="#6C7A71"/>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty-row">No ingredients configured yet.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="ingredients-footer">
+        <span>Showing {{ (k.items ?? []).length }} ingredients for {{ k.name }}</span>
+        <button class="btn-add-supply">Add more supplies +</button>
+      </div>
+    </div>
+
+    <div class="danger-zone">
+      <button class="btn-delete" (click)="onDelete()">🗑 Delete Kit</button>
+
+      @if (isDeleteConfirmOpen()) {
+        <div class="delete-backdrop">
+          <div class="delete-modal">
+            <div class="delete-modal-body">
+              <div class="delete-icon-wrapper">
+                <svg width="33" height="29" viewBox="0 0 33 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16.5 0L33 28.5H0L16.5 0Z" fill="#BA1A1A" opacity="0.15"/>
+                  <path d="M16.5 4L30.5 27H2.5L16.5 4Z" stroke="#BA1A1A" stroke-width="2"/>
+                  <text x="16.5" y="23" text-anchor="middle" font-size="14" font-weight="bold" fill="#BA1A1A">!</text>
+                </svg>
+              </div>
+              <h2 class="delete-title">Delete Kit?</h2>
+              <p class="delete-subtitle">Are you sure? Individual products will remain in inventory.</p>
+            </div>
+            <div class="delete-modal-footer">
+              <button class="delete-btn-cancel" (click)="closeDeleteConfirm()">Cancel</button>
+              <button class="delete-btn-confirm" (click)="confirmDelete()">Yes, delete kit</button>
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+
+  </div>
+} @else {
+  <div class="loading-screen">
+    <div class="spinner"></div>
+    <p>Loading kit details...</p>
+  </div>
+}

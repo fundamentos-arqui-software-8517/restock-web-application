@@ -1,39 +1,50 @@
-import { Injectable } from '@angular/core';
-import { BaseResponse } from '../../../shared/infrastructure/base-response';
 import { BaseAssembler } from '../../../shared/infrastructure/base-assembler';
 import { Profile } from '../../domain/model/profile.entity';
-import { ProfileResource } from './profiles.response';
+import { ProfileResource, ProfilesListResponse } from './profiles.response';
 
-@Injectable({ providedIn: 'root' })
-export class ProfilesAssembler implements BaseAssembler<Profile, ProfileResource, BaseResponse> {
+export class ProfilesAssembler implements BaseAssembler<Profile, ProfileResource, ProfilesListResponse> {
+  /**
+   * @param response - Envelope possibly containing a `profiles` array.
+   * @returns Domain entities decoded from the envelope.
+   */
+  toEntitiesFromResponse(response: ProfilesListResponse): Profile[] {
+    const list = response.profiles;
+    if (!list?.length) {
+      return [];
+    }
+    return list.map((resource) => this.toEntityFromResource(resource));
+  }
+
+  /**
+   * @param resource - Single profile document from the API.
+   */
   toEntityFromResource(resource: ProfileResource): Profile {
-    return {
-      id: resource._id ?? String(resource.id),
+    const profileId = resource.id ?? String(resource.id);
+    return new Profile({
+      profileId,
       userId: resource.user_id ?? '',
-      firstName: resource.name ?? '',
+      name: resource.name ?? '',
       lastName: resource.last_name ?? '',
-      phone: resource.phone_number ?? '',
+      phoneNumber: resource.phone_number ?? '',
       avatarUrl: resource.avatar_url ?? '',
       gender: resource.gender ?? '',
       birthDate: resource.birth_date ?? '',
-    };
+    });
   }
 
+  /**
+   * @param entity - Domain aggregate to send on create/update.
+   */
   toResourceFromEntity(entity: Profile): ProfileResource {
     return {
-      id: 0,
-      _id: entity.id,
-      user_id: entity.userId,
-      name: entity.firstName,
+      id: entity.profileId.getValue(),
+      user_id: entity.userId.getValue(),
+      name: entity.name,
       last_name: entity.lastName,
-      phone_number: entity.phone,
-      avatar_url: entity.avatarUrl,
+      phone_number: entity.phoneNumber.getValue(),
+      avatar_url: entity.avatarUrl.getValue(),
       gender: entity.gender,
-      birth_date: entity.birthDate,
+      birth_date: entity.birthDate.getValue(),
     };
-  }
-
-  toEntitiesFromResponse(_response: BaseResponse): Profile[] {
-    return [];
   }
 }

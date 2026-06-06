@@ -1,0 +1,171 @@
+<div class="builder-wrapper" *ngIf="recipe; else notFound">
+
+  <!-- BREADCRUMBS -->
+  <nav class="breadcrumbs">
+    <button class="breadcrumb-link" (click)="goBack()">Recipes</button>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{{ recipe.name }}</span>
+  </nav>
+
+  <!-- TOP -->
+  <div class="builder-top">
+    <div class="builder-header-left">
+      <h1 class="builder-title">{{ recipe.name }}</h1>
+      <span class="status-chip" [ngClass]="{
+        'chip-active':   recipe.status === 'ACTIVE',
+        'chip-inactive': recipe.status === 'INACTIVE',
+        'chip-lowstock': recipe.status === 'LOW_STOCK'
+      }">{{ recipe.status === 'LOW_STOCK' ? 'LOW STOCK' : recipe.status }}</span>
+    </div>
+    <div class="builder-header-right">
+      <button class="btn-outline" (click)="store.openEditModal(recipe)">
+        <svg viewBox="0 0 20 20" fill="none" width="15">
+          <path d="M13.586 3.586a2 2 0 112.828 2.828L8 14.828 4 16l1.172-4L13.586 3.586z"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Edit Recipe
+      </button>
+      <button class="btn-publish">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="15">
+          <path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm3.707 6.293l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L9 10.172l3.293-3.293a1 1 0 011.414 1.414z"/>
+        </svg>
+        Publish Changes
+      </button>
+    </div>
+  </div>
+
+  <!-- HERO CARD -->
+  <div class="hero-card">
+    <div class="hero-image-col">
+      <img [src]="recipe.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&h=400&fit=crop'"
+           [alt]="recipe.name" class="hero-image" />
+    </div>
+    <div class="hero-data-col">
+      <div class="sku-row">
+        <span class="sku-label">RECIPE SKU</span>
+        <span class="sku-value">{{ recipe.sku }}</span>
+      </div>
+      <div class="price-boxes">
+        <div class="price-box price-sell">
+          <span class="pbox-label">SELLING PRICE</span>
+          <span class="pbox-value pbox-dark">S/. {{ recipe.sellingPrice | number:'1.2-2' }}</span>
+        </div>
+        <div class="price-box price-cost">
+          <span class="pbox-label">ESTIMATED COST</span>
+          <span class="pbox-value pbox-green">S/. {{ estimatedCost | number:'1.2-2' }}</span>
+        </div>
+      </div>
+      <div class="margin-row">
+        <span class="margin-label">Profit Margin</span>
+        <span class="margin-value" [class.negative]="profitMargin < 0">
+          {{ profitMargin | number:'1.1-1' }}%
+        </span>
+      </div>
+      <p class="hero-description">{{ recipe.description }}</p>
+    </div>
+  </div>
+
+  <!-- LINKED INGREDIENTS -->
+  <div class="ingredients-section">
+    <h2 class="section-title">Linked Ingredients</h2>
+
+    <div *ngIf="store.saving()" class="saving-indicator">
+      <div class="spinner-sm"></div> Updating…
+    </div>
+
+    <table class="ingredients-table" *ngIf="resolvedIngredients.length > 0; else emptyIngredients">
+      <thead>
+        <tr>
+          <th>INGREDIENT</th>
+          <th class="text-right">QUANTITY</th>
+          <th class="text-right">UNIT COST</th>
+          <th class="text-right">TOTAL COST</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ri of resolvedIngredients">
+          <td>
+            <div class="ing-cell">
+              <div class="ing-avatar">
+                <img *ngIf="ri.supply?.pictureUrl" [src]="ri.supply!.pictureUrl" [alt]="ri.supply?.name" />
+                <span *ngIf="!ri.supply?.pictureUrl">{{ (ri.supply?.name || '?').charAt(0) }}</span>
+              </div>
+              <div class="ing-info">
+                <span class="ing-name">{{ ri.supply?.name || ri.entry.customSupplyId }}</span>
+                <span class="ing-unit">per {{ ri.supply?.unitMeasurement || '—' }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="text-right">
+            {{ ri.entry.quantity }}
+            <span class="unit-badge">{{ ri.supply?.unitMeasurement }}</span>
+          </td>
+          <td class="text-right">S/. {{ (ri.supply?.unitPriceAmount || 0) | number:'1.2-2' }}</td>
+          <td class="text-right font-semibold">S/. {{ ri.entry.totalCost | number:'1.2-2' }}</td>
+          <td class="td-action">
+            <button class="btn-remove-ing"
+              (click)="store.removeIngredient(recipe.id, ri.entry.customSupplyId); refreshRecipe()"
+              title="Remove ingredient">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14">
+                <path fill-rule="evenodd"
+                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                  clip-rule="evenodd"/>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="tfoot-total">
+          <td colspan="3" class="tfoot-label">Total Estimated Unit Cost</td>
+          <td class="text-right tfoot-value">S/. {{ estimatedCost | number:'1.2-2' }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <ng-template #emptyIngredients>
+      <div class="empty-ing-msg">
+        <p>No ingredients linked yet. Use <strong>Edit Recipe</strong> to add ingredients.</p>
+      </div>
+    </ng-template>
+
+    <!-- DELETE RECIPE -->
+    <div class="delete-row">
+      <button class="btn-delete-text" (click)="store.confirmDelete(recipe)">
+        🗑 Delete Recipe
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<ng-template #notFound>
+  <div class="not-found">
+    <p>Recipe not found.</p>
+    <button class="btn-outline" (click)="goBack()">← Back to Recipes</button>
+  </div>
+</ng-template>
+
+<!-- EDIT MODAL -->
+<app-recipe-modal
+  *ngIf="store.modalMode() === 'edit' && recipe"
+  mode="edit"
+  [recipe]="recipe"
+  [availableSupplies]="store.customSupplies()"
+  [accountId]="store.accountId()"
+  [saving]="store.saving()"
+  (onClose)="store.closeModal(); refreshRecipe()"
+  (onUpdate)="store.update($event.cmd); refreshRecipe()"
+  (onAddIngredient)="store.addIngredient($event); refreshRecipe()"
+  (onRemoveIngredient)="store.removeIngredient($event.productId, $event.customSupplyId); refreshRecipe()"
+  (onDeleteRequest)="store.confirmDelete($event)"
+/>
+
+<app-delete-modal
+  *ngIf="store.showDeleteModal()"
+  [recipe]="store.recipeToDelete()"
+  (onCancel)="store.closeDeleteModal()"
+  (onConfirm)="store.executeDelete(); goBack()"
+/>

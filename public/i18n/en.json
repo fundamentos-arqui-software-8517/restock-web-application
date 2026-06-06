@@ -6,8 +6,11 @@
     "overview": "Overview",
     "inventory": "Inventory",
     "stock": "Stock",
+    "customSupplies": "Custom supplies",
+    "batches": "Batches",
     "discrepancies": "Discrepancies",
     "recipes": "Recipes",
+    "kits": "Kits",
     "sales": "Sales",
     "alerts": "Alerts",
     "devices": "Devices",
@@ -16,13 +19,16 @@
   "layout": {
     "search": {
       "default": "Search recipes, ingredients, or SKUs...",
-      "batches": "Search batches..."
+      "batches": "Search batches...",
+      "customSupplies": "Search catalog items..."
     }
   },
   "shared": {
     "topBar": {
       "notificationsAria": "Notifications",
-      "helpAria": "Help"
+      "helpAria": "Help",
+      "userMenuAria": "User menu",
+      "signOut": "Sign out"
     }
   },
   "home": {
@@ -36,7 +42,8 @@
       "discrepancies": {
         "crumbs": "INVENTORY > DISCREPANCIES",
         "title": "Discrepancies",
-        "body": "This section will list stock discrepancies. UI coming next."
+        "emptyTitle": "No discrepancies detected",
+        "body": "Inventory discrepancies will appear here when stock audits report mismatches."
       },
       "stock": {
         "crumbs": "INVENTORY > BATCHES",
@@ -44,7 +51,7 @@
         "transferBatch": "Transfer Batch Stock",
         "customSupplies": "Custom Supplies",
         "addBatch": "Add Batch",
-        "errorLoad": "Could not load inventory. Check the API or your network.",
+        "errorLoad": "Could not load inventory. Check the API or network.",
         "loading": "Loading batches…",
         "kpi": {
           "totalBatches": "TOTAL ACTIVE BATCHES",
@@ -88,6 +95,251 @@
           "rangeEmpty": "Showing 0 of {{total}} batches"
         }
       }
+    }
+  },
+  "devices": {
+    "list-title": "Device Management",
+    "register-device-btn": "Register Device",
+    "list-error": "Error loading devices",
+    "stats-active-scales": "Active Scales",
+    "stats-from-yesterday": "↓ 4 from yesterday",
+    "stats-stock-alerts": "Stock Alerts",
+    "stats-critical": "Critical",
+    "stats-environmental-alerts": "Environmental Alerts",
+    "stats-temp-deviation": "Temp deviation detected",
+    "stats-offline": "Offline",
+    "stats-check-connectivity": "Check connectivity",
+    "table-title": "Active Device Directory",
+    "table-macAddress": "MAC ADDRESS",
+    "table-assignedSupply": "ASSIGNED SUPPLY",
+    "table-network": "NETWORK",
+    "table-deviceStatus": "SENSOR HEALTH",
+    "table-footer-showing": "Showing",
+    "table-footer-of": "of",
+    "table-footer-devices": "devices"
+  },
+  "settings": {
+    "breadcrumb": {
+      "root": "SETTINGS",
+      "general": "GENERAL",
+      "profile": "PROFILE",
+      "branches": "BRANCHES"
+    },
+    "title": "Account Settings",
+    "subtitle": "Manage your personal credentials and business organizational details.",
+    "regional": {
+      "title": "Regional Configuration",
+      "timezone": "TIMEZONE",
+      "currency": "CURRENCY",
+      "language": "LANGUAGE"
+    },
+    "branch": {
+      "title": "Branch Selection",
+      "label": "BRANCHES"
+    },
+    "communication": "COMMUNICATION",
+    "notifications": {
+      "email": "Email Notifications",
+      "sms": "SMS Critical Alerts"
+    },
+    "status": {
+      "title": "System Status",
+      "version": "Software Version",
+      "sync": "Last Sync",
+      "syncTime": "2 mins ago",
+      "nominal": "ALL SYSTEMS NOMINAL",
+      "description": "Global node connectivity at 99.98%."
+    },
+    "actions": {
+      "discard": "Discard Changes",
+      "save": "Save Preferences"
+    },
+    "profile": {
+      "title": "Personal Information",
+      "loading": "Loading profile…",
+      "photo": {
+        "label": "Profile Photo",
+        "hint": "Accepted formats: JPG, PNG. Max size: 2MB.",
+        "upload": "UPLOAD NEW",
+        "remove": "REMOVE"
+      },
+      "fields": {
+        "firstName": "FIRST NAME",
+        "lastName": "LAST NAME",
+        "gender": "GENDER",
+        "phone": "PHONE NUMBER"
+      },
+      "placeholders": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "gender": "Gender",
+        "phone": "Phone number"
+      },
+      "actions": {
+        "discard": "DISCARD CHANGES",
+        "save": "SAVE CHANGES"
+      }
+    },
+    "business": {
+      "title": "BUSINESS",
+      "loading": "Loading…",
+      "empty": "No business found."
+    },
+    "branches": {
+      "title": "Branches",
+      "comingSoon": "Branch management coming soon."
+    }
+  },
+  "iam": {
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email to receive a recovery code.",
+      "sendButton": "Send recovery code",
+      "sending": "Sending...",
+      "backToLogin": "Back to login"
+    },
+    "authenticationSection": {
+      "title": "How will you use Restock?",
+      "subtitle": "Select your primary operational environment to tailor your smart inventory",
+      "restaurantAdmin": "Restaurant Administrator",
+      "restaurantDesc": "Manage kitchen inventory, fresh food supplies, and daily culinary operations.",
+      "retailAdmin": "Retail Administrator",
+      "retailDesc": "Manage store shelves, packaged food goods, and retail supply chains.",
+      "continue": "CONTINUE",
+      "returnToLogin": "Return to Login"
+    },
+    "signUpForm": {
+      "tagline": "Smart inventory - Real-time control",
+      "register": "Register",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "name@organization.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "createAccount": "Create Account",
+      "creating": "Creating account...",
+      "alreadyHaveAccount": "Already have an account?",
+      "returnToLogin": "Return to Login"
+    },
+    "signInForm": {
+      "infoTitle": "Real-time inventory intelligence for the modern warehouse.",
+      "infoDescription": "Connect your hardware seamlessly. Monitor stock levels, track temperature-sensitive assets, and automate replenishment.",
+      "tagline": "Smart inventory - Real-time control",
+      "loginTitle": "Login",
+      "emailLabel": "EMAIL ADDRESS",
+      "emailPlaceholder": "name@organization.com",
+      "passwordLabel": "PASSWORD",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "Forgot your password?",
+      "rememberMe": "Remember this device for 30 days",
+      "loginButton": "LOGIN",
+      "authenticating": "AUTHENTICATING...",
+      "ssoDivider": "OR CONTINUE WITH SSO",
+      "ssoButton": "Enterprise SSO Login",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up"
+    }
+  },
+  "profiles": {
+    "registrationPersonalProfile": {
+      "heading": "Create your Account",
+      "subtitle": "Join the network of professional IoT inventory managers.",
+      "personalDetailsTitle": "Personal Details",
+      "personalDetailsDescription": "How should we address you within the system?",
+      "firstNameLabel": "FIRST NAME",
+      "firstNamePlaceholder": "e.g. Elena",
+      "lastNameLabel": "LAST NAME",
+      "lastNamePlaceholder": "e.g. Kovac",
+      "phoneNumberLabel": "PHONE NUMBER",
+      "phoneNumberPlaceholder": "(555) 000-0000",
+      "locationTitle": "Location",
+      "locationDescription": "Specify the primary region for regional IoT node deployment.",
+      "addressLabel": "ADDRESS",
+      "addressPlaceholder": "123 Industrial Ave, Suite 400",
+      "cityLabel": "CITY",
+      "cityPlaceholder": "San Francisco",
+      "countryLabel": "COUNTRY",
+      "profileTitle": "Profile",
+      "profileDescription": "Customize your internal identifier and role summary.",
+      "uploadAvatarLabel": "UPLOAD AVATAR",
+      "avatarUploadCta": "Click to upload",
+      "avatarOrDrop": "or drag and drop",
+      "avatarHint": "SVG, PNG, JPG or GIF (max. 800×800px)",
+      "securityNote": "All information is stored in compliance with enterprise security protocols.",
+      "skip": "Skip",
+      "cancel": "Cancel",
+      "nextBusinessDetails": "Next: Business Details"
+    },
+    "registrationBusinessDetails": {
+      "title": "Business Details",
+      "subtitle": "Complete your organization profile to start monitoring your inventory.",
+      "businessNameLabel": "BUSINESS NAME",
+      "businessNamePlaceholder": "e.g. Nexus Logistics",
+      "phoneNumberLabel": "PHONE NUMBER",
+      "phoneNumberPlaceholder": "+1 (555) 000-0000",
+      "addressLabel": "ADDRESS",
+      "addressPlaceholder": "123 Industrial Way",
+      "cityLabel": "CITY",
+      "cityPlaceholder": "San Francisco",
+      "countryLabel": "COUNTRY",
+      "businessDescriptionLabel": "BUSINESS DESCRIPTION",
+      "businessDescriptionPlaceholder": "Describe your primary inventory management needs...",
+      "categoriesLabel": "CATEGORIES",
+      "addCategoryPlaceholder": "Add a category...",
+      "removeCategory": "Remove",
+      "back": "Back",
+      "createAccount": "Create Account",
+      "dataSecurityTitle": "Data Security",
+      "dataSecurityBody": "Secure access and encrypted communication",
+      "realTimeSyncTitle": "Real-time Sync",
+      "realTimeSyncBody": "Sub-second latency",
+      "scaleReadyTitle": "Scale Ready",
+      "scaleReadyBody": "Designed to connect multiple inventory nodes",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service"
+    }
+  },
+  "kits": {
+    "catalog": "Kits & Combos Catalog",
+    "subtitle": "Manage retail combinations and inventory-linked product kits.",
+    "create": "Create New Kit",
+    "edit": "Edit Details",
+    "save": "Save Kit",
+    "update": "Update Kit",
+    "metrics": {
+      "totalKits": "TOTAL KITS",
+      "activeCombos": "ACTIVE COMBOS",
+      "lowStockAlerts": "LOW STOCK ALERTS"
+    },
+    "states": {
+      "loadingProducts": "Loading supplies from Beeceptor...",
+      "emptyProducts": "No products added to this kit yet."
+    },
+    "actions": { "retry": "Retry Connection", "cancel": "Cancel", "save": "Save Kit" },
+    "form": {
+      "image": "KIT IMAGE",
+      "uploadImage": "Upload Image",
+      "name": "KIT NAME",
+      "namePlaceholder": "e.g. Gourmet Italian Dinner Kit",
+      "price": "COMBO PRICE (USD)",
+      "recommendedHint": "Recommended price based on components: S/ {{ price }}",
+      "description": "KIT DESCRIPTION",
+      "descPlaceholder": "e.g. This premium kit contains selective ingredients...",
+      "productSelector": "Product Selector",
+      "selectProduct": "SELECT PRODUCT",
+      "selectPlaceholder": "--- Select a product ---",
+      "quantity": "QUANTITY",
+      "addSupply": "Add Supply",
+      "includedProducts": "INCLUDED PRODUCTS ({{ count }})",
+      "totalCost": "Total Cost"
+    },
+    "table": {
+      "product": "Product",
+      "sku": "SKU",
+      "qty": "Qty",
+      "price": "Price",
+      "actions": "Actions"
     }
   }
 }

@@ -6,8 +6,11 @@
     "overview": "Resumen",
     "inventory": "Inventario",
     "stock": "Existencias",
+    "customSupplies": "Suministros personalizados",
+    "batches": "Lotes",
     "discrepancies": "Discrepancias",
     "recipes": "Recetas",
+    "kits": "Kits",
     "sales": "Ventas",
     "alerts": "Alertas",
     "devices": "Dispositivos",
@@ -16,13 +19,16 @@
   "layout": {
     "search": {
       "default": "Buscar recetas, ingredientes o SKUs...",
-      "batches": "Buscar lotes..."
+      "batches": "Buscar lotes...",
+      "customSupplies": "Buscar suministros..."
     }
   },
   "shared": {
     "topBar": {
       "notificationsAria": "Notificaciones",
-      "helpAria": "Ayuda"
+      "helpAria": "Ayuda",
+      "userMenuAria": "Menú de usuario",
+      "signOut": "Cerrar sesión"
     }
   },
   "home": {
@@ -36,7 +42,8 @@
       "discrepancies": {
         "crumbs": "INVENTARIO > DISCREPANCIAS",
         "title": "Discrepancias",
-        "body": "Aquí se listarán las discrepancias de stock. La interfaz llegará después."
+        "emptyTitle": "No hay discrepancias detectadas",
+        "body": "Las discrepancias de inventario apareceran aqui cuando las auditorias de stock reporten diferencias."
       },
       "stock": {
         "crumbs": "INVENTARIO > LOTES",
@@ -44,7 +51,7 @@
         "transferBatch": "Transferir stock de lote",
         "customSupplies": "Insumos personalizados",
         "addBatch": "Añadir lote",
-        "errorLoad": "No se pudo cargar el inventario. Revisa la API o la conexión.",
+        "errorLoad": "No se pudo cargar el inventario. Revisa API o conexión.",
         "loading": "Cargando lotes…",
         "kpi": {
           "totalBatches": "LOTES ACTIVOS TOTALES",
@@ -88,6 +95,251 @@
           "rangeEmpty": "Mostrando 0 de {{total}} lotes"
         }
       }
+    }
+  },
+  "devices": {
+    "list-title": "Gestión de Dispositivos",
+    "register-device-btn": "Registrar Dispositivo",
+    "list-error": "Error al cargar los dispositivos",
+    "stats-active-scales": "Básculas Activas",
+    "stats-from-yesterday": "↓ 4 de ayer",
+    "stats-stock-alerts": "Alertas de Stock",
+    "stats-critical": "Críticas",
+    "stats-environmental-alerts": "Alertas Ambientales",
+    "stats-temp-deviation": "Desviación de temperatura detectada",
+    "stats-offline": "Desconectados",
+    "stats-check-connectivity": "Verificar conectividad",
+    "table-title": "Directorio Activo de Dispositivos",
+    "table-macAddress": "DIRECCIÓN MAC",
+    "table-assignedSupply": "SUMINISTRO ASIGNADO",
+    "table-network": "RED",
+    "table-deviceStatus": "SALUD DEL SENSOR",
+    "table-footer-showing": "Mostrando",
+    "table-footer-of": "de",
+    "table-footer-devices": "dispositivos"
+  },
+  "settings": {
+    "breadcrumb": {
+      "root": "AJUSTES",
+      "general": "GENERAL",
+      "profile": "PERFIL",
+      "branches": "SUCURSALES"
+    },
+    "title": "Configuración de Cuenta",
+    "subtitle": "Gestiona tus credenciales personales y detalles organizacionales del negocio.",
+    "regional": {
+      "title": "Configuración Regional",
+      "timezone": "ZONA HORARIA",
+      "currency": "MONEDA",
+      "language": "IDIOMA"
+    },
+    "branch": {
+      "title": "Selección de Sucursal",
+      "label": "SUCURSALES"
+    },
+    "communication": "COMUNICACIÓN",
+    "notifications": {
+      "email": "Notificaciones por Correo",
+      "sms": "Alertas Críticas por SMS"
+    },
+    "status": {
+      "title": "Estado del Sistema",
+      "version": "Versión del Software",
+      "sync": "Última Sincronización",
+      "syncTime": "Hace 2 minutos",
+      "nominal": "TODOS LOS SISTEMAS NOMINALES",
+      "description": "Conectividad global de nodos al 99.98%."
+    },
+    "actions": {
+      "discard": "Descartar Cambios",
+      "save": "Guardar Preferencias"
+    },
+    "profile": {
+      "title": "Información Personal",
+      "loading": "Cargando perfil…",
+      "photo": {
+        "label": "Foto de Perfil",
+        "hint": "Formatos aceptados: JPG, PNG. Tamaño máximo: 2MB.",
+        "upload": "SUBIR NUEVA",
+        "remove": "ELIMINAR"
+      },
+      "fields": {
+        "firstName": "NOMBRE",
+        "lastName": "APELLIDO",
+        "gender": "GÉNERO",
+        "phone": "NÚMERO DE TELÉFONO"
+      },
+      "placeholders": {
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "gender": "Género",
+        "phone": "Número de teléfono"
+      },
+      "actions": {
+        "discard": "DESCARTAR CAMBIOS",
+        "save": "GUARDAR CAMBIOS"
+      }
+    },
+    "business": {
+      "title": "NEGOCIO",
+      "loading": "Cargando…",
+      "empty": "No se encontró negocio."
+    },
+    "branches": {
+      "title": "Sucursales",
+      "comingSoon": "Gestión de sucursales próximamente."
+    }
+  },
+  "iam": {
+    "forgotPassword": {
+      "title": "Restablecer contraseña",
+      "subtitle": "Ingresa tu correo electrónico para recibir un código de recuperación.",
+      "sendButton": "Enviar código de recuperación",
+      "sending": "Enviando...",
+      "backToLogin": "Volver al inicio de sesión"
+    },
+    "authenticationSection": {
+      "title": "¿Cómo usarás Restock?",
+      "subtitle": "Selecciona tu entorno operativo principal para adaptar tu inventario inteligente",
+      "restaurantAdmin": "Administrador de Restaurante",
+      "restaurantDesc": "Gestiona el inventario de cocina, suministros de alimentos frescos y operaciones culinarias diarias.",
+      "retailAdmin": "Administrador de Retail",
+      "retailDesc": "Gestiona estanterías de tienda, productos alimenticios envasados y cadenas de suministro minoristas.",
+      "continue": "CONTINUAR",
+      "returnToLogin": "Volver al Inicio de Sesión"
+    },
+    "signUpForm": {
+      "tagline": "Inventario inteligente - Control en tiempo real",
+      "register": "Registrarse",
+      "emailLabel": "Dirección de Correo",
+      "emailPlaceholder": "nombre@organizacion.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "••••••••",
+      "createAccount": "Crear Cuenta",
+      "creating": "Creando cuenta...",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "returnToLogin": "Volver al Inicio de Sesión"
+    },
+    "signInForm": {
+      "infoTitle": "Inteligencia de inventario en tiempo real para el almacén moderno.",
+      "infoDescription": "Conecta tu hardware sin problemas. Supervisa niveles de stock, rastrea activos sensibles a la temperatura y automatiza el reabastecimiento.",
+      "tagline": "Inventario inteligente - Control en tiempo real",
+      "loginTitle": "Iniciar sesión",
+      "emailLabel": "DIRECCIÓN DE CORREO",
+      "emailPlaceholder": "nombre@organizacion.com",
+      "passwordLabel": "CONTRASEÑA",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "rememberMe": "Recordar este dispositivo por 30 días",
+      "loginButton": "INGRESAR",
+      "authenticating": "AUTENTICANDO...",
+      "ssoDivider": "O CONTINUAR CON SSO",
+      "ssoButton": "Inicio de sesión empresarial SSO",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpLink": "Regístrate"
+    }
+  },
+  "profiles": {
+    "registrationPersonalProfile": {
+      "heading": "Crea tu cuenta",
+      "subtitle": "Únete a la red de gestores profesionales de inventario IoT.",
+      "personalDetailsTitle": "Detalles Personales",
+      "personalDetailsDescription": "¿Cómo deberíamos dirigirnos a ti dentro del sistema?",
+      "firstNameLabel": "NOMBRE",
+      "firstNamePlaceholder": "p.ej. Elena",
+      "lastNameLabel": "APELLIDO",
+      "lastNamePlaceholder": "p.ej. Kovac",
+      "phoneNumberLabel": "TELÉFONO",
+      "phoneNumberPlaceholder": "(555) 000-0000",
+      "locationTitle": "Ubicación",
+      "locationDescription": "Especifica la región principal para el despliegue regional de nodos IoT.",
+      "addressLabel": "DIRECCIÓN",
+      "addressPlaceholder": "123 Industrial Ave, Suite 400",
+      "cityLabel": "CIUDAD",
+      "cityPlaceholder": "San Francisco",
+      "countryLabel": "PAÍS",
+      "profileTitle": "Perfil",
+      "profileDescription": "Personaliza tu identificador interno y resumen de rol.",
+      "uploadAvatarLabel": "SUBIR AVATAR",
+      "avatarUploadCta": "Haz clic para subir",
+      "avatarOrDrop": "o arrastra y suelta",
+      "avatarHint": "SVG, PNG, JPG o GIF (máx. 800×800px)",
+      "securityNote": "Toda la información se almacena cumpliendo los protocolos de seguridad empresarial.",
+      "skip": "Omitir",
+      "cancel": "Cancelar",
+      "nextBusinessDetails": "Siguiente: Detalles del Negocio"
+    },
+    "registrationBusinessDetails": {
+      "title": "Detalles del Negocio",
+      "subtitle": "Completa el perfil de tu organización para empezar a supervisar tu inventario.",
+      "businessNameLabel": "NOMBRE DEL NEGOCIO",
+      "businessNamePlaceholder": "p.ej. Nexus Logistics",
+      "phoneNumberLabel": "TELÉFONO",
+      "phoneNumberPlaceholder": "+1 (555) 000-0000",
+      "addressLabel": "DIRECCIÓN",
+      "addressPlaceholder": "123 Industrial Way",
+      "cityLabel": "CIUDAD",
+      "cityPlaceholder": "San Francisco",
+      "countryLabel": "PAÍS",
+      "businessDescriptionLabel": "DESCRIPCIÓN DEL NEGOCIO",
+      "businessDescriptionPlaceholder": "Describe tus principales necesidades de gestión de inventario...",
+      "categoriesLabel": "CATEGORÍAS",
+      "addCategoryPlaceholder": "Añadir una categoría...",
+      "removeCategory": "Eliminar",
+      "back": "Atrás",
+      "createAccount": "Crear Cuenta",
+      "dataSecurityTitle": "Seguridad de Datos",
+      "dataSecurityBody": "Acceso seguro y comunicación cifrada",
+      "realTimeSyncTitle": "Sincronización en Tiempo Real",
+      "realTimeSyncBody": "Latencia sub-segundo",
+      "scaleReadyTitle": "Listo para Escalar",
+      "scaleReadyBody": "Diseñado para conectar múltiples nodos de inventario",
+      "privacyPolicy": "Política de Privacidad",
+      "termsOfService": "Términos de Servicio"
+    }
+  },
+  "kits": {
+    "catalog": "Catálogo de Kits y Combos",
+    "subtitle": "Gestiona combinaciones de venta y kits de productos.",
+    "create": "Crear nuevo Kit",
+    "edit": "Editar detalles",
+    "save": "Guardar Kit",
+    "update": "Actualizar Kit",
+    "metrics": {
+      "totalKits": "TOTAL KITS",
+      "activeCombos": "COMBOS ACTIVOS",
+      "lowStockAlerts": "ALERTAS STOCK BAJO"
+    },
+    "states": {
+      "loadingProducts": "Cargando insumos desde Beeceptor...",
+      "emptyProducts": "Aún no se han añadido productos a este kit."
+    },
+    "actions": { "retry": "Reintentar Conexión", "cancel": "Cancelar", "save": "Guardar Kit" },
+    "form": {
+      "image": "IMAGEN DEL KIT",
+      "uploadImage": "Subir Imagen",
+      "name": "NOMBRE DEL KIT",
+      "namePlaceholder": "Ej. Kit de cena gourmet",
+      "price": "PRECIO DEL COMBO (USD)",
+      "recommendedHint": "Precio recomendado según componentes: S/ {{ price }}",
+      "description": "DESCRIPCIÓN DEL KIT",
+      "descPlaceholder": "Ej. Este kit premium contiene ingredientes seleccionados...",
+      "productSelector": "Selector de Productos",
+      "selectProduct": "SELECCIONAR PRODUCTO",
+      "selectPlaceholder": "--- Selecciona un producto ---",
+      "quantity": "CANTIDAD",
+      "addSupply": "Añadir Insumo",
+      "includedProducts": "PRODUCTOS INCLUIDOS ({{ count }})",
+      "totalCost": "Costo Total"
+    },
+    "table": {
+      "product": "Producto",
+      "sku": "SKU",
+      "qty": "Cant.",
+      "price": "Precio",
+      "actions": "Acciones"
     }
   }
 }

@@ -1,0 +1,456 @@
+@if (currentDevice(); as device) {
+  <div class="detail-page">
+    <div class="detail-header">
+      <div class="header-left">
+        <button class="back-btn" type="button" (click)="goToList()" aria-label="Back to device list">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-text">
+          <span class="eyebrow">Device onboarding</span>
+          <h1 class="device-title">Supply Keeper</h1>
+          <div class="device-meta-row">
+            <span class="mac-chip">{{ device.macAddress }}</span>
+            @if (device.description) {
+              <span class="meta-separator"></span>
+              <span class="device-description">{{ device.description }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <span class="status-badge"
+          [class.badge-pending]="device.status === 'REGISTERED'"
+          [class.badge-configured]="device.status === 'CONFIGURED'"
+          [class.badge-active]="device.status === 'ACTIVE'"
+          [class.badge-inactive]="device.status === 'INACTIVE'">
+          {{ statusLabel(device.status) }}
+        </span>
+        <button class="btn-outline" type="button">
+          <mat-icon>edit</mat-icon>
+          Edit info
+        </button>
+      </div>
+    </div>
+
+    @if (pageError()) {
+      <div class="error-banner">{{ pageError() }}</div>
+    }
+
+    <section class="setup-overview" aria-label="Setup progress">
+      <div class="progress-steps">
+        <div class="progress-step" [class.complete]="!!device.assignedBatchId" [class.active]="!device.assignedBatchId">
+          <span class="step-dot">1</span>
+          <span>Batch</span>
+        </div>
+        <div class="progress-line" [class.complete]="hasSpecifications(device)"></div>
+        <div class="progress-step" [class.complete]="hasSpecifications(device)" [class.active]="!!device.assignedBatchId && !hasSpecifications(device)">
+          <span class="step-dot">2</span>
+          <span>Hardware</span>
+        </div>
+        <div class="progress-line" [class.complete]="!!device.branchId"></div>
+        <div class="progress-step" [class.complete]="!!device.branchId" [class.active]="hasSpecifications(device) && !device.branchId">
+          <span class="step-dot">3</span>
+          <span>Branch</span>
+        </div>
+        <div class="progress-line" [class.complete]="device.status === 'CONFIGURED' || device.status === 'ACTIVE'"></div>
+        <div class="progress-step" [class.complete]="device.status === 'CONFIGURED' || device.status === 'ACTIVE'" [class.active]="!!device.assignedBatchId && hasSpecifications(device) && !!device.branchId">
+          <span class="step-dot">4</span>
+          <span>Alerts</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="onboarding-layout">
+      <main class="setup-column">
+        <section class="panel-card setup-card">
+          <div class="panel-header">
+            <div class="step-heading">
+              <span class="step-number">1</span>
+              <div>
+                <h3 class="panel-title">Inventory assignment</h3>
+                <p class="panel-subtitle">Connect this scale to the supply batch it will monitor.</p>
+              </div>
+            </div>
+          </div>
+
+          @if (!device.assignedBatchId) {
+            <div class="empty-batch-state">
+              <div class="empty-icon-wrap">
+                <mat-icon>inventory_2</mat-icon>
+              </div>
+              <div>
+                <p class="empty-title">No batch assigned</p>
+                <p class="empty-desc">Assign an inventory batch before configuring alerts or activating monitoring.</p>
+              </div>
+            </div>
+
+            <button class="btn-primary full-width mt-16" type="button" (click)="openAssignBatchDialog()">
+              <mat-icon>add_link</mat-icon>
+              Assign batch
+            </button>
+          } @else {
+            <div class="selected-batch">
+              <div>
+                <span class="meta-label">Current batch</span>
+                <h4 class="batch-name">{{ batchName(device.assignedBatchId!) }}</h4>
+              </div>
+              <button class="btn-outline" type="button" (click)="openAssignBatchDialog()">
+                <mat-icon>swap_horiz</mat-icon>
+                Change
+              </button>
+            </div>
+          }
+        </section>
+
+        <section class="panel-card setup-card" [class.is-locked]="!device.assignedBatchId">
+          <div class="panel-header">
+            <div class="step-heading">
+              <span class="step-number">2</span>
+              <div>
+                <h3 class="panel-title">Hardware specifications</h3>
+                <p class="panel-subtitle">Identify the equipment version used by operations and support.</p>
+              </div>
+            </div>
+            @if (!device.assignedBatchId) {
+              <span class="lock-pill"><mat-icon>lock</mat-icon> Locked</span>
+            }
+          </div>
+
+          <form [formGroup]="specificationsForm" class="section-form">
+            <div class="spec-grid">
+              <div class="field-group">
+                <label class="field-label-caps">Manufacturer</label>
+                <input formControlName="manufacturer" placeholder="Restock" class="form-input" [disabled]="!device.assignedBatchId" />
+              </div>
+              <div class="field-group">
+                <label class="field-label-caps">Model</label>
+                <input formControlName="model" placeholder="Supply Keeper" class="form-input" [disabled]="!device.assignedBatchId" />
+              </div>
+              <div class="field-group">
+                <label class="field-label-caps">Firmware version</label>
+                <input formControlName="firmwareVersion" placeholder="1.0.0" class="form-input" [disabled]="!device.assignedBatchId" />
+              </div>
+            </div>
+
+            <div class="section-actions">
+              <button class="btn-outline" type="button"
+                [disabled]="!device.assignedBatchId || specificationsForm.invalid || loading() || (hasSpecifications(device) && !specificationsChanged(device))"
+                (click)="saveSpecifications()">
+                <mat-icon>save</mat-icon>
+                @if (loading()) {
+                  <mat-spinner diameter="16"></mat-spinner>
+                } @else if (hasSpecifications(device)) {
+                  Update hardware
+                } @else {
+                  Save hardware
+                }
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel-card setup-card" [class.is-locked]="!device.assignedBatchId">
+          <div class="panel-header">
+            <div class="step-heading">
+              <span class="step-number">3</span>
+              <div>
+                <h3 class="panel-title">Branch assignment</h3>
+                <p class="panel-subtitle">Place the device in the store branch where readings belong.</p>
+              </div>
+            </div>
+            @if (!device.assignedBatchId) {
+              <span class="lock-pill"><mat-icon>lock</mat-icon> Locked</span>
+            }
+          </div>
+
+          <form [formGroup]="branchForm" class="section-form">
+            <div class="field-group">
+              <label class="field-label-caps">Branch ID</label>
+              <input formControlName="branchId" placeholder="branch_01" class="form-input" [disabled]="!device.assignedBatchId" />
+            </div>
+
+            <div class="section-actions">
+              <button class="btn-outline" type="button"
+                [disabled]="!device.assignedBatchId || branchForm.invalid || loading() || (!!device.branchId && !branchChanged(device))"
+                (click)="saveBranch()">
+                <mat-icon>storefront</mat-icon>
+                @if (loading()) {
+                  <mat-spinner diameter="16"></mat-spinner>
+                } @else if (device.branchId) {
+                  Update branch
+                } @else {
+                  Assign branch
+                }
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel-card setup-card thresholds-card" [class.is-locked]="!device.assignedBatchId">
+          <div class="panel-header">
+            <div class="step-heading">
+              <span class="step-number">4</span>
+              <div>
+                <h3 class="panel-title">Alert thresholds</h3>
+                <p class="panel-subtitle">Define stock and environmental limits for automatic monitoring.</p>
+              </div>
+            </div>
+            @if (!device.assignedBatchId) {
+              <span class="lock-pill"><mat-icon>lock</mat-icon> Locked</span>
+            }
+          </div>
+
+          @if (!device.assignedBatchId) {
+            <div class="locked-empty">
+              <mat-icon>lock</mat-icon>
+              <span>Assign a batch to enable stock, temperature, and humidity thresholds.</span>
+            </div>
+          } @else {
+            <form [formGroup]="thresholdsForm" class="section-form">
+              <div class="threshold-section">
+                <div class="section-header-sm">
+                  <mat-icon>inventory</mat-icon>
+                  <h4>Stock limits</h4>
+                </div>
+                <div class="threshold-row-2 mt-12">
+                  <div class="field-group">
+                    <label class="field-label-caps">Minimum stock alert</label>
+                    <div class="input-with-unit">
+                      <input type="number" formControlName="minStock" class="form-input" />
+                      <span class="unit-tag">units</span>
+                    </div>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label-caps">Maximum capacity</label>
+                    <div class="input-with-unit">
+                      <input type="number" formControlName="maxStock" class="form-input" />
+                      <span class="unit-tag">units</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="threshold-section mt-24">
+                <div class="section-header-sm">
+                  <mat-icon>thermostat</mat-icon>
+                  <h4>Environmental limits</h4>
+                </div>
+                <div class="environment-grid mt-12">
+                  <div class="range-card">
+                    <div class="range-copy">
+                      <span class="env-label">Temperature</span>
+                      <span class="env-hint">Allowed sensor range in C</span>
+                    </div>
+                    <div class="range-row">
+                      <input type="number" formControlName="minTemperature" placeholder="Min" class="form-input range-input" />
+                      <span class="range-dash">to</span>
+                      <input type="number" formControlName="maxTemperature" placeholder="Max" class="form-input range-input" />
+                    </div>
+                  </div>
+
+                  <div class="range-card">
+                    <div class="range-copy">
+                      <span class="env-label">Humidity</span>
+                      <span class="env-hint">Allowed relative humidity</span>
+                    </div>
+                    <div class="range-row">
+                      <input type="number" formControlName="minHumidity" placeholder="Min" class="form-input range-input" />
+                      <span class="range-dash">to</span>
+                      <input type="number" formControlName="maxHumidity" placeholder="Max" class="form-input range-input" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="threshold-footer">
+                <button class="btn-primary" type="button"
+                  [disabled]="thresholdsForm.invalid || specificationsForm.invalid || branchForm.invalid || loading()"
+                  (click)="saveThresholds()">
+                  <mat-icon>task_alt</mat-icon>
+                  @if (loading()) {
+                    <mat-spinner diameter="16"></mat-spinner>
+                  } @else {
+                    Complete setup
+                  }
+                </button>
+              </div>
+            </form>
+          }
+        </section>
+      </main>
+
+      <aside class="side-column">
+        <section class="panel-card summary-card">
+          <div class="panel-header compact">
+            <mat-icon class="panel-icon">monitoring</mat-icon>
+            <h3 class="panel-title">Operational summary</h3>
+          </div>
+
+          <div class="summary-list">
+            <div class="summary-item">
+              <span class="summary-label">Batch</span>
+              <span class="summary-value">{{ device.assignedBatchId ? batchName(device.assignedBatchId) : 'Not assigned' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Branch</span>
+              <span class="summary-value">{{ device.branchId || 'Not assigned' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Firmware</span>
+              <span class="summary-value">{{ device.firmwareVersion || 'Not set' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Last calibration</span>
+              <span class="summary-value">{{ device.calibrationDate ?? 'Not calibrated' }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-card action-card">
+          <div class="panel-header compact">
+            <mat-icon class="panel-icon">scale</mat-icon>
+            <h3 class="panel-title">Scale actions</h3>
+          </div>
+
+          <button class="btn-outline-full" type="button" [disabled]="!device.assignedBatchId || loading()" (click)="resetTare()">
+            <mat-icon>refresh</mat-icon>
+            Reset tare
+          </button>
+          <p class="tare-hint">
+            <mat-icon class="hint-icon">info_outline</mat-icon>
+            Empty the physical scale before applying tare.
+          </p>
+        </section>
+
+        <section class="panel-card danger-card">
+          <span class="danger-label">Danger zone</span>
+          <p class="danger-desc">Disconnecting stops monitoring for this Supply Keeper.</p>
+          <button class="btn-danger-text" type="button" (click)="openUnlinkConfirm()">
+            <mat-icon>{{ device.assignedBatchId ? 'link_off' : 'delete' }}</mat-icon>
+            {{ device.assignedBatchId ? 'Unlink Supply Keeper' : 'Delete registration' }}
+          </button>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  @if (showAssignBatchDialog()) {
+    <div class="modal-backdrop" (click)="closeAssignBatchDialog()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Assign batch</h3>
+          <p class="modal-subtitle">Set inventory and scale reference values for {{ device.description || device.macAddress }}.</p>
+        </div>
+
+        <form [formGroup]="assignBatchForm" class="modal-body">
+          <div class="field-group">
+            <label class="field-label-caps">Select batch</label>
+            @if (resourceStore.customSupplies().length === 0) {
+              <div class="empty-batches-notice">
+                <mat-icon>inventory_2</mat-icon>
+                <span>No batches available. Add items in Inventory first.</span>
+              </div>
+            } @else {
+              <select formControlName="batchId" class="form-select">
+                <option value="" disabled selected>Select a batch...</option>
+                @for (batch of resourceStore.customSupplies(); track batch.id) {
+                  <option [value]="batch.id">{{ batch.name }}</option>
+                }
+              </select>
+            }
+          </div>
+
+          <div class="modal-grid mt-16">
+            <div class="field-group">
+              <label class="field-label-caps">Weight unit</label>
+              <select class="form-select" formControlName="weightUnitName" (change)="onWeightUnitChange($event)">
+                @for (u of weightUnits; track u.name) {
+                  <option [value]="u.name">{{ u.name }} ({{ u.abbr }})</option>
+                }
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label-caps">Unit weight</label>
+              <div class="input-with-unit">
+                <input type="number" formControlName="netWeight" class="form-input" />
+                <span class="unit-tag">{{ assignBatchForm.get('weightUnitAbbreviation')?.value }}</span>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label-caps">Tare weight</label>
+              <div class="input-with-unit">
+                <input type="number" formControlName="tareWeight" class="form-input" />
+                <span class="unit-tag">{{ assignBatchForm.get('weightUnitAbbreviation')?.value }}</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-outline-full mt-16" type="button" (click)="resetTare()">
+            <mat-icon>refresh</mat-icon>
+            Reset scale to zero
+          </button>
+
+          <div class="warning-box mt-12">
+            <mat-icon class="warning-icon">warning_amber</mat-icon>
+            <span>Empty the physical scale before applying tare. The current weight becomes the zero reference point.</span>
+          </div>
+        </form>
+
+        <div class="modal-footer">
+          <button class="btn-ghost" type="button" (click)="closeAssignBatchDialog()">Cancel</button>
+          <button class="btn-primary" type="button"
+            [disabled]="assignBatchForm.invalid || loading()"
+            (click)="submitAssignBatch()">
+            @if (loading()) {
+              <mat-spinner diameter="16"></mat-spinner>
+            } @else {
+              Save assignment
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showUnlinkDialog()) {
+    <div class="modal-backdrop" (click)="closeUnlinkConfirm()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header danger-modal-header">
+          <mat-icon class="danger-header-icon">warning</mat-icon>
+          <h3 class="modal-title">Unlink Supply Keeper</h3>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-body-text">Unlinking this Supply Keeper will stop real-time monitoring. Historical data will be retained.</p>
+
+          <div class="info-display-field">
+            <span class="meta-label">Device ID</span>
+            <div class="info-display-value">{{ device.id }}</div>
+          </div>
+
+          <div class="field-group mt-16">
+            <label class="field-label-caps">Confirmation required</label>
+            <input [(ngModel)]="unlinkConfirmText"
+              placeholder="Write the scale name to confirm"
+              class="form-input" />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-ghost" type="button" (click)="closeUnlinkConfirm()">Cancel</button>
+          <button class="btn-danger" type="button" [disabled]="loading()" (click)="confirmUnlink()">
+            <mat-icon>link_off</mat-icon>
+            @if (loading()) {
+              <mat-spinner diameter="16"></mat-spinner>
+            } @else {
+              Unlink scale
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}

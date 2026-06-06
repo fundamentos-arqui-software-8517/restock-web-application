@@ -1,10 +1,11 @@
 import { Component, inject, input, output, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { KitItem } from '../../../domain/model/kit-item.entity';
-import { KitsStore } from '../../../application/kits.store';
-import { RegisterKitCommand } from '../../../domain/command/register-kit.command';
 import { TranslatePipe } from '@ngx-translate/core';
+import { KitItemEntity } from '../../../domain/model/kit-item.entity';
+import { RegisterKitCommand } from '../../../domain/command/register-kit.command';
+import { KitStore } from '../../../application/kits.store';
+import { CustomSupplyEntity } from '../../../../recipes';
 
 @Component({
   selector: 'app-kit-form-modal',
@@ -14,124 +15,94 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './create-kit.css',
 })
 export class KitFormModalComponent implements OnInit {
-  public readonly kitsStore = inject(KitsStore);
-
+  public readonly kitsStore = inject(KitStore);
   isOpen = input.required<boolean>();
   closeModal = output<void>();
 
   kitName = signal<string>('');
   kitPrice = signal<number>(0);
   kitDescription = signal<string>('');
-
+  KitSku = signal<string>('');
   selectedImage = signal<string | null>(null);
-
-  readonly availableProducts = this.kitsStore.products;
-  readonly loadingProducts = this.kitsStore.loadingProducts;
   selectedProductId = signal<string>('');
   inputQuantity = signal<number>(1);
+  includedProducts = signal<{ supply: CustomSupplyEntity; quantity: number }[]>([]);
+  availableProducts = this.kitsStore.availableSupplies;
+  loadingProducts = signal<boolean>(false);
 
-  includedProducts = signal<KitItem[]>([]);
+  recommendedPrice = computed(() =>
+    this.includedProducts().reduce((acc, p) => acc + p.supply.unitPriceAmount * p.quantity, 0),
+  );
 
-  totalCost = computed(() => {
-    return this.includedProducts().reduce((sum, item) => sum + item.quantity * item.price, 0);
-  });
-
-  recommendedPrice = computed(() => {
-    const total = this.totalCost();
-    return total > 0 ? total + 24.5 : 0;
-  });
-
-  constructor() {}
+  totalCost = computed(() =>
+    this.includedProducts().reduce((acc, p) => acc + p.supply.unitPriceAmount * p.quantity, 0),
+  );
 
   ngOnInit(): void {
-    this.kitsStore.loadAllProducts();
-  }
-
-  onFileSelected(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement.files && inputElement.files[0]) {
-      const file = inputElement.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.selectedImage.set(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  addSupply(): void {
-    if (!this.selectedProductId()) {
-      alert('Por favor, seleccione un producto válido de la lista.');
-      return;
-    }
-
-    const targetProduct = this.availableProducts().find((p) => p.id === this.selectedProductId());
-    if (!targetProduct) return;
-
-    try {
-      const newItem = new KitItem({
-        id: targetProduct.id,
-        name: targetProduct.name,
-        sku: targetProduct.sku,
-        price: targetProduct.price,
-        quantity: this.inputQuantity(),
-      });
-
-      const existingItem = this.includedProducts().find((item) => item.id === newItem.id);
-      if (existingItem) {
-        existingItem.changeQuantity(existingItem.quantity + newItem.quantity);
-        this.includedProducts.update((list) => [...list]);
-      } else {
-        this.includedProducts.update((list) => [...list, newItem]);
-      }
-
-      this.selectedProductId.set('');
-      this.inputQuantity.set(1);
-    } catch (error: any) {
-      alert(error.message);
-    }
-  }
-
-  removeProduct(index: number): void {
-    this.includedProducts.update((products) => products.filter((_, i) => i !== index));
+    this.kitsStore.loadSupplies();
   }
 
   onClose(): void {
-    this.resetForm();
     this.closeModal.emit();
   }
 
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.selectedImage.set(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeProduct(index: number): void {
+    this.includedProducts.update((list) => list.filter((_, i) => i !== index));
+  }
+
+  addSupply(): void {
+    const targetSupply = this.kitsStore
+      .availableSupplies()
+      .find((s) => s.id === this.selectedProductId());
+    if (!targetSupply) return;
+    this.includedProducts.update((list) => [
+      ...list,
+      { supply: targetSupply, quantity: this.inputQuantity() },
+    ]);
+  }
+
   onSave(): void {
-    if (!this.kitName().trim()) {
-      alert('Por favor, ingresa el nombre del Kit.');
-      return;
-    }
-    if (this.includedProducts().length === 0) {
-      alert('Debes incluir al menos un producto en el Kit.');
-      return;
-    }
-
-    const command = new RegisterKitCommand({
+    const command: RegisterKitCommand = {
+      accountId: this.kitsStore.accountId(),
       name: this.kitName(),
-      price: this.kitPrice(),
-      description: this.kitDescription().trim() || 'No description provided',
-      imageUrl: this.selectedImage() || 'https://placehold.co/209x201',
-      items: this.includedProducts(),
-    });
-
-    this.kitsStore.registerKit(command, () => {
-      this.resetForm();
+      description: this.kitDescription(),
+      sku: this.KitSku() || 'DEFAULT-SKU-' + Date.now(),
+      type: 'KIT',
+      imageUrl: this.selectedImage() || '',
+      sellingPrice: this.kitPrice(),
+    };
+    this.kitsStore.create(command, (newKitId: string) => {
+      const itemRequests = this.includedProducts().map((item) => {
+        return this.kitsStore.addItem({
+          productId: newKitId,
+          customSupplyId: item.supply.id,
+          quantity: item.quantity,
+        });
+      });
       this.closeModal.emit();
     });
   }
 
-  private resetForm(): void {
-    this.includedProducts.set([]);
-    this.kitName.set('');
-    this.kitPrice.set(0);
-    this.kitDescription.set('');
-    this.inputQuantity.set(1);
-    this.selectedImage.set(null);
-    this.selectedProductId.set('');
+  getSupplyName(id: string): string {
+    return this.kitsStore.availableSupplies().find((s) => s.id === id)?.name ?? 'N/A';
+  }
+
+  getSupplySku(id: string): string {
+    return this.kitsStore.availableSupplies().find((s) => s.id === id)?.supplyId ?? 'N/A';
+  }
+
+  getSupplyPrice(id: string): number {
+    return this.kitsStore.availableSupplies().find((s) => s.id === id)?.unitPriceAmount ?? 0;
   }
 }

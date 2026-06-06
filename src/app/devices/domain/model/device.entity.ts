@@ -1,145 +1,85 @@
 import { BaseEntity } from '../../../shared/domain/model/base-entity';
+import { DeviceStatus } from './device-status';
 
-/**
- * Represents a user device within the Device Management domain.
- *
- * @remarks
- * This entity models the concept of a device that can be managed, monitored, and associated with supplies.
- * It includes properties such as the device's unique identifier, MAC address, assigned supply name, network state, and sensor health percentage.
- */
 export class Device implements BaseEntity {
-  /**
-   * The unique identifier for the device
-   * @defaultValue ''
-   */
   private _id: string;
-
-  /**
-   * The MAC address of the device
-   * @defaultValue ''
-   */
+  private _accountId: string;
   private _macAddress: string;
+  private _description: string;
+  private _status: DeviceStatus;
+  private _manufacturer: string | null;
+  private _model: string | null;
+  private _firmwareVersion: string | null;
+  private _branchId: string | null;
+  private _assignedBatchId: string | null;
+  private _supplyThresholdId: string | null;
+  private _netWeight: number | null;
+  private _tareWeight: number | null;
+  private _grossWeight: number | null;
+  private _calibrationDate: string | null;
+  private _weightUnitName: string | null;
+  private _weightUnitAbbreviation: string | null;
+  private _justifiedWithdrawnStock: number;
 
-  /**
-   * The name of the supply assigned to the device
-   * @defaultValue ''
-   */
-  private _assignedSupplyName: string;
-
-  /**
-   * The current network state of the device
-   * @defaultValue ''
-   */
-  private _networkState: string;
-
-  /**
-   * The health percentage of the device's sensor
-   * @defaultValue 0
-   */
-  private _sensorHealthPercentage: number;
-
-  /**
-   * Creates an instance of Device entity.
-   *
-   * @param props - Initialization properties
-   * @param props.id = The unique identifier for the device
-   * @param props.macAddress - The mac address for the device
-   * @param props.assignedSupplyName - The name of the assigned supply for the device to track data
-   * @param props.networkState - The current network state for the device. It can be ONLINE, OFFLINE, UNSTABLE.
-   * @param props.sensorHealthPercentage - The current device health percentage based on the sensors health.
-   */
   constructor(props: {
     id: string;
+    accountId: string;
     macAddress: string;
-    assignedSupplyName: string;
-    networkState: string;
-    sensorHealthPercentage: number;
+    description: string;
+    status: DeviceStatus;
+    manufacturer: string | null;
+    model: string | null;
+    firmwareVersion: string | null;
+    branchId: string | null;
+    assignedBatchId: string | null;
+    supplyThresholdId: string | null;
+    netWeight: number | null;
+    tareWeight: number | null;
+    grossWeight: number | null;
+    calibrationDate: string | null;
+    weightUnitName: string | null;
+    weightUnitAbbreviation: string | null;
+    justifiedWithdrawnStock: number;
   }) {
     this._id = props.id;
+    this._accountId = props.accountId;
     this._macAddress = props.macAddress;
-    this._assignedSupplyName = props.assignedSupplyName;
-    this._networkState = props.networkState;
-    this._sensorHealthPercentage = props.sensorHealthPercentage;
+    this._description = props.description;
+    this._status = props.status;
+    this._manufacturer = props.manufacturer;
+    this._model = props.model;
+    this._firmwareVersion = props.firmwareVersion;
+    this._branchId = props.branchId;
+    this._assignedBatchId = props.assignedBatchId;
+    this._supplyThresholdId = props.supplyThresholdId;
+    this._netWeight = props.netWeight;
+    this._tareWeight = props.tareWeight;
+    this._grossWeight = props.grossWeight;
+    this._calibrationDate = props.calibrationDate;
+    this._weightUnitName = props.weightUnitName;
+    this._weightUnitAbbreviation = props.weightUnitAbbreviation;
+    this._justifiedWithdrawnStock = props.justifiedWithdrawnStock;
   }
 
-  /**
-   * Gets the unique identifier of this device.
-   *
-   * @returns The device's unique identifier.
-   */
-  get id(): string {
-    return this._id;
-  }
-
-  /**
-   * Sets a value for the unique identifier of this device.
-   *
-   * @param value - The new value identifier for this device.
-   */
-  set id(value: string) {
-    this._id = value;
-  }
-
-  /**
-   * Gets the mac address associated with this device.
-   *
-   * @returns The device's mac address.
-   */
-  get macAddress(): string {
-    return this._macAddress;
-  }
-
-  /**
-   * Gets the name of the assigned supply for this device.
-   *
-   * @returns The device's current supply assigned name.
-   */
-  get assignedSupplyName(): string {
-    return this._assignedSupplyName;
-  }
-
-  /**
-   * Sets a new name for the supply assigned to this device.
-   *
-   * @param value - The new name for the supply assigned to this device.
-   */
-  set assignedSupplyName(value: string) {
-    this._macAddress = value;
-  }
-
-  /**
-   * Gets the current network state value for this device.
-   *
-   * @returns the current network state for this device.
-   */
-  get networkState(): string {
-    return this._networkState;
-  }
-
-  /**
-   * Sets the current value of the network state of this device.
-   *
-   * @param value - The new value for the network state of this device.
-   */
-  set networkState(value: string) {
-    this._networkState = value;
-  }
-
-  /**
-   * Gets the current device health percentage.
-   *
-   * @returns The current device health percentage.
-   */
-  get sensorHealthPercentage(): number {
-    return this._sensorHealthPercentage;
-  }
-
-  /**
-   * Sets a new value for the device health percentage.
-   *
-   * @param value - The new value for the device health percentage.
-   */
-  set sensorHealthPercentage(value: number) {
-    this._sensorHealthPercentage = value;
-  }
+  get id(): string { return this._id; }
+  set id(value: string) { this._id = value; }
+  get accountId(): string { return this._accountId; }
+  get macAddress(): string { return this._macAddress; }
+  get description(): string { return this._description; }
+  get status(): DeviceStatus { return this._status; }
+  set status(value: DeviceStatus) { this._status = value; }
+  get manufacturer(): string | null { return this._manufacturer; }
+  get model(): string | null { return this._model; }
+  get firmwareVersion(): string | null { return this._firmwareVersion; }
+  get branchId(): string | null { return this._branchId; }
+  get assignedBatchId(): string | null { return this._assignedBatchId; }
+  get supplyThresholdId(): string | null { return this._supplyThresholdId; }
+  get netWeight(): number | null { return this._netWeight; }
+  get tareWeight(): number | null { return this._tareWeight; }
+  get grossWeight(): number | null { return this._grossWeight; }
+  get calibrationDate(): string | null { return this._calibrationDate; }
+  get weightUnitName(): string | null { return this._weightUnitName; }
+  get weightUnitAbbreviation(): string | null { return this._weightUnitAbbreviation; }
+  get justifiedWithdrawnStock(): number { return this._justifiedWithdrawnStock; }
+  set justifiedWithdrawnStock(value: number) { this._justifiedWithdrawnStock = value; }
 }

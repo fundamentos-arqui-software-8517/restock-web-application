@@ -1,12 +1,17 @@
 <article class="kit-card">
   <div class="card-image-container">
-    <img [src]="kit.imageUrl || 'assets/placeholder-kit.png'" [alt]="kit.name" class="card-image">
+    <img
+      [src]="kit.imageUrl || fallbackImage"
+      [alt]="kit.name"
+      class="card-image"
+      (error)="onImageError($event)"
+    >
   </div>
 
   <div class="card-content">
     <div class="card-header">
       <h3 class="kit-title">{{ kit.name }}</h3>
-      <span class="kit-price">S/ {{ kit.price.toFixed(2) }}</span>
+      <span class="kit-price">S/ {{ kit.sellingPrice.toFixed(2) }}</span>
     </div>
 
     <p class="kit-description">
@@ -14,7 +19,7 @@
     </p>
 
     <div class="card-footer">
-      <button class="edit-button" (click)="onEdit()">
+      <button class="edit-button" (click)="onViewDetail()">
         <span> {{ 'kits.edit' | translate }} </span>
         <i class="arrow-icon">→</i>
       </button>

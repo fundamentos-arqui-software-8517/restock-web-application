@@ -1,14 +1,16 @@
 import { BaseResource, BaseResponse } from '../../../../../shared/infrastructure/base-response';
-
+import { KitItemEntity } from '../../../domain/model/kit-item.entity';
 
 export interface RegisterKitResource extends BaseResource {
   id: string;
+  accountId: string;
   name: string;
-  sku: string;
-  price: number;
   description: string;
-  imageUrl: string;
+  sku: string;
+  type: string;
   status: string;
-  items: Array<{ id: string; name: string; sku: string; price: number; quantity: number }>;
+  imageUrl: string;
+  sellingPrice: number;
+  items: KitItemEntity[];
 }
 export interface RegisterKitResponse extends BaseResponse, RegisterKitResource {}

@@ -1,136 +1,84 @@
-import {computed, Injectable, Signal, signal} from '@angular/core';
-import {Device} from '../domain/model/device.entity';
-import {DevicesApi} from '../infrastructure/devices-api';
-import {RegisterDeviceCommand} from '../domain/model/register-device.command';
-import {retry} from 'rxjs';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import { Injectable, signal } from '@angular/core';
+import { catchError, EMPTY, finalize, Observable, tap } from 'rxjs';
+import { Device } from '../domain/model/device.entity';
+import { DevicesApi } from '../infrastructure/devices-api';
+import { AddSpecificationsRequest, UpdateMeasurementRequest } from '../infrastructure/devices-api-endpoint';
 
-/**
- * Application service managing Device Management domain state and orchestration.
- *
- * @remarks
- * This is an application service that:
- * - Manages the state of the Device Management domain, including devices, loading status, and error messages.
- * - Orchestrates the registration of new devices with the remote system.
- * - Handles error handling and formatting for user-friendly messages.
- *
- * The store maintains the main aggregate of the domain:
- * - Devices: A list of registered devices.
- */
-@Injectable({providedIn: "root"})
+@Injectable({ providedIn: 'root' })
 export class DevicesStore {
+  readonly devices = signal<Device[]>([]);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
-  /**
-   * Signal representing the list of registered devices.
-   * @private
-   */
-  private readonly _devicesSignal = signal<Device[]>([]);
+  constructor(private readonly devicesApi: DevicesApi) {}
 
-  /**
-   * Readonly signal representing the loading status of the device registration process.
-   */
-  readonly devices = this._devicesSignal.asReadonly();
-
-  /**
-   * Signal representing the loading status of the device registration process.
-   * @private
-   */
-  private readonly _loadingSignal = signal<boolean>(false);
-
-  /**
-   * Readonly signal representing the loading status of the device registration process.
-   */
-  readonly loading = this._loadingSignal.asReadonly();
-
-  /**
-   * Signal representing the error message if any occurred during the device registration process.
-   * @private
-   */
-  private readonly _errorSignal = signal<string | null>(null);
-
-  /**
-   * Readonly signal representing the error message if any occurred during the device registration process.
-   */
-  readonly error = this._errorSignal.asReadonly();
-
-  /**
-   * Creates an instance of DevicesStore.
-   *
-   * @param devicesApi - The DevicesApi service used for communication with the remote system.
-   */
-  constructor(private devicesApi: DevicesApi) {}
-
-  /**
-   * Formats error messages for display to users or logs.
-   *
-   * @param error - The error object to format
-   * @param fallback - The fallback message if error format is unknown
-   * @returns A human-readable error message
-   *
-   * @private
-   */
-  private formatError(error: any, fallback: string): string {
-    if (error instanceof Error) {
-      return error.message.includes('Device not found') ? `${fallback}: Not found` : error.message;
-    }
-    return fallback;
-  }
-
-  /**
-   * Loads the list of devices for a specific account.
-   *
-   * @param accountId - The unique identifier of the account to load devices for.
-   */
   loadDevicesForAccount(accountId: string): void {
-    this._loadingSignal.set(true);
-    this._errorSignal.set(null);
-    this.devicesApi.getDevicesByAccountId(accountId)
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: devices => {
-          console.log(devices);
-          this._devicesSignal.set(devices);
-          this._loadingSignal.set(false);
-          this._errorSignal.set(null);
-        },
-        error: err => {
-          this._loadingSignal.set(false);
-          this._errorSignal.set(this.formatError(err, 'Failed to load devices'));
-        }
-      })
+    if (!accountId) return;
+    this.loading.set(true);
+    this.error.set(null);
+    this.devicesApi.getDevicesByAccountId(accountId).pipe(
+      tap(devices => this.devices.set(devices)),
+      catchError(err => {
+        this.error.set(err?.message ?? 'Failed to load devices');
+        return EMPTY;
+      }),
+      finalize(() => this.loading.set(false)),
+    ).subscribe();
   }
 
-  /**
-   * Gets a signal representing the device with the specified ID.
-   *
-   * @param id - The unique identifier of the device to retrieve.
-   * @returns A signal representing the device with the specified ID, or undefined if not found.
-   */
-  getDeviceById(id: string): Signal<Device | undefined> {
-    return computed(() => id
-      ? this.devices().find(device => device.id === id) : undefined);
+  getDeviceById(id: string): Device | undefined {
+    return this.devices().find(d => d.id === id);
   }
 
-  /**
-   * Registers a new device to the store and remote system.
-   *
-   * @param registerDeviceCommand - The command containing the device registration data.
-   */
-  registerDevice(registerDeviceCommand: RegisterDeviceCommand): void {
-    this._loadingSignal.set(true);
-    this._errorSignal.set(null);
-    this.devicesApi.registerDevice(registerDeviceCommand)
-      .pipe(retry(2))
-      .subscribe({
-        next: registeredDevice => {
-          this._devicesSignal.update(devices => [...devices, registeredDevice]);
-          this._loadingSignal.set(false);
-          this._errorSignal.set(null);
-        },
-        error: err => {
-          this._loadingSignal.set(false);
-          this._errorSignal.set(this.formatError(err, 'Failed to register device'));
-        }
-      });
+  createDevice(body: { accountId: string; macAddress: string; description: string }): Observable<Device> {
+    return this.devicesApi.createDevice(body).pipe(
+      tap(device => this.devices.update(list => [...list, device])),
+    );
+  }
+
+  addSpecifications(deviceId: string, body: AddSpecificationsRequest): Observable<Device> {
+    return this.devicesApi.addSpecifications(deviceId, body).pipe(
+      tap(updated => this._replaceDevice(updated)),
+    );
+  }
+
+  assignBranch(deviceId: string, branchId: string): Observable<Device> {
+    return this.devicesApi.assignBranch(deviceId, branchId).pipe(
+      tap(updated => this._replaceDevice(updated)),
+    );
+  }
+
+  assignBatch(deviceId: string, batchId: string): Observable<Device> {
+    return this.devicesApi.assignBatch(deviceId, batchId).pipe(
+      tap(updated => this._replaceDevice(updated)),
+    );
+  }
+
+  assignThreshold(deviceId: string, supplyThresholdId: string): Observable<Device> {
+    return this.devicesApi.assignThreshold(deviceId, supplyThresholdId).pipe(
+      tap(updated => this._replaceDevice(updated)),
+    );
+  }
+
+  updateMeasurement(deviceId: string, body: UpdateMeasurementRequest): Observable<Device> {
+    return this.devicesApi.updateMeasurement(deviceId, body).pipe(
+      tap(updated => this._replaceDevice(updated)),
+    );
+  }
+
+  updateStatus(deviceId: string, status: 'CONFIGURED' | 'INACTIVE'): Observable<Device> {
+    return this.devicesApi.updateStatus(deviceId, status).pipe(
+      tap(updated => this._replaceDevice(updated)),
+    );
+  }
+
+  updateWithdrawnStock(deviceId: string, amount: number): Observable<Device> {
+    return this.devicesApi.updateWithdrawnStock(deviceId, amount).pipe(
+      tap(updated => this._replaceDevice(updated)),
+    );
+  }
+
+  private _replaceDevice(updated: Device): void {
+    this.devices.update(list => list.map(d => d.id === updated.id ? updated : d));
   }
 }

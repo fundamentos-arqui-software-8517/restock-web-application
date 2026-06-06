@@ -1,0 +1,44 @@
+<div class="modal-header">
+  <h2 class="modal-title">Register New Supply Keeper</h2>
+  <button class="icon-btn" type="button" (click)="cancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+@if (error()) {
+  <div class="error-banner">{{ error() }}</div>
+}
+
+<form [formGroup]="form" class="modal-body">
+  <div class="field-group">
+    <label class="field-label">MAC Address</label>
+    <input formControlName="macAddress" placeholder="00:1A:2B:3C:4D:5E" class="form-input" />
+    @if (form.get('macAddress')?.hasError('pattern') && form.get('macAddress')?.touched) {
+      <span class="field-error">Format: 00:11:22:33:44:55</span>
+    }
+    @if (form.get('macAddress')?.hasError('required') && form.get('macAddress')?.touched) {
+      <span class="field-error">Required</span>
+    }
+  </div>
+
+  <div class="field-group mt-16">
+    <label class="field-label">Supply Keeper Alias</label>
+    <input formControlName="description" placeholder="e.g., Balanza Lácteos" class="form-input" />
+    @if (form.get('description')?.invalid && form.get('description')?.touched) {
+      <span class="field-error">Required</span>
+    }
+  </div>
+
+  <div class="card-actions">
+    <button class="btn-ghost" type="button" (click)="cancel()">Cancel</button>
+    <button class="btn-primary" type="button"
+      [disabled]="form.invalid || loading()"
+      (click)="register()">
+      @if (loading()) {
+        <mat-spinner diameter="16"></mat-spinner>
+      } @else {
+        Register Device
+      }
+    </button>
+  </div>
+</form>

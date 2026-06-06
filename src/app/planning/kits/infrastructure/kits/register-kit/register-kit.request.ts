@@ -1,7 +1,9 @@
 export interface RegisterKitRequest {
+  accountId: string;
   name: string;
-  price: number;
   description: string;
+  sku: string;
+  type: 'KIT';
   imageUrl: string;
-  items: Array<{ productId: string; quantity: number }>;
+  sellingPrice: number;
 }

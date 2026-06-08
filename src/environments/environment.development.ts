@@ -14,15 +14,15 @@ export const environment = {
   },
 
   salesAPI: {
-    salesBaseUrl: 'https://restock-api-sales.free.beeceptor.com',
+    salesBaseUrl: '/api/v1',
   },
 
   // Sales Management API
   platformProviderSalesEndpointsPath: 'sales',
 
   profilesApi: {
-    baseUrl: 'https://restock-api-profiles.free.beeceptor.com',
-    fallbackBaseUrl: 'https://profiles-restock-api.free.beeceptor.com',
+    baseUrl: '/api/v1',
+    fallbackBaseUrl: '/api/v1',
   },
 
   // IAM & Profiles
@@ -38,13 +38,12 @@ export const environment = {
   platformProviderSupplyCategoriesEndpointPath: 'supplies/categories',
 
   // IAM
-  //https://restock-api-iam-login.free.beeceptor.com
-  platformProviderIamApiBaseUrlForSignIn: 'https://restock-api-iam-login.free.beeceptor.com',
+  platformProviderIamApiBaseUrlForSignIn: '/api/v1',
   platformProviderForgotPasswordEndpointPath: 'auth/forgot-password',
 
   // Kits
-  platformProviderKitUpdateApiBaseUrl: 'https://u202314101.free.beeceptor.com/kits/K-992',
-  platformProviderKitApiBaseUrl: 'https://restock-api-planning-kits.free.beeceptor.com',
+  platformProviderKitUpdateApiBaseUrl: '/api/v1',
+  platformProviderKitApiBaseUrl: '/api/v1',
   platformProviderKitsRegisterEndpointPath: 'kits/register',
   platformProviderKitsEndpointPath: 'kits',
   platformProviderProductsEndpointPath: 'products',

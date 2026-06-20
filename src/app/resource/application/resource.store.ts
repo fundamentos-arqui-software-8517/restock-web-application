@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, EMPTY, finalize, forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { MqttRealtimeService } from '../../shared/infrastructure/mqtt/mqtt-realtime.service';
 
 import { ResourceApi } from '../infrastructure/resource-api';
 import type { BatchData, BatchRow } from '../infrastructure/batch/batch.assembler';
@@ -54,6 +55,16 @@ export class ResourceStore {
   private readonly resourceApi = inject(ResourceApi);
   private readonly authService = inject(AuthService);
   private readonly profilesStore = inject(ProfilesStore);
+  private readonly mqttRealtimeService = inject(MqttRealtimeService);
+
+  constructor() {
+    this.mqttRealtimeService.getDeviceUpdates().subscribe((update) => {
+      console.log('[ResourceStore] Received real-time device update:', update);
+      if (!update.branchId || update.branchId === this.currentBranchId()) {
+        this.refreshBatch();
+      }
+    });
+  }
 
   /**
    * Loads custom supplies first, then batches enriched with their metadata.

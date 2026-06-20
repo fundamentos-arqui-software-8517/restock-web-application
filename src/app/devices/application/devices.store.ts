@@ -1,8 +1,9 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { catchError, EMPTY, finalize, Observable, tap } from 'rxjs';
 import { Device } from '../domain/model/device.entity';
 import { DevicesApi } from '../infrastructure/devices-api';
 import { AddSpecificationsRequest, UpdateMeasurementRequest } from '../infrastructure/devices-api-endpoint';
+import { MqttRealtimeService } from '../../shared/infrastructure/mqtt/mqtt-realtime.service';
 
 @Injectable({ providedIn: 'root' })
 export class DevicesStore {
@@ -10,7 +11,38 @@ export class DevicesStore {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
 
-  constructor(private readonly devicesApi: DevicesApi) {}
+  private readonly mqttRealtimeService = inject(MqttRealtimeService);
+
+  constructor(private readonly devicesApi: DevicesApi) {
+    this.mqttRealtimeService.getDeviceUpdates().subscribe((update) => {
+      console.log('[DevicesStore] Received real-time device telemetry update:', update);
+      this.devices.update(list => list.map(d => {
+        if (d.id === update.deviceId) {
+          return new Device({
+            id: d.id,
+            accountId: d.accountId,
+            macAddress: d.macAddress,
+            description: d.description,
+            status: update.status as any,
+            manufacturer: d.manufacturer,
+            model: d.model,
+            firmwareVersion: d.firmwareVersion,
+            branchId: update.branchId,
+            assignedBatchId: update.assignedBatchId,
+            supplyThresholdId: d.supplyThresholdId,
+            netWeight: update.netWeight,
+            tareWeight: update.tareWeight,
+            grossWeight: update.grossWeight,
+            calibrationDate: new Date().toISOString(),
+            weightUnitName: update.weightUnitName,
+            weightUnitAbbreviation: update.weightUnitAbbr,
+            justifiedWithdrawnStock: d.justifiedWithdrawnStock
+          });
+        }
+        return d;
+      }));
+    });
+  }
 
   loadDevicesForAccount(accountId: string): void {
     if (!accountId) return;

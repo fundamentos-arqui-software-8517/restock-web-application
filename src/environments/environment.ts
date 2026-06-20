@@ -2,7 +2,7 @@
  * Production defaults. For local dev overrides see `environment.development.ts`
  * (swapped via `fileReplacements` in `angular.json`).
  */
-const API_BASE = 'https://restock-web-service.onrender.com/api/v1';
+const API_BASE = '/api/v1';
 
 export const environment = {
   production: true,

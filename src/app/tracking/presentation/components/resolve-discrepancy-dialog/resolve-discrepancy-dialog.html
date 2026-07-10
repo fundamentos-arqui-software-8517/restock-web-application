@@ -1,0 +1,109 @@
+<div class="modal-overlay">
+  <div class="modal-content modal-md">
+    <div class="modal-header">
+      <h2>{{ 'tracking.resolveDialog.title' | translate }}</h2>
+      <button class="close-btn" (click)="cancel()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Task summary -->
+      @if (task) {
+        <div class="section-block">
+          <h4>{{ 'tracking.resolveDialog.taskInfo' | translate }}</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">{{ 'tracking.resolveDialog.supply' | translate }}</span>
+              <span class="info-value">{{ task.customSupplyName }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">{{ 'tracking.resolveDialog.digitalStock' | translate }}</span>
+              <span class="info-value">{{ task.digitalStock | number:'1.1-2' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">{{ 'tracking.resolveDialog.physicalStockDevice' | translate }}</span>
+              <span class="info-value">{{ task.devicePhysicalStock | number:'1.1-2' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">{{ 'tracking.resolveDialog.difference' | translate }}</span>
+              <span class="info-value info-value-danger">
+                {{ task.difference > 0 ? '+' : '' }}{{ task.difference | number:'1.1-2' }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">{{ 'tracking.resolveDialog.alertLevel' | translate }}</span>
+              <span class="info-value">{{ task.alertLevel }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">{{ 'tracking.resolveDialog.deviceId' | translate }}</span>
+              <span class="info-value">{{ task.deviceId }}</span>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="info-box">
+          <span>{{ 'tracking.resolveDialog.loading' | translate }}</span>
+        </div>
+      }
+
+      <!-- Step 1: Resolution Action -->
+      <div class="form-group">
+        <label>{{ 'tracking.resolveDialog.actionLabel' | translate }}</label>
+        <div class="radio-group">
+          @for (action of actions; track action) {
+            <label class="radio-option"
+                   [class.radio-option--selected]="selectedAction() === action">
+              <input type="radio" name="resolutionAction"
+                     [value]="action"
+                     [checked]="selectedAction() === action"
+                     (change)="selectedAction.set(action)">
+              <div class="radio-content">
+                <strong>{{ 'tracking.resolveDialog.' + getActionKey(action) | translate }}</strong>
+                <span>{{ 'tracking.resolveDialog.' + getActionDescKey(action) | translate }}</span>
+              </div>
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Extra field for UPDATE_JUSTIFIED_WITHDRAWN_STOCK -->
+      @if (showStockField) {
+        <div class="form-group">
+          <label>{{ 'tracking.resolveDialog.newJustifiedStock' | translate }}</label>
+          <input type="number" min="0" step="0.1" class="form-control"
+                 [(ngModel)]="newJustifiedWithdrawnStock"
+                 [placeholder]="'tracking.resolveDialog.justifiedStockPlaceholder' | translate">
+          <small class="field-hint">{{ 'tracking.resolveDialog.justifiedStockHint' | translate }}</small>
+        </div>
+      }
+
+      <!-- Step 2: Resolution Reason -->
+      <div class="form-group">
+        <label>{{ 'tracking.resolveDialog.reasonLabel' | translate }}</label>
+        <select class="form-control"
+                [value]="selectedReason()"
+                (change)="selectedReason.set(($any($event.target).value))">
+          <option value="" disabled selected>{{ 'tracking.resolveDialog.reasonPlaceholder' | translate }}</option>
+          @for (reason of reasons; track reason) {
+            <option [value]="reason">{{ getReasonKey(reason) | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Step 3: Justification -->
+      <div class="form-group">
+        <label>{{ 'tracking.resolveDialog.justificationLabel' | translate }}</label>
+        <textarea class="form-control" rows="3" [(ngModel)]="justification"
+                  [placeholder]="'tracking.resolveDialog.justificationPlaceholder' | translate"></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-cancel" (click)="cancel()">{{ 'tracking.resolveDialog.cancel' | translate }}</button>
+      <button class="btn btn-primary" (click)="confirm()" [disabled]="!canConfirm">
+        {{ 'tracking.resolveDialog.confirmApply' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

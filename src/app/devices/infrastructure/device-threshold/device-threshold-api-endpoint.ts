@@ -19,21 +19,21 @@ export class DeviceThresholdApiEndpoint extends ErrorHandlingEnabledBaseType {
 
   getThresholdsByAccountId(accountId: string): Observable<DeviceThreshold[]> {
     return this.http.get<DeviceThresholdResource[]>(THRESHOLDS_BY_ACCOUNT_URL(accountId)).pipe(
-      map(resources => this.assembler.toEntitiesFromArray(resources)),
+      map((resources) => this.assembler.toEntitiesFromArray(resources)),
       catchError(this.handleError('Failed to fetch thresholds')),
     );
   }
 
   getThresholdById(thresholdId: string): Observable<DeviceThreshold> {
     return this.http.get<DeviceThresholdResource>(THRESHOLD_BY_ID_URL(thresholdId)).pipe(
-      map(r => this.assembler.toEntityFromResource(r)),
+      map((r) => this.assembler.toEntityFromResource(r)),
       catchError(this.handleError('Failed to fetch threshold')),
     );
   }
 
   createThreshold(body: CreateDeviceThresholdRequest): Observable<DeviceThreshold> {
     return this.http.post<DeviceThresholdResource>(CREATE_THRESHOLD_URL(), body).pipe(
-      map(r => this.assembler.toEntityFromResource(r)),
+      map((r) => this.assembler.toEntityFromResource(r)),
       catchError(this.handleError('Failed to create threshold')),
     );
   }

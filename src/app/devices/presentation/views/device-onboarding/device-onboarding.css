@@ -129,7 +129,7 @@
 
 .progress-steps {
   display: grid;
-  grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+  grid-template-columns: auto 1fr auto 1fr auto 1fr auto 1fr auto;
   align-items: center;
   gap: 10px;
 }
@@ -610,12 +610,12 @@
 }
 
 .btn-primary {
-  background: #047857;
+  background: #1a5c3a;
   color: #ffffff;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #065f46;
+  background: #13462b;
 }
 
 .btn-outline,
@@ -893,3 +893,246 @@ button:disabled {
     padding: 12px;
   }
 }
+
+/* Telemetry Section (full-width table) */
+.telemetry-section {
+  margin-top: 24px;
+}
+
+.telemetry-section .panel-header {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tab-header {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.telemetry-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.telemetry-table thead {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.telemetry-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.telemetry-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.12s;
+}
+
+.telemetry-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.telemetry-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.telemetry-table td {
+  padding: 11px 16px;
+  vertical-align: middle;
+  color: #374151;
+}
+
+.cell-mono {
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.cell-value-primary {
+  font-weight: 700;
+  color: #111827;
+}
+
+.cell-unit {
+  margin-left: 3px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.cell-empty {
+  color: #d1d5db;
+}
+
+.sensor-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sensor-chip mat-icon {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+}
+
+.chip-temp {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.chip-humidity {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* History Log Panel Styles */
+.history-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.tab-btn.active {
+  background: #1a5c3a;
+  color: #ffffff;
+  border-color: #1a5c3a;
+}
+
+.scrollable-log-panel {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.scrollable-log-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-log-panel::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.log-item {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px;
+  transition: background 0.15s ease;
+}
+
+.log-item:hover {
+  background: #f9fafb;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+}
+
+.log-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.log-time {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.log-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  background: #ecfdf5;
+  color: #047857;
+  border-radius: 4px;
+}
+
+.log-badge.health {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.log-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.log-value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.log-env {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.font-mono {
+  font-family: monospace;
+  font-size: 12px;
+  color: #374151;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.empty-log-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  color: #9ca3af;
+  gap: 8px;
+}
+
+.empty-log-state mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.empty-log-state span {
+  font-size: 12px;
+}
+

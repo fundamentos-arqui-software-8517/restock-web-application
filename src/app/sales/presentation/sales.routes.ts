@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 
-const salesList = () => import('./view/sales-list/sales-list').then(m => m.SalesList);
+const salesOverview = () =>
+  import('./views/sales-overview/sales-overview').then((m) => m.SalesOverviewComponent);
 
-/**
- * Routes for the sales module.
- * Defines paths for the sales management bounded context.
- */
-export const salesRoutes: Routes = [{ path: '', loadComponent: salesList }];
+const newSale = () => import('./views/new-sale/new-sale').then((m) => m.NewSaleComponent);
 
+export const salesRoutes: Routes = [
+  { path: '', loadComponent: salesOverview, title: 'Sales Overview' },
+  { path: 'new', loadComponent: newSale, title: 'New Sale' },
+];

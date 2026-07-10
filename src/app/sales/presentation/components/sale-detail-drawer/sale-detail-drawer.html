@@ -4,12 +4,12 @@
     <header class="drawer-header">
       <div class="header-top">
         <div class="header-title-group">
-          <h2 class="drawer-title">Transaction #{{ sale.id }}</h2>
+          <h2 class="drawer-title">{{ 'sales.saleDetail.title' | translate:{ id: sale.id } }}</h2>
           <span class="status-badge" [class]="'status-badge--' + sale.saleStatus.toLowerCase()">
-            {{ sale.saleStatus }}
+            {{ statusLabel(sale.saleStatus) | translate }}
           </span>
         </div>
-        <button class="close-btn" (click)="close()" aria-label="Close">
+        <button class="close-btn" (click)="close()" [attr.aria-label]="'sales.saleDetail.closeAria' | translate">
           <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
@@ -19,7 +19,7 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        Processed at {{ sale.date | date:'HH:mm:ss' }} UTC
+        {{ 'sales.saleDetail.processedAt' | translate:{ time: sale.date | date:'HH:mm:ss' } }}
       </p>
     </header>
 
@@ -27,8 +27,8 @@
 
       <section class="section">
         <div class="section-header">
-          <span class="section-label">Sold Items</span>
-          <span class="section-count">{{ sale.saleItems.length }} items</span>
+          <span class="section-label">{{ 'sales.saleDetail.soldItems' | translate }}</span>
+          <span class="section-count">{{ sale.saleItems.length }} {{ 'sales.saleDetail.itemsSuffix' | translate }}</span>
         </div>
 
         <div class="items-list">
@@ -49,7 +49,7 @@
                   <span class="item-name">{{ item.nameSnapshot }}</span>
                   <span class="item-price">{{ sale.currency.symbol }} {{ item.lineTotal | number:'1.2-2' }}</span>
                 </div>
-                <p class="item-meta">QTY: {{ item.quantity }} | ID: {{ item.id }}</p>
+                <p class="item-meta">{{ 'sales.saleDetail.qtyAndId' | translate:{ qty: item.quantity, id: item.id } }}</p>
               </div>
             </div>
           }
@@ -57,12 +57,12 @@
       </section>
 
       <section class="section section--total">
-        <span class="total-label">Total</span>
+        <span class="total-label">{{ 'sales.saleDetail.total' | translate }}</span>
         <span class="total-value">{{ sale.currency.symbol }} {{ sale.saleTotal.total | number:'1.2-2' }}</span>
       </section>
 
       <section class="section">
-        <span class="section-label">Inventory Deduction Log</span>
+        <span class="section-label">{{ 'sales.saleDetail.deductionLog' | translate }}</span>
         <div class="log-list">
           @for (item of sale.saleItems; track $index) {
             <div class="log-entry">
@@ -72,7 +72,7 @@
                 </svg>
               </div>
               <span class="log-text">
-                Deducted: {{ item.nameSnapshot }} (-{{ item.quantity }} unit)
+                {{ 'sales.saleDetail.deductionEntry' | translate:{ name: item.nameSnapshot, qty: item.quantity } }}
               </span>
               <span class="log-time">{{ sale.date | date:'HH:mm:ss' }}</span>
             </div>
@@ -83,7 +83,7 @@
     </div>
 
     <footer class="drawer-footer">
-      <button class="close-details-btn" (click)="close()">Close Details</button>
+      <button class="close-details-btn" (click)="close()">{{ 'sales.saleDetail.closeDetails' | translate }}</button>
     </footer>
 
   </div>

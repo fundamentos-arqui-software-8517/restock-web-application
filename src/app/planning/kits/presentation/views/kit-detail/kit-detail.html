@@ -35,7 +35,7 @@
       <div class="hero-card">
         <div class="hero-image-wrapper">
           <img
-            [src]="k.imageUrl || 'assets/placeholder-kit.png'"
+            [src]="k.imageUrl || fallbackImage"
             [alt]="k.name"
             class="hero-image"
             (error)="onImageError($event)"
@@ -140,8 +140,8 @@
       </table>
 
       <div class="ingredients-footer">
-        <span>Showing {{ (k.items ?? []).length }} ingredients for {{ k.name }}</span>
-        <button class="btn-add-supply">Add more supplies +</button>
+        <span>Showing {{ k.items.length }} ingredients for {{ k.name }}</span>
+        <button class="btn-add-supply" (click)="openEditModal()">Add more supplies +</button>
       </div>
     </div>
 

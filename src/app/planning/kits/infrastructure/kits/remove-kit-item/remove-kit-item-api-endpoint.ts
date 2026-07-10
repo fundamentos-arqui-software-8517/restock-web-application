@@ -10,7 +10,7 @@ import { UpdateKitAssembler } from '../update-kit/update-kit.assembler';
 import { RemoveKitItemCommand } from '../../../domain/command/remove-kit-item.command';
 import { RemoveKitAssembler } from './remove-kit-item.assembler';
 
-const kitsApiUrl = `${environment.platformProviderApiBaseUrl}/${environment.platformProviderProductsEndpointPath}`;
+const kitsApiUrl = `${environment.baseUrl}/${environment.platformProviderProductsEndpointPath}`;
 
 @Injectable({
   providedIn: 'root',

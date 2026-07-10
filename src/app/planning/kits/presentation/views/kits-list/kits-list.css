@@ -42,7 +42,7 @@
 }
 
 .add-kit-btn {
-  background-color: #006C49;
+  background-color: #1a5c3a;
   color: #FFFFFF;
   border: none;
   padding: 10px 20px;
@@ -177,4 +177,9 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+@media (max-width: 540px) {
+  :host {
+    max-width: 100% !important;
+  }
 }

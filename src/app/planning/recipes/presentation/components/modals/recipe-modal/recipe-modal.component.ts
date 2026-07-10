@@ -57,6 +57,7 @@ export class RecipeModalComponent implements OnInit, OnChanges {
   imageUrl     = '';
   sku          = '';
   sellingPrice = 0;
+  isActive     = true;
 
   // ── Ingredient builder ────────────────────────────────────────────────────
   selectedSupplyId = '';
@@ -81,10 +82,12 @@ export class RecipeModalComponent implements OnInit, OnChanges {
       this.imageUrl     = this.recipe.imageUrl;
       this.sku          = this.recipe.sku;
       this.sellingPrice = this.recipe.sellingPrice;
+      this.isActive     = this.recipe.status !== 'INACTIVE';
       this.pendingIngredients = this._resolveExisting(this.recipe.ingredients);
     } else {
       this.name = this.description = this.imageUrl = this.sku = '';
       this.sellingPrice = 0;
+      this.isActive     = true;
       this.pendingIngredients = [];
     }
   }
@@ -185,6 +188,7 @@ export class RecipeModalComponent implements OnInit, OnChanges {
           sku:          this.sku,
           imageUrl:     this.imageUrl,
           sellingPrice: this.sellingPrice,
+          status:       this.isActive ? 'ACTIVE' : 'INACTIVE',
         },
       });
     }

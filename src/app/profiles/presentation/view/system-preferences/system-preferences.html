@@ -29,6 +29,12 @@
         (click)="setTab('branches')">
         {{ 'settings.breadcrumb.branches' | translate }}
       </button>
+      <button
+        class="tab"
+        [class.tab--active]="activeTab() === 'subscriptions'"
+        (click)="setTab('subscriptions')">
+        {{ 'settings.breadcrumb.subscriptions' | translate }}
+      </button>
     </div>
   </div>
 
@@ -174,20 +180,34 @@
         <div class="avatar-section">
           <div class="avatar-wrapper">
             <img
-              [src]="avatarUrl() || 'https://placehold.co/96x96'"
+              [src]="profileImagePreview() || avatarUrl() || 'https://placehold.co/96x96'"
               class="avatar-img"
               alt="Profile photo" />
-            <button class="avatar-edit-btn" type="button" aria-label="Edit photo">
+            <label class="avatar-edit-btn" for="profileImageInput" aria-label="Edit photo" style="cursor:pointer">
               <span class="material-icons">edit</span>
-            </button>
+            </label>
           </div>
           <div class="avatar-meta">
             <span class="avatar-meta__label">{{ 'settings.profile.photo.label' | translate }}</span>
             <span class="avatar-meta__hint">{{ 'settings.profile.photo.hint' | translate }}</span>
+            @if (profileImageFile()) {
+              <span class="avatar-selected-name">{{ profileImageFile()!.name }}</span>
+            }
             <div class="avatar-meta__actions">
-              <button class="btn-outline-sm" type="button">{{ 'settings.profile.photo.upload' | translate }}</button>
-              <button class="btn-danger-ghost-sm" type="button">{{ 'settings.profile.photo.remove' | translate }}</button>
+              <label class="btn-outline-sm" for="profileImageInput" style="cursor:pointer">
+                {{ 'settings.profile.photo.upload' | translate }}
+              </label>
+              <button class="btn-danger-ghost-sm" type="button"
+                (click)="profileImageFile.set(null); profileImagePreview.set(null)">
+                {{ 'settings.profile.photo.remove' | translate }}
+              </button>
             </div>
+            <input
+              id="profileImageInput"
+              type="file"
+              accept="image/*"
+              style="display:none"
+              (change)="onProfileImageSelected($event)" />
           </div>
         </div>
 
@@ -220,13 +240,16 @@
           <label class="field-label" for="gender">{{ 'settings.profile.fields.gender' | translate }}</label>
           <div class="field-with-icon">
             <span class="field-with-icon__icon material-icons">person_outline</span>
-            <input
+            <select
               id="gender"
-              class="field-input field-input--indented"
-              type="text"
+              class="field-select field-select--indented"
               [ngModel]="gender()"
-              (ngModelChange)="gender.set($event)"
-              [placeholder]="'settings.profile.placeholders.gender' | translate" />
+              (ngModelChange)="gender.set($event)">
+              <option value="">{{ 'settings.profile.gender.placeholder' | translate }}</option>
+              @for (opt of genderOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.labelKey | translate }}</option>
+              }
+            </select>
           </div>
         </div>
 
@@ -245,6 +268,20 @@
           </div>
         </div>
 
+        <!-- Birth Date -->
+        <div class="field-group">
+          <label class="field-label" for="birthDate">{{ 'settings.profile.fields.birthDate' | translate }}</label>
+          <div class="field-with-icon">
+            <span class="field-with-icon__icon material-icons">calendar_today</span>
+            <input
+              id="birthDate"
+              class="field-input field-input--indented"
+              type="date"
+              [ngModel]="birthDate()"
+              (ngModelChange)="birthDate.set($event)" />
+          </div>
+        </div>
+
         <!-- Action bar -->
         <div class="profile-action-bar">
           <button class="btn btn--secondary" type="button" (click)="discardProfileChanges()">
@@ -256,24 +293,93 @@
         </div>
       </div>
 
-      <!-- Business sidebar -->
+      <!-- Business form card -->
       <div class="side-column">
         <div class="card">
-          <p class="section-label">{{ 'settings.business.title' | translate }}</p>
+          <div class="card-header">
+            <span class="card-icon material-icons">business</span>
+            <h2 class="card-title">{{ 'settings.business.title' | translate }}</h2>
+          </div>
+
           @if (profileLoading()) {
             <p class="branch-empty">{{ 'settings.business.loading' | translate }}</p>
-          }
-          @if (business(); as b) {
-            <div class="branch-item">
-              <span class="material-icons branch-item__icon">business</span>
-              <div class="branch-item__info">
-                <span class="branch-item__name">{{ b.companyName }}</span>
-                <span class="branch-item__status">{{ b.mainLocation.getValue() }}</span>
+          } @else {
+
+            <div class="field-group">
+              <label class="field-label" for="bizName">{{ 'settings.business.fields.companyName' | translate }}</label>
+              <input
+                id="bizName"
+                class="field-input"
+                type="text"
+                [ngModel]="businessName()"
+                (ngModelChange)="businessName.set($event)"
+                [placeholder]="'settings.business.placeholders.companyName' | translate" />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="bizRuc">{{ 'settings.business.fields.ruc' | translate }}</label>
+              <input
+                id="bizRuc"
+                class="field-input"
+                type="text"
+                [ngModel]="businessRuc()"
+                (ngModelChange)="businessRuc.set($event)"
+                [placeholder]="'settings.business.placeholders.ruc' | translate" />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="bizLocation">{{ 'settings.business.fields.mainLocation' | translate }}</label>
+              <div class="field-with-icon">
+                <span class="field-with-icon__icon material-icons">location_on</span>
+                <input
+                  id="bizLocation"
+                  class="field-input field-input--indented"
+                  type="text"
+                  [ngModel]="businessLocation()"
+                  (ngModelChange)="businessLocation.set($event)"
+                  [placeholder]="'settings.business.placeholders.mainLocation' | translate" />
               </div>
             </div>
-          }
-          @if (!business() && !profileLoading()) {
-            <p class="branch-empty">{{ 'settings.business.empty' | translate }}</p>
+
+            <!-- Business image -->
+            <div class="field-group">
+              <label class="field-label">{{ 'settings.business.fields.picture' | translate }}</label>
+              <div class="avatar-section avatar-section--sm">
+                <div class="avatar-wrapper avatar-wrapper--sm">
+                  <img
+                    [src]="businessImagePreview() || businessPictureUrl() || 'https://placehold.co/64x64'"
+                    class="avatar-img avatar-img--sm"
+                    alt="Business logo" />
+                </div>
+                <div class="avatar-meta">
+                  @if (businessImageFile()) {
+                    <span class="avatar-selected-name">{{ businessImageFile()!.name }}</span>
+                  }
+                  <label class="btn-outline-sm" for="businessImageInput" style="cursor:pointer">
+                    {{ 'settings.business.actions.uploadPicture' | translate }}
+                  </label>
+                  <input
+                    id="businessImageInput"
+                    type="file"
+                    accept="image/*"
+                    style="display:none"
+                    (change)="onBusinessImageSelected($event)" />
+                </div>
+              </div>
+            </div>
+
+            @if (profileError(); as err) {
+              <div class="profile-error" role="alert">{{ err }}</div>
+            }
+
+            <div class="profile-action-bar">
+              <button class="btn btn--secondary" type="button" (click)="discardBusinessChanges()">
+                {{ 'settings.business.actions.discard' | translate }}
+              </button>
+              <button class="btn btn--primary" type="button" (click)="saveBusinessChanges()">
+                {{ 'settings.business.actions.save' | translate }}
+              </button>
+            </div>
           }
         </div>
       </div>
@@ -284,11 +390,416 @@
   <!-- ══════════════════ BRANCHES TAB ══════════════════ -->
   @if (activeTab() === 'branches') {
     <div class="preferences-body">
+
       <div class="main-column">
         <div class="card">
-          <h2 class="card-title">{{ 'settings.branches.title' | translate }}</h2>
-          <p class="page-subtitle">{{ 'settings.branches.comingSoon' | translate }}</p>
+          <!-- Card header with title + action -->
+          <div class="branches-card-header">
+            <div class="card-header">
+              <span class="card-icon material-icons">account_tree</span>
+              <h2 class="card-title">{{ 'settings.branches.title' | translate }}</h2>
+            </div>
+            @if (!showCreateForm()) {
+              <button class="btn-add-branch" type="button" (click)="openCreateForm()">
+                <span class="material-icons">add</span>
+                {{ 'settings.branches.new' | translate }}
+              </button>
+            }
+          </div>
+
+          <!-- Loading state -->
+          @if (branchesLoading()) {
+            <div class="branches-loading">
+              <span class="spinner-sm"></span>
+              {{ 'settings.branches.loading' | translate }}
+            </div>
+          }
+
+          <!-- Error state -->
+          @if (branchesError()) {
+            <div class="branches-error">
+              <span class="material-icons">warning_amber</span>
+              {{ branchesError() }}
+            </div>
+          }
+
+          <!-- Branch list -->
+          @if (!branchesLoading()) {
+            @if (allBranches().length === 0) {
+              <div class="branches-empty">
+                <span class="material-icons branches-empty__icon">storefront</span>
+                <p class="branches-empty__title">{{ 'settings.branches.empty' | translate }}</p>
+                <p class="branches-empty__hint">{{ 'settings.branches.emptyHint' | translate }}</p>
+              </div>
+            } @else {
+              <div class="branches-list">
+                @for (b of allBranches(); track b.id) {
+                  <div class="branch-row" [class.branch-row--active]="b.id === currentBranchId()">
+                    <div class="branch-row__left">
+                      <div class="branch-row__icon-wrap" [class.branch-row__icon-wrap--active]="b.id === currentBranchId()">
+                        <span class="material-icons">storefront</span>
+                      </div>
+                      <div class="branch-row__info">
+                        <span class="branch-row__name">{{ b.name }}</span>
+                        @if (b.status) {
+                          <span class="branch-row__status" [class.branch-row__status--active]="b.status === 'ACTIVE'">
+                            {{ b.status }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                    <div class="branch-row__right">
+                      @if (b.id === currentBranchId()) {
+                        <span class="branch-row__badge">
+                          <span class="material-icons">check_circle</span>
+                          {{ 'settings.branches.active' | translate }}
+                        </span>
+                      } @else {
+                        <button class="btn-switch" type="button" (click)="switchBranch(b.id)">
+                          {{ 'settings.branches.switch' | translate }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          }
+
+          <!-- Create branch form -->
+          @if (showCreateForm()) {
+            <div class="create-branch-form">
+              <div class="create-branch-form__header">
+                <span class="create-branch-form__title">{{ 'settings.branches.newTitle' | translate }}</span>
+              </div>
+
+              <form [formGroup]="newBranchForm" (ngSubmit)="submitCreateBranch()">
+                <div class="create-form-grid">
+                  <div class="field-group">
+                    <label class="field-label" for="newBranchName">{{ 'settings.branches.fields.name' | translate }}</label>
+                    <input
+                      id="newBranchName"
+                      class="field-input"
+                      [class.field-input--error]="newBranchForm.get('name')?.invalid && newBranchForm.get('name')?.touched"
+                      formControlName="name"
+                      [placeholder]="'settings.branches.fields.namePlaceholder' | translate"
+                    />
+                    @if (newBranchForm.get('name')?.invalid && newBranchForm.get('name')?.touched) {
+                      <span class="field-error-sm">{{ 'settings.branches.fields.nameRequired' | translate }}</span>
+                    }
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="newBranchAddress">{{ 'settings.branches.fields.address' | translate }}</label>
+                    <input
+                      id="newBranchAddress"
+                      class="field-input"
+                      [class.field-input--error]="newBranchForm.get('address')?.invalid && newBranchForm.get('address')?.touched"
+                      formControlName="address"
+                      [placeholder]="'settings.branches.fields.addressPlaceholder' | translate"
+                    />
+                    @if (newBranchForm.get('address')?.invalid && newBranchForm.get('address')?.touched) {
+                      <span class="field-error-sm">{{ 'settings.branches.fields.required' | translate }}</span>
+                    }
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="newBranchCity">{{ 'settings.branches.fields.city' | translate }}</label>
+                    <input
+                      id="newBranchCity"
+                      class="field-input"
+                      [class.field-input--error]="newBranchForm.get('city')?.invalid && newBranchForm.get('city')?.touched"
+                      formControlName="city"
+                      [placeholder]="'settings.branches.fields.cityPlaceholder' | translate"
+                    />
+                    @if (newBranchForm.get('city')?.invalid && newBranchForm.get('city')?.touched) {
+                      <span class="field-error-sm">{{ 'settings.branches.fields.required' | translate }}</span>
+                    }
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="newBranchCountry">{{ 'settings.branches.fields.country' | translate }}</label>
+                    <select id="newBranchCountry" class="field-select" formControlName="country">
+                      @for (c of countries; track c) {
+                        <option [value]="c">{{ c }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="newBranchRegion">{{ 'settings.branches.fields.regionOrState' | translate }}</label>
+                    <input
+                      id="newBranchRegion"
+                      class="field-input"
+                      [class.field-input--error]="newBranchForm.get('regionOrState')?.invalid && newBranchForm.get('regionOrState')?.touched"
+                      formControlName="regionOrState"
+                      [placeholder]="'settings.branches.fields.regionOrStatePlaceholder' | translate"
+                    />
+                    @if (newBranchForm.get('regionOrState')?.invalid && newBranchForm.get('regionOrState')?.touched) {
+                      <span class="field-error-sm">{{ 'settings.branches.fields.required' | translate }}</span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Branch image -->
+                <div class="field-group">
+                  <label class="field-label">{{ 'settings.branches.fields.image' | translate }}</label>
+                  <div class="branch-image-picker">
+                    @if (branchImagePreview()) {
+                      <img [src]="branchImagePreview()!" class="branch-image-preview" alt="Branch preview" />
+                    }
+                    <label class="btn-outline-sm" for="branchImageInput" style="cursor:pointer">
+                      <span class="material-icons" style="font-size:16px;vertical-align:middle">upload</span>
+                      {{ branchImageFile() ? branchImageFile()!.name : ('settings.branches.fields.imagePlaceholder' | translate) }}
+                    </label>
+                    <input
+                      id="branchImageInput"
+                      type="file"
+                      accept="image/*"
+                      style="display:none"
+                      (change)="onBranchImageSelected($event)" />
+                  </div>
+                </div>
+
+                @if (branchesCreateError()) {
+                  <div class="create-form-error">
+                    <span class="material-icons">warning_amber</span>
+                    {{ branchesCreateError()! | translate }}
+                  </div>
+                }
+
+                <div class="create-form-actions">
+                  <button type="button" class="btn btn--secondary" (click)="cancelCreateForm()">
+                    {{ 'settings.branches.cancel' | translate }}
+                  </button>
+                  <button type="submit" class="btn btn--primary" [disabled]="branchesCreateLoading()">
+                    @if (branchesCreateLoading()) {
+                      <span class="spinner-btn"></span>
+                    }
+                    {{ 'settings.branches.createBtn' | translate }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          }
         </div>
+      </div>
+
+      <!-- Side info card -->
+      <div class="side-column">
+        <div class="card card--info">
+          <div class="card-header">
+            <span class="material-icons status-icon">info</span>
+            <span class="status-title">{{ 'settings.branches.infoTitle' | translate }}</span>
+          </div>
+          <p class="status-description">{{ 'settings.branches.infoBody' | translate }}</p>
+          <div class="branches-stat">
+            <span class="branches-stat__value">{{ allBranches().length }}</span>
+            <span class="branches-stat__label">{{ 'settings.branches.statLabel' | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+
+  <!-- ══════════════════ SUBSCRIPTIONS TAB ══════════════════ -->
+  @if (activeTab() === 'subscriptions') {
+    <div class="preferences-body subscriptions-body">
+      
+      <!-- Loading -->
+      <div *ngIf="subscriptionLoading()" class="sub-loading">
+        <div class="spinner"></div>
+        <p>Loading subscription details...</p>
+      </div>
+
+      <div *ngIf="!subscriptionLoading()" class="sub-grid-container">
+        
+        <!-- Row 1: Current Plan & System Usage -->
+        <div class="sub-row-two-cards">
+          
+          <!-- Left Card: Current Plan -->
+          <div class="sub-card-white current-plan-card">
+            <div class="sub-card-header-row">
+              <h2 class="sub-card-heading">Your Current Plan: {{ subscription()?.planName || 'Free Tier' }}</h2>
+              <span class="sub-badge-active" [class.sub-badge-active--inactive]="!subscription()">
+                {{ subscription() ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            
+            <p class="sub-card-subtitle">
+              {{ subscription() ? 'Billed monthly' : 'No active paid subscription plan' }}
+            </p>
+
+            <div class="sub-details-grid">
+              <div class="sub-detail-cell">
+                <span class="sub-cell-label">MONTHLY COST</span>
+                <span class="sub-cell-value">
+                  ${{ subscription() ? (subscription()?.planPrice || '0.00') : '0.00' }}<span class="sub-cell-freq">/mo</span>
+                </span>
+              </div>
+              
+              <div class="sub-detail-cell">
+                <span class="sub-cell-label">PAYMENT METHOD</span>
+                <span class="sub-cell-value sub-val-card">
+                  <span class="material-icons sub-card-icon">credit_card</span>
+                  Visa ending in 4242
+                </span>
+              </div>
+            </div>
+
+            <div class="sub-card-footer">
+              <span class="sub-renewal-text">
+                {{ subscription() ? 'Next billing date: ' + (subscription()?.currentPeriodEnd | date:'mediumDate') : 'No upcoming charges' }}
+              </span>
+              <div class="sub-footer-actions">
+                <button class="sub-btn-outline" *ngIf="subscription()" (click)="cancelCurrentSubscription()">
+                  Cancel Subscription
+                </button>
+                <button class="sub-btn-primary" (click)="viewPricingPlans()">
+                  {{ subscription() ? 'Update Payment Method' : 'Subscribe Now' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Card: System Usage -->
+          <div class="sub-card-white system-usage-card">
+            <div class="sub-card-header-row">
+              <h2 class="sub-card-heading">System Usage</h2>
+            </div>
+            
+            <div class="sub-usage-metric-wrap">
+              <div class="sub-usage-labels">
+                <span class="sub-usage-label-text">Active Scales</span>
+                <span class="sub-usage-label-value">
+                  {{ devicesCount() }} / {{ maxDevicesText() }}
+                </span>
+              </div>
+              <div class="sub-progress-container">
+                <div class="sub-progress-bar" [style.width.%]="devicesUsagePercent()"></div>
+              </div>
+            </div>
+
+            <p class="sub-usage-info-text">
+              You are currently using {{ devicesUsagePercent() }}% of your recommended node capacity for optimal telemetry synchronization.
+            </p>
+
+            <div class="sub-card-footer justify-end">
+              <button class="sub-btn-outline" (click)="viewAnalytics()">
+                View Detailed Analytics
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section 2: Pricing Tiers Title -->
+        <h2 class="sub-section-title">Upgrade or Switch Plans</h2>
+
+        <!-- Pricing Cards Grid -->
+        <div class="sub-pricing-row">
+          
+          @for (plan of plans(); track plan.id) {
+            <div class="sub-plan-card-white" [class.sub-plan-card-white--active]="subscription()?.planName === plan?.name">
+              <div class="sub-plan-badge-top" *ngIf="subscription()?.planName === plan?.name">
+                ACTIVE PLAN
+              </div>
+              <div class="sub-plan-card-content">
+                <h3 class="sub-plan-title">{{ plan?.name }}</h3>
+                <p class="sub-plan-description">{{ plan?.description }}</p>
+                
+                <div class="sub-plan-price-block">
+                  <span class="sub-plan-price-num">${{ plan?.price }}</span>
+                  <span class="sub-plan-price-freq">/{{ plan?.billingInterval }}</span>
+                  <span class="sub-plan-save-badge" *ngIf="plan?.id === 'plan_enterprise'">Billed annually (Save 20%)</span>
+                </div>
+
+                <ul class="sub-plan-features-list">
+                  <li>
+                    <span class="material-icons sub-check-icon">check</span>
+                    <span>{{ plan?.maxRecipes === -1 ? 'Unlimited recipes' : 'Up to ' + plan?.maxRecipes + ' recipes' }}</span>
+                  </li>
+                  <li>
+                    <span class="material-icons sub-check-icon">check</span>
+                    <span>{{ plan?.maxKits === -1 ? 'Unlimited kits' : 'Up to ' + plan?.maxKits + ' kits' }}</span>
+                  </li>
+                  <li>
+                    <span class="material-icons sub-check-icon">check</span>
+                    <span>{{ plan?.maxDevices === -1 ? 'Unlimited devices' : 'Up to ' + plan?.maxDevices + ' devices' }}</span>
+                  </li>
+                  <li>
+                    <span class="material-icons sub-check-icon">check</span>
+                    <span>Real-time Analytics</span>
+                  </li>
+                  <li>
+                    <span class="material-icons sub-check-icon">check</span>
+                    <span>Push & Email Notifications</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="sub-plan-card-footer">
+                <button 
+                  class="sub-plan-btn"
+                  [class.sub-plan-btn--current]="subscription()?.planName === plan?.name"
+                  [class.sub-plan-btn--action]="subscription()?.planName !== plan?.name"
+                  [disabled]="subscription()?.planName === plan?.name"
+                  (click)="selectPlan(plan?.id || '')">
+                  {{ subscription()?.planName === plan?.name ? 'Current Plan' : (isDowngrade(plan) ? 'Downgrade' : 'Upgrade to ' + plan?.name) }}
+                </button>
+              </div>
+            </div>
+          }
+
+        </div>
+
+        <!-- Section 3: Billing History -->
+        <div class="sub-card-white billing-history-card">
+          <div class="sub-billing-header-row">
+            <h2 class="sub-card-heading">Billing History</h2>
+            <a class="sub-csv-link" href="javascript:void(0)" (click)="downloadInvoicesCsv()">
+              Download All (CSV)
+            </a>
+          </div>
+
+          <div class="sub-table-responsive">
+            <table class="sub-history-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Invoice</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let invoice of invoiceHistory()">
+                  <td>{{ invoice.date | date:'mediumDate' }}</td>
+                  <td>S/ {{ invoice.amount }}</td>
+                  <td>
+                    <a class="sub-invoice-pdf-link" href="javascript:void(0)" (click)="viewInvoice(invoice.pdfUrl)">
+                      <span class="material-icons sub-pdf-icon">article</span>
+                      {{ invoice.number }}
+                    </a>
+                  </td>
+                  <td>
+                    <span class="sub-status-paid-badge">Paid</span>
+                  </td>
+                </tr>
+                <tr *ngIf="invoiceHistory().length === 0">
+                  <td colspan="4" class="sub-empty-state">
+                    No billing history found.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <button class="sub-load-more-btn" *ngIf="invoiceHistory().length > 0" (click)="loadMoreHistory()">
+            Show More History
+          </button>
+        </div>
+
       </div>
     </div>
   }

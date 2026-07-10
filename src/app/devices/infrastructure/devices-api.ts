@@ -4,7 +4,12 @@ import { Observable } from 'rxjs';
 import { BaseApi } from '../../shared/infrastructure/base-api';
 import { Device } from '../domain/model/device.entity';
 import { DeviceThreshold } from '../domain/model/device-threshold.entity';
-import { DevicesApiEndpoint, AddSpecificationsRequest, UpdateMeasurementRequest } from './devices-api-endpoint';
+import {
+  DevicesApiEndpoint,
+  AddSpecificationsRequest,
+  UpdateMeasurementRequest,
+  DisplayMode,
+} from './devices-api-endpoint';
 import { DeviceThresholdApiEndpoint } from './device-threshold/device-threshold-api-endpoint';
 import { CreateDeviceThresholdRequest } from './device-threshold/device-threshold.response';
 
@@ -31,7 +36,11 @@ export class DevicesApi extends BaseApi {
 
   // --- Device onboarding steps ---
 
-  createDevice(body: { accountId: string; macAddress: string; description: string }): Observable<Device> {
+  createDevice(body: {
+    accountId: string;
+    macAddress: string;
+    description: string;
+  }): Observable<Device> {
     return this.devicesEndpoint.createDevice(body);
   }
 
@@ -55,14 +64,22 @@ export class DevicesApi extends BaseApi {
     return this.devicesEndpoint.updateMeasurement(deviceId, body);
   }
 
-  updateStatus(deviceId: string, status: 'CONFIGURED' | 'INACTIVE'): Observable<Device> {
+  updateStatus(deviceId: string, status: 'CALIBRATED' | 'INACTIVE'): Observable<Device> {
     return this.devicesEndpoint.updateStatus(deviceId, status);
+  }
+
+  updateDisplayMode(deviceId: string, displayMode: DisplayMode): Observable<Device> {
+    return this.devicesEndpoint.updateDisplayMode(deviceId, displayMode);
   }
 
   // --- Device operations ---
 
   updateWithdrawnStock(deviceId: string, amount: number): Observable<Device> {
     return this.devicesEndpoint.updateWithdrawnStock(deviceId, amount);
+  }
+
+  getDeviceHealthLogs(deviceId: string): Observable<any> {
+    return this.devicesEndpoint.getDeviceHealthLogs(deviceId);
   }
 
   // --- Threshold queries & mutations ---

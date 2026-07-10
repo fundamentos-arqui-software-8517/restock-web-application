@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of, switchMap, tap } from 'rxjs';
 import { IamApi } from '../infrastructure/iam-api';
 import { IamRegisteredUsersStorage } from '../infrastructure/iam-registered-users.storage';
 import { IamSessionStorage } from '../infrastructure/iam-session.storage';
@@ -39,8 +39,10 @@ export class IamStore {
     phoneNumber: string;
     avatarUrl: string | null;
   } | null>(null);
+  private readonly pendingAccountIdSignal = signal<string | null>(null);
 
   readonly currentUser = this.currentUserSignal.asReadonly();
+  readonly pendingAccountId = this.pendingAccountIdSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly successMessage = this.successMessageSignal.asReadonly();
@@ -77,8 +79,11 @@ export class IamStore {
     const pendingProfile = this.pendingProfileSignal();
     const email = this.pendingEmailSignal() ?? '';
     const password = this.pendingPasswordSignal() ?? '';
-    const role = this.pendingRoleSignal() ?? '';
-    const mappedRole = role === 'restaurant' ? 'RESTAURANTADMIN' : 'RETAILADMIN';
+    const role = this.pendingRoleSignal();
+
+    const mappedRole = role === 'restaurant'
+      ? 'RESTAURANTADMIN'
+      : 'RETAILADMIN';
 
     const signUpCommand = new SignUpCommand({
       email,
@@ -87,50 +92,82 @@ export class IamStore {
       businessName: params.businessName,
     });
 
-    this.iamApi.signUp(signUpCommand).subscribe({
-      next: (response) => {
-        const userId = response.id;
-
-        const profile = new Profile({
-          profileId: `profile_${Date.now()}`,
-          userId: userId,
-          name: pendingProfile?.firstName ?? '',
-          lastName: pendingProfile?.lastName ?? '',
-          phoneNumber: pendingProfile?.phoneNumber ?? '',
-          avatarUrl: pendingProfile?.avatarUrl ?? 'https://placehold.co/150',
-          gender: 'UNKNOWN',
-          birthDate: new Date().toISOString(),
-        });
-
-        const business = new Business({
-          businessId: `business_${Date.now()}`,
-          companyName: params.businessName,
-          ruc: '0000000000',
-          pictureUrl: 'https://placehold.co/150',
-          mainLocation: params.country ?? '',
-          ownerId: userId,
-        });
-        forkJoin({
-          profile: this.profilesApi.createProfile(profile),
-          business: this.profilesApi.createBusiness(business),
-        }).subscribe({
-          error: (err) => console.warn('[IamStore] Profile/business setup incomplete:', err),
-        });
+    this.iamApi.signUp(signUpCommand).pipe(
+      tap((response) => {
+        const accountId = response.accountId ?? '';
 
         this.registeredUsers.register(email, password);
-        this.clearAuthSession();
-        this.successMessageSignal.set(
-          'Account created successfully. Log in with your email and password.',
+        this.pendingAccountIdSignal.set(accountId);
+      }),
+
+      switchMap((response) => {
+        const userId = response.id;
+        const accountId = response.accountId ?? '';
+
+        const signInCommand = new SignInCommand({ email, password });
+
+        return this.iamApi.signIn(signInCommand).pipe(
+          tap((user) => this.setCurrentUser(user)),
+
+          switchMap(() => {
+            const profile = new Profile({
+              profileId: '',
+              userId: userId ?? '',
+              accountId,
+              name: pendingProfile?.firstName ?? '',
+              lastName: pendingProfile?.lastName ?? '',
+              phoneNumber: pendingProfile?.phoneNumber ?? '',
+              avatarUrl: pendingProfile?.avatarUrl ?? '',
+              gender: '',
+              birthDate: '',
+            });
+
+            const business = new Business({
+              businessId: '',
+              accountId,
+              ownerId: userId ?? '',
+              companyName: params.businessName,
+              ruc: '',
+              pictureUrl: '',
+              mainLocation: params.country ?? '',
+            });
+
+            return forkJoin({
+              profile: this.profilesApi.createProfile(profile).pipe(
+                catchError((err) => {
+                  console.warn('[IamStore] Profile setup incomplete:', err);
+                  return of(null);
+                }),
+              ),
+              business: this.profilesApi.createBusiness(business).pipe(
+                catchError((err) => {
+                  console.warn('[IamStore] Business setup incomplete:', err);
+                  return of(null);
+                }),
+              ),
+            });
+          }),
+
+          catchError((err) => {
+            console.warn('[IamStore] Auto sign-in after sign-up failed:', err);
+            this.clearAuthSession();
+            return of(null);
+          })
         );
+      })
+    ).subscribe({
+      next: () => {
         this.loadingSignal.set(false);
-        void this.router.navigate(['/sign-in'], { replaceUrl: true });
+        void this.router.navigate(['/profiles/register/plan'], { replaceUrl: true });
       },
+
       error: (error) => {
         if (error instanceof HttpErrorResponse && error.status === 409) {
           this.errorSignal.set('The email address is already registered.');
           this.loadingSignal.set(false);
           return;
         }
+
         this.errorSignal.set(this.formatError(error, 'The user could not be registered.'));
         this.loadingSignal.set(false);
       },
@@ -194,8 +231,13 @@ export class IamStore {
     this.successMessageSignal.set(null);
   }
 
+  clearPendingAccountId(): void {
+    this.pendingAccountIdSignal.set(null);
+  }
+
   private setCurrentUser(user: User | null): void {
     this.currentUserSignal.set(user);
+
     if (user) {
       this.sessionStorage.save(user);
     } else {
@@ -207,11 +249,22 @@ export class IamStore {
    * Formats error messages for display.
    */
   private formatError(error: unknown, fallback: string): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.error?.message) {
+        return error.error.message;
+      }
+
+      if (error.message) {
+        return error.message;
+      }
+    }
+
     if (error instanceof Error && error.message) {
       return error.message.includes('Resource not found')
         ? `${fallback}: recurso no encontrado.`
         : error.message;
     }
+
     return fallback;
   }
 }

@@ -25,12 +25,6 @@
         </svg>
         Edit Recipe
       </button>
-      <button class="btn-publish">
-        <svg viewBox="0 0 20 20" fill="currentColor" width="15">
-          <path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm3.707 6.293l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L9 10.172l3.293-3.293a1 1 0 011.414 1.414z"/>
-        </svg>
-        Publish Changes
-      </button>
     </div>
   </div>
 
@@ -154,7 +148,7 @@
   mode="edit"
   [recipe]="recipe"
   [availableSupplies]="store.customSupplies()"
-  [accountId]="store.accountId()"
+  [accountId]="accountId"
   [saving]="store.saving()"
   (onClose)="store.closeModal(); refreshRecipe()"
   (onUpdate)="store.update($event.cmd); refreshRecipe()"

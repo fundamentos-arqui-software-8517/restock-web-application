@@ -149,7 +149,9 @@
               @for (prod of includedProducts(); track prod.supply.id; let i = $index) {
                 <div class="table-row">
                   <div class="td col-product">
-                    <img src="https://placehold.co/38x40" class="table-prod-img" alt="Product" />
+                    <img [src]="prod.supply.pictureUrl || fallbackImage"
+                         (error)="onImageError($event)"
+                         class="table-prod-img" alt="Product" />
                     <span class="table-prod-name">
                       {{ prod.supply.name }}
                     </span>

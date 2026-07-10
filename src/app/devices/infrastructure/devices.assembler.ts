@@ -16,17 +16,18 @@ export class DeviceAssembler {
       branchId: resource.branchId,
       assignedBatchId: resource.assignedBatchId,
       supplyThresholdId: resource.supplyThresholdId,
-      netWeight: resource.netWeight,
+      unitStockWeight: resource.unitStockWeight ?? resource.netWeight ?? null,
       tareWeight: resource.tareWeight,
       grossWeight: resource.grossWeight,
       calibrationDate: resource.calibrationDate,
-      weightUnitName: resource.weightUnitName,
+      weightUnitName: resource.weightUnitName ?? resource.weightUnit,
       weightUnitAbbreviation: resource.weightUnitAbbreviation,
       justifiedWithdrawnStock: resource.justifiedWithdrawnStock,
+      displayMode: resource.displayMode ?? null,
     });
   }
 
   toEntitiesFromArray(resources: DeviceResource[]): Device[] {
-    return resources.map(r => this.toEntityFromResource(r));
+    return resources.map((r) => this.toEntityFromResource(r));
   }
 }

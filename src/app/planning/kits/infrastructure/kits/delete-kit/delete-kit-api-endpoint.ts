@@ -7,7 +7,7 @@ import { ErrorHandlingEnabledBaseType } from '../../../../../shared/infrastructu
 import { DeleteKitCommand } from '../../../domain/command/delete-kit.command';
 import { DeleteKitAssembler } from './delete-kit.assembler';
 
-const kitsApiUrl = `${environment.platformProviderApiBaseUrl}/${environment.platformProviderProductsEndpointPath}`;
+const kitsApiUrl = `${environment.baseUrl}/${environment.platformProviderProductsEndpointPath}`;
 
 @Injectable({
   providedIn: 'root',

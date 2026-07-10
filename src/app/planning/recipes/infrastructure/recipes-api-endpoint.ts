@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs'; // 1. Agregamos catchError
+import { Observable, catchError } from 'rxjs';
 import { map } from 'rxjs/operators';
+// Importa el environment desde la raíz
+import { environment } from '../../../../environments/environment';
 import { BaseApiEndpoint } from '../../../shared/infrastructure/base-api-endpoint';
 import { BaseResponse } from '../../../shared/infrastructure/base-response';
 import { RecipeEntity } from '../domain/model/recipe.entity';
@@ -29,14 +31,12 @@ export class RecipesApiEndpoint extends BaseApiEndpoint<
   private readonly fallbackBaseUrl: string;
   private currentBaseUrl: string;
 
-  private readonly HARDCODED_ACCOUNT_ID = '6a1e6a7f6da7ea565b1c50b2';
-
   constructor(
     protected override readonly http: HttpClient,
-    private readonly recipesAssembler: RecipesAssembler 
+    private readonly recipesAssembler: RecipesAssembler
   ) {
-    const primary = '/api/v1';
-    const fallback = 'http://localhost:8080/api/v1'; 
+    const primary = environment.baseUrl;
+    const fallback = environment.baseUrl;
 
     super(http, `${primary}/products`, recipesAssembler);
 
@@ -49,19 +49,19 @@ export class RecipesApiEndpoint extends BaseApiEndpoint<
   private withFallback<T>(operation: () => Observable<T>): Observable<T> {
     this.currentBaseUrl = this.fallbackBaseUrl;
     this.endpointUrl = `${this.fallbackBaseUrl}/products`;
-    
+
     const result$ = operation();
-    
+
     this.currentBaseUrl = this.primaryBaseUrl;
     this.endpointUrl = `${this.primaryBaseUrl}/products`;
-    
+
     return result$;
   }
 
   // ── GET ALL (Por Account ID) ──────────────────────────────────────────────
   getAllByAccountId(accountId: string): Observable<RecipeEntity[]> {
     const operation = () => {
-      const params = new HttpParams().set('accountId', this.HARDCODED_ACCOUNT_ID);
+      const params = new HttpParams().set('accountId', accountId);
       return this.http.get<BaseResponse>(`${this.currentBaseUrl}/products`, { params }).pipe(
         map(response => this.recipesAssembler.toEntitiesFromResponse(response))
       );
@@ -72,8 +72,7 @@ export class RecipesApiEndpoint extends BaseApiEndpoint<
   // ── CREATE ────────────────────────────────────────────────────────────────
   createProduct(body: CreateProductBody): Observable<RecipeEntity> {
     const operation = () => {
-      const bodyWithAccount = { ...body, accountId: this.HARDCODED_ACCOUNT_ID };
-      return this.http.post<ProductResource>(`${this.currentBaseUrl}/products`, bodyWithAccount).pipe(
+      return this.http.post<ProductResource>(`${this.currentBaseUrl}/products`, body).pipe(
         map(res => this.recipesAssembler.toEntityFromResource(res))
       );
     };
@@ -113,7 +112,7 @@ export class RecipesApiEndpoint extends BaseApiEndpoint<
   // ── CUSTOM SUPPLIES (ingredient catalog) ──────────────────────────────────
   getCustomSupplies(accountId: string): Observable<CustomSupplyEntity[]> {
     const operation = () => {
-      const params = new HttpParams().set('accountId', this.HARDCODED_ACCOUNT_ID);
+      const params = new HttpParams().set('accountId', accountId);
       return this.http.get<CustomSupplyResource[]>(`${this.currentBaseUrl}/custom-supplies`, { params }).pipe(
         map(res => this.recipesAssembler.toCustomSupplyEntityList(res))
       );

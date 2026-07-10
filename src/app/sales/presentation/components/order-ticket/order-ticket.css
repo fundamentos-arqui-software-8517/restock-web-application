@@ -1,0 +1,227 @@
+.ticket-panel {
+  width: 380px;
+  flex-shrink: 0;
+  border-left: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.ticket-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.ticket-code {
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.ticket-lines {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empty-ticket {
+  font-size: 13px;
+  color: #9CA3AF;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.ticket-line-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.line-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 50%;
+}
+
+.line-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.25;
+}
+
+.line-unit {
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+.line-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.line-stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #D1D5DB;
+  border-radius: 20px;
+  padding: 2px 8px;
+  background: #FFFFFF;
+}
+
+.step-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: #9CA3AF;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.step-btn:hover:not(:disabled) {
+  color: #111827;
+}
+
+.step-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.step-value {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: #111827;
+}
+
+.line-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  min-width: 65px;
+  text-align: right;
+}
+
+.ticket-summary {
+  background: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #6B7280;
+}
+
+.summary-value {
+  font-weight: 500;
+  color: #374151;
+}
+
+.summary-row.total {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  padding-top: 4px;
+  align-items: center;
+}
+
+.total-price-green {
+  color: #10B981;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ticket-actions {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #FFFFFF;
+}
+
+.log-sale-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #047857;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.log-sale-btn:hover:not(:disabled) {
+  background: #065F46;
+}
+
+.log-sale-btn:disabled {
+  background: #A7C4B9;
+  cursor: not-allowed;
+}
+
+.clear-order-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #F3F4F6;
+  border-radius: 8px;
+  background: #FEF2F2;
+  color: #DC2626;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+}
+
+.clear-order-btn:hover:not(:disabled) {
+  background: #FEE2E2;
+}
+
+.clear-order-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

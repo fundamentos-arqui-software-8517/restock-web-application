@@ -8,7 +8,7 @@ import { environment } from '../../../../environments/environment';
 import { SignUpCommand } from '../../domain/model/sign-up.command';
 import { SignUpRequest } from './sign-up.request';
 import { SignUpResponse } from './sign-up.response';
-const signUpApiUrl = `${environment.platformProviderApiBaseUrl}/${environment.platformProviderSignUpEndpointPath}`;
+const signUpApiUrl = `${environment.baseUrl}/${environment.platformProviderSignUpEndpointPath}`;
 
 /**
  * Endpoint for IAM sign-up requests.

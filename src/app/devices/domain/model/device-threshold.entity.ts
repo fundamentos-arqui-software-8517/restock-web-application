@@ -36,15 +36,37 @@ export class DeviceThreshold implements BaseEntity {
     this._maxHumidity = props.maxHumidity;
   }
 
-  get id(): string { return this._id; }
-  set id(value: string) { this._id = value; }
-  get accountId(): string { return this._accountId; }
-  get customSupplyId(): string { return this._customSupplyId; }
-  get minStock(): number { return this._minStock; }
-  get maxStock(): number { return this._maxStock; }
-  get anomalyThreshold(): number { return this._anomalyThreshold; }
-  get minTemperature(): number | null { return this._minTemperature; }
-  get maxTemperature(): number | null { return this._maxTemperature; }
-  get minHumidity(): number | null { return this._minHumidity; }
-  get maxHumidity(): number | null { return this._maxHumidity; }
+  get id(): string {
+    return this._id;
+  }
+  set id(value: string) {
+    this._id = value;
+  }
+  get accountId(): string {
+    return this._accountId;
+  }
+  get customSupplyId(): string {
+    return this._customSupplyId;
+  }
+  get minStock(): number {
+    return this._minStock;
+  }
+  get maxStock(): number {
+    return this._maxStock;
+  }
+  get anomalyThreshold(): number {
+    return this._anomalyThreshold;
+  }
+  get minTemperature(): number | null {
+    return this._minTemperature;
+  }
+  get maxTemperature(): number | null {
+    return this._maxTemperature;
+  }
+  get minHumidity(): number | null {
+    return this._minHumidity;
+  }
+  get maxHumidity(): number | null {
+    return this._maxHumidity;
+  }
 }

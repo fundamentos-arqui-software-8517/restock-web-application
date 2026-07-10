@@ -13,6 +13,16 @@ const registrationBusinessDetails = () =>
     (m) => m.RegistrationBusinessDetails,
   );
 
+const registrationBranchSetup = () =>
+  import('./view/registration-branch-setup/registration-branch-setup').then(
+    (m) => m.RegistrationBranchSetup,
+  );
+
+const registrationPlanSelection = () =>
+  import('./view/registration-plan-selection/registration-plan-selection').then(
+    (m) => m.RegistrationPlanSelection,
+  );
+
 /**
  * Routes for the profiles module.
  */
@@ -34,6 +44,16 @@ export const profilesRoutes: Routes = [
         path: 'business',
         loadComponent: registrationBusinessDetails,
         title: 'Business details',
+      },
+      {
+        path: 'plan',
+        loadComponent: registrationPlanSelection,
+        title: 'Choose your Restock Plan',
+      },
+      {
+        path: 'branch',
+        loadComponent: registrationBranchSetup,
+        title: 'Set up your first branch',
       },
     ],
   },

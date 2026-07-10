@@ -8,7 +8,7 @@ import { ForgotPasswordCommand } from '../../domain/model/forgot-password.comman
 import { ForgotPasswordRequest } from './forgot-password.request';
 import { ForgotPasswordResponse } from './forgot-password.response';
 
-const forgotPasswordApiUrl = `${environment.platformProviderIamApiBaseUrlForSignIn}/${environment.platformProviderForgotPasswordEndpointPath}`;
+const forgotPasswordApiUrl = `${environment.baseUrl}/${environment.platformProviderForgotPasswordEndpointPath}`;
 
 /**
  * Endpoint for IAM forgot password requests.

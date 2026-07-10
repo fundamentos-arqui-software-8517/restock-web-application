@@ -2,6 +2,7 @@ import { Component, OnInit, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RecipesStore } from '../../../application/recipes.store';
+import { IamStore } from '../../../../../iam/application/iam.store';
 import { RecipeEntity } from '../../../domain/model/recipe.entity';
 import { CustomSupplyEntity } from '../../../domain/model/custom-supply.entity';
 import { IngredientEntryEntity } from '../../../domain/model/ingredient-entry.entity';
@@ -22,17 +23,22 @@ export interface ResolvedIngredient {
 })
 export class RecipeBuilderComponent implements OnInit {
   readonly store = inject(RecipesStore);
-  private readonly route  = inject(ActivatedRoute);
+  private readonly iamStore = inject(IamStore);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   recipe: RecipeEntity | null = null;
   resolvedIngredients: ResolvedIngredient[] = [];
 
+  get accountId(): string {
+    return this.iamStore.currentUser()?.accountId ?? '';
+  }
+
   constructor() {
     effect(() => {
       const id = this.route.snapshot.paramMap.get('id');
       const found = this.store.recipes().find(r => r.id === id);
-      
+
       if (found) {
         this.recipe = found;
         this.resolvedIngredients = this.store.resolveIngredients(this.recipe);
@@ -45,7 +51,10 @@ export class RecipeBuilderComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.store.recipes().length === 0) {
-      this.store.loadAll();
+      const accId = this.accountId;
+      if (accId) {
+        this.store.loadAll(accId);
+      }
     }
   }
 
@@ -62,5 +71,5 @@ export class RecipeBuilderComponent implements OnInit {
     this.router.navigate(['/recipes']);
   }
 
-  refreshRecipe(): void {}
+  refreshRecipe(): void { }
 }

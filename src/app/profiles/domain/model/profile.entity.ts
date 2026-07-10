@@ -9,6 +9,7 @@ import { PhoneNumber } from './phone-number';
 export class Profile implements BaseEntity {
   private _profileId: ProfileId;
   private _userId: UserId;
+  private _accountId: string;
   private _name: string;
   private _lastName: string;
   private _phoneNumber: PhoneNumber;
@@ -22,6 +23,7 @@ export class Profile implements BaseEntity {
   constructor(init: {
     profileId: string;
     userId: string;
+    accountId?: string;
     name: string;
     lastName: string;
     phoneNumber: string;
@@ -31,6 +33,7 @@ export class Profile implements BaseEntity {
   }) {
     this._profileId = new ProfileId(init.profileId);
     this._userId = new UserId(init.userId);
+    this._accountId = init.accountId ?? '';
     this._name = init.name;
     this._lastName = init.lastName;
     this._phoneNumber = new PhoneNumber(init.phoneNumber);
@@ -52,6 +55,10 @@ export class Profile implements BaseEntity {
 
   get userId(): UserId {
     return this._userId;
+  }
+
+  get accountId(): string {
+    return this._accountId;
   }
 
   get name(): string {

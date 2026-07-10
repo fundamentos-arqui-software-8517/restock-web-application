@@ -50,6 +50,16 @@
   max-height: 70vh;
 }
 
+.warning-banner {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid #f2c94c;
+  border-radius: 6px;
+  background: #fff8df;
+  color: #6d4c00;
+  font-size: 13px;
+}
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -149,6 +159,11 @@ label {
   background-color: #13462b;
 }
 
+.btn-create:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 /* Image Upload */
 .image-upload-area {
   border: 2px dashed #e0e0e0;
@@ -196,8 +211,4 @@ label {
 
 .hidden-input {
   display: none;
-}
-
-.image-url-row {
-  margin-top: 8px;
 }

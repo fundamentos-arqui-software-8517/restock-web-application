@@ -1,0 +1,130 @@
+<div class="alerts-page">
+  <div class="page-header">
+    <div>
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item">{{ 'communications.page.breadcrumb.dashboard' | translate }}</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-current">{{ 'communications.page.breadcrumb.alerts' | translate }}</span>
+      </nav>
+      <h1 class="page-title">{{ 'communications.page.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'communications.page.subtitle' | translate }}</p>
+    </div>
+    <button class="btn-mark-all" (click)="reload()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      {{ 'communications.page.markAllRead' | translate }}
+    </button>
+  </div>
+  <div class="filter-tabs" role="tablist">
+    <button
+      type="button"
+      role="tab"
+      class="filter-pill"
+      [class.active]="activeFilter() === 'ALL'"
+      (click)="onFilterChange('ALL')"
+    >
+      {{ 'communications.filter.all' | translate }}
+    </button>
+    <button 
+      type="button" 
+      role="tab" 
+      class="filter-pill" 
+      [class.active]="activeFilter() === 'STOCK_WARNINGS'"
+      (click)="onFilterChange('STOCK_WARNINGS')"
+    >
+      {{ 'communications.filter.stockWarnings' | translate }}
+    </button>
+    <button 
+      type="button" 
+      role="tab" 
+      class="filter-pill" 
+      [class.active]="activeFilter() === 'CONNECTION_LOST'"
+      (click)="onFilterChange('CONNECTION_LOST')"
+    >
+      {{ 'communications.filter.devices' | translate }}
+    </button>
+    <button 
+      type="button" 
+      role="tab" 
+      class="filter-pill" 
+      [class.active]="activeFilter() === 'INCONSISTENT_READING'"
+      (click)="onFilterChange('INCONSISTENT_READING')"
+    >
+      {{ 'communications.filter.discrepancies' | translate }}
+    </button>
+    <button 
+      type="button" 
+      role="tab" 
+      class="filter-pill" 
+      [class.active]="activeFilter() === 'CRITICAL'"
+      (click)="onFilterChange('CRITICAL')"
+    >
+      {{ 'communications.filter.critical' | translate }}
+    </button>
+  </div>
+  <div *ngIf="isLoading()" class="skeleton-loader" aria-busy="true">
+    <div class="skeleton-item"></div>
+    <div class="skeleton-item"></div>
+    <div class="skeleton-item"></div>
+  </div>
+  <div *ngIf="error() && !isLoading()" class="error-banner" role="alert">
+    <span>⚠ {{ error() }}</span>
+    <button type="button" class="btn-error-retry" (click)="reload()">Retry</button>
+  </div>
+  <div
+    *ngIf="autoDismissedCount() > 0 && !isLoading()"
+    class="success-banner"
+    role="status"
+    aria-live="polite"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <div>
+      <strong>{{ autoDismissedCount() === 1 ? ('communications.autoResolved.single' | translate) : ('communications.autoResolved.multiple' | translate: { count: autoDismissedCount() }) }}</strong>
+      <p>{{ 'communications.autoResolved.description' | translate }}</p>
+    </div>
+  </div>
+  <div *ngIf="!isLoading() && !error()" class="alerts-container">
+    <div *ngIf="!hasAlerts()" class="empty-state">
+      <p class="empty-title">{{ 'communications.empty.title' | translate }}</p>
+      <p class="empty-message">{{ 'communications.empty.message' | translate }}</p>
+    </div>
+
+    <div *ngIf="hasAlerts()" class="alerts-list" role="list">
+      <app-alert-card
+        *ngFor="let alert of alerts()"
+        [alert]="alert"
+        (viewDetail)="openDetail($event)"
+        (acknowledge)="acknowledge($event)"
+        (resolve)="resolve($event)"
+      ></app-alert-card>
+    </div>
+  </div>
+  <div *ngIf="hasAlerts() && !isLoading()" class="load-more-section">
+    <button type="button" class="btn-load-more" (click)="reload()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+      </svg>
+      {{ 'communications.loadMore' | translate }}
+    </button>
+  </div>
+  <app-alert-detail-modal
+    *ngIf="selectedAlert() as alert"
+    [alert]="alert"
+    (close)="closeDetail()"
+    (acknowledge)="acknowledge($event)"
+    (resolve)="resolve($event)"
+  ></app-alert-detail-modal>
+  <footer class="status-footer">
+    <div class="status-left">
+      <span class="status-dot online"></span>
+      <span class="status-text">{{ 'communications.footer.network' | translate }}</span>
+      <span class="status-dot online"></span>
+      <span class="status-text">{{ 'communications.footer.cloudSync' | translate }}</span>
+    </div>
+    <span class="status-build">{{ 'communications.footer.build' | translate }}</span>
+  </footer>
+</div>
+

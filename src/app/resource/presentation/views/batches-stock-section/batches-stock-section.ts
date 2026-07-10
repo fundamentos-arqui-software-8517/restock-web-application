@@ -54,6 +54,12 @@ export class BatchesStockSection {
   protected readonly showTransferBatchPanel = signal(false);
   protected readonly selectedBatch = signal<BatchRow | null>(null);
   protected readonly batchFormWarning = signal('');
+  protected readonly batchSaving = signal(false);
+
+  protected get todayString(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
 
   protected readonly batchForm = {
     code: '',
@@ -240,6 +246,7 @@ export class BatchesStockSection {
     this.showBatchDetailModal.set(false);
     this.showTransferBatchPanel.set(false);
     this.selectedBatch.set(null);
+    this.batchSaving.set(false);
   }
 
   protected onBatchSupplyChange(customSupplyId: string): void {
@@ -254,12 +261,27 @@ export class BatchesStockSection {
   protected createBatch(): void {
     const form = this.batchForm;
     this.batchFormWarning.set('');
-    if (!form.code || !form.customSupplyId || !form.branchId || form.currentStock <= 0) return;
+
+    if (!form.code) { this.batchFormWarning.set('Batch code is required'); return; }
+    if (!form.customSupplyId) { this.batchFormWarning.set('Please select a supply'); return; }
+    if (!form.branchId) { this.batchFormWarning.set('Branch information is missing'); return; }
+    if (form.currentStock <= 0) { this.batchFormWarning.set('Initial stock must be greater than 0'); return; }
     if (!this.validateBatchStockRange(Number(form.currentStock))) return;
 
     const requiresExpiration = this.selectedCustomSupplyRequiresExpiration();
-    if (requiresExpiration && !form.expirationDate) return;
+    if (requiresExpiration && !form.expirationDate) { this.batchFormWarning.set('Expiration date is required for perishable items'); return; }
 
+    if (requiresExpiration && form.expirationDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expDate = new Date(form.expirationDate);
+      if (expDate < today) {
+        this.batchFormWarning.set('Expiration date cannot be in the past');
+        return;
+      }
+    }
+
+    this.batchSaving.set(true);
     this.store.createBatch({
       accountId: this.store.accountId(),
       code: form.code,
@@ -267,8 +289,16 @@ export class BatchesStockSection {
       customSupplyId: form.customSupplyId,
       branchId: form.branchId,
       expirationDate: requiresExpiration ? form.expirationDate : '',
+    }).subscribe({
+      next: () => {
+        this.batchSaving.set(false);
+        this.closeBatchDialogs();
+      },
+      error: (error) => {
+        this.batchSaving.set(false);
+        this.batchFormWarning.set(this.extractErrorMessage(error, 'Batch could not be created'));
+      },
     });
-    this.closeBatchDialogs();
   }
 
   protected updateBatch(): void {
@@ -280,13 +310,22 @@ export class BatchesStockSection {
     const requiresExpiration = this.selectedCustomSupplyRequiresExpiration();
     if (requiresExpiration && !form.expirationDate) return;
 
+    this.batchSaving.set(true);
     this.store.updateBatch({
       id: selected.id,
       code: form.code,
       currentStock: Number(form.currentStock),
       expirationDate: requiresExpiration ? form.expirationDate : null,
+    }).subscribe({
+      next: () => {
+        this.batchSaving.set(false);
+        this.closeBatchDialogs();
+      },
+      error: (error) => {
+        this.batchSaving.set(false);
+        this.batchFormWarning.set(this.extractErrorMessage(error, 'Batch could not be updated'));
+      },
     });
-    this.closeBatchDialogs();
   }
 
   protected transferBatch(): void {
@@ -363,5 +402,13 @@ export class BatchesStockSection {
     }
 
     return true;
+  }
+
+  private extractErrorMessage(error: any, fallback: string): string {
+    return error?.error?.message
+      || error?.error?.detail
+      || error?.error?.error
+      || error?.message
+      || fallback;
   }
 }

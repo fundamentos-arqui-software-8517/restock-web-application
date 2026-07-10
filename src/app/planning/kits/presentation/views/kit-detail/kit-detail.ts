@@ -26,12 +26,17 @@ export class KitDetailComponent implements OnInit {
 
   readonly chartBars = [0.4, 0.6, 0.55, 0.85, 0.7, 0.95, 0.8];
 
+  readonly fallbackImage =
+    'https://st.depositphotos.com/9012638/52754/i/450/depositphotos_527544842-stock-photo-meal-kit-delivery-concept-set.jpg?h=400&w=600&fit=crop';
+
   isDeleteConfirmOpen = signal(false);
+  private readonly _detailRequestedIds = new Set<string | null>();
 
   constructor() {
     effect(() => {
       const kit = this.kit();
-      if (kit && (!kit.items || kit.items.length === 0)) {
+      if (kit && kit.items === undefined && !this._detailRequestedIds.has(kit.id)) {
+        this._detailRequestedIds.add(kit.id);
         this.kitsStore.loadById(kit.id);
       }
     });
@@ -52,22 +57,20 @@ export class KitDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) return;
+    if (!id) {
+      this.router.navigate(['/kits']);
+      return;
+    }
     this.kitId.set(id);
+    if (!this._detailRequestedIds.has(id)) {
+      this._detailRequestedIds.add(id);
+      this.kitsStore.loadById(id);
+    }
+    if (this.kitsStore.kits().length === 0 && !this.kitsStore.loading()) {
+      this.kitsStore.loadAllKits();
+    }
     if (this.kitsStore.availableSupplies().length === 0) {
       this.kitsStore.loadSupplies();
-
-      setTimeout(() => {
-        console.log(
-          'supplies ids:',
-          this.kitsStore.availableSupplies().map((s) => s.id),
-        );
-        console.log('customSupplyId:', this.kit()?.items?.[0]?.customSupplyId);
-      }, 2000);
-    }
-    this.kitsStore.loadById(id);
-    if (this.kitsStore.kits().length === 0) {
-      this.kitsStore.loadAllKits();
     }
   }
 
@@ -84,7 +87,8 @@ export class KitDetailComponent implements OnInit {
   }
 
   getSupplySku(productId: string): string {
-    return this.getSupply(productId)?.supplyId ?? '—';
+    const supply = this.getSupply(productId);
+    return supply?.supplyId || supply?.id || '—';
   }
 
   getSupplyStock(productId: string): number {
@@ -100,7 +104,7 @@ export class KitDetailComponent implements OnInit {
   }
 
   onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/placeholder-kit.png';
+    (event.target as HTMLImageElement).src = this.fallbackImage;
   }
 
   onDelete(): void {

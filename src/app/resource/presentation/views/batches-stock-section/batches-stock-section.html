@@ -119,8 +119,8 @@
         }
 
         <footer class="modal-actions">
-          <button type="button" class="btn-secondary" (click)="closeBatchDialogs()">Cancel</button>
-          <button type="submit" class="btn-submit">
+          <button type="button" class="btn-secondary" (click)="closeBatchDialogs()" [disabled]="batchSaving()">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="batchSaving()">
             {{ showAddBatchModal() ? 'Add Batch' : 'Update Batch' }}
           </button>
         </footer>

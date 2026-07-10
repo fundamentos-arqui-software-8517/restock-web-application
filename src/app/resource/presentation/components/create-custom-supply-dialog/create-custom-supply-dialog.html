@@ -5,6 +5,8 @@
     </div>
     
     <div class="modal-body">
+      <p *ngIf="formWarning" class="warning-banner" role="alert">{{ formWarning }}</p>
+
       <div class="form-group">
         <label>{{ 'resource.customSupplies.createDialog.name' | translate }}</label>
         <input type="text" [(ngModel)]="formData.name" class="form-control" [placeholder]="'resource.customSupplies.createDialog.namePlaceholder' | translate">
@@ -85,18 +87,14 @@
           </div>
           <input #imageInput type="file" accept="image/*" class="hidden-input" (change)="onImageSelected($event)">
         </div>
-        <div *ngIf="imagePreviewUrl" class="image-url-row">
-          <input type="text" [(ngModel)]="formData.imageUrl" class="form-control" [placeholder]="'resource.customSupplies.createDialog.imageUrlPlaceholder' | translate">
-        </div>
-        <div *ngIf="!imagePreviewUrl" class="image-url-row">
-          <input type="text" [(ngModel)]="formData.imageUrl" class="form-control" [placeholder]="'resource.customSupplies.createDialog.imageUrlPlaceholder' | translate">
-        </div>
       </div>
     </div>
     
     <div class="modal-footer">
       <button class="btn btn-cancel" (click)="cancel()">{{ 'resource.customSupplies.createDialog.cancel' | translate }}</button>
-      <button class="btn btn-create" (click)="create()">{{ 'resource.customSupplies.createDialog.create' | translate }}</button>
+      <button class="btn btn-create" (click)="create()" [disabled]="isSubmitting">
+        {{ 'resource.customSupplies.createDialog.create' | translate }}
+      </button>
     </div>
   </div>
 </div>

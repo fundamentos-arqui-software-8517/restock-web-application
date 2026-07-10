@@ -316,6 +316,12 @@
   color: #fff;
 }
 
+.btn-secondary:disabled,
+.btn-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .btn-danger {
   min-width: 128px;
   height: 42px;

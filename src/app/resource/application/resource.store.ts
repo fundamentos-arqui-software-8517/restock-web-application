@@ -9,6 +9,7 @@ import {
   forkJoin,
   map,
   of,
+  throwError,
   tap,
 } from 'rxjs';
 
@@ -20,6 +21,7 @@ import type { UpdateBatchCommand } from '../domain/commands/update-batch.command
 import type { CreateBranchCommand } from '../domain/commands/create-branch.command';
 import type { UpdateBranchCommand } from '../domain/commands/update-branch.command';
 import type { UpdateBranchStatusCommand } from '../domain/commands/update-branch-status.command';
+import type { BatchItemResponse } from '../infrastructure/batch/batch.response';
 import { Branch } from '../domain/model/branch.entity';
 import { CustomSupply } from '../domain/model/custom-supply.entity';
 import { Supply } from '../domain/model/supply.entity';
@@ -117,8 +119,8 @@ export class ResourceStore {
     this.refreshBatch();
   }
 
-  createBatch(command: CreateBatchCommand): void {
-    this.resourceApi
+  createBatch(command: CreateBatchCommand): Observable<BatchItemResponse> {
+    return this.resourceApi
       .createBatch(command.accountId, {
         code: command.code,
         currentStock: command.currentStock,
@@ -128,16 +130,15 @@ export class ResourceStore {
       })
       .pipe(
         tap(() => this.refreshBatch()),
-        catchError(() => {
+        catchError((error) => {
           this.loadError.set(true);
-          return EMPTY;
+          return throwError(() => error);
         }),
-      )
-      .subscribe();
+      );
   }
 
-  updateBatch(command: UpdateBatchCommand): void {
-    this.resourceApi
+  updateBatch(command: UpdateBatchCommand): Observable<BatchItemResponse> {
+    return this.resourceApi
       .updateBatch(command.id, {
         code: command.code,
         currentStock: command.currentStock,
@@ -145,12 +146,11 @@ export class ResourceStore {
       })
       .pipe(
         tap(() => this.refreshBatch()),
-        catchError(() => {
+        catchError((error) => {
           this.loadError.set(true);
-          return EMPTY;
+          return throwError(() => error);
         }),
-      )
-      .subscribe();
+      );
   }
 
   transferBatch(command: TransferBatchCommand): void {

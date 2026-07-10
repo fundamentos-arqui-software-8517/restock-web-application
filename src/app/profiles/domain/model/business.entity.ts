@@ -6,6 +6,7 @@ import { Address } from '../../../shared/domain/model/valueobjects/address';
 
 export class Business implements BaseEntity {
   private _businessId: BusinessId;
+  private _accountId: string;
   private _companyName: string;
   private _ruc: string;
   private _pictureUrl: ImageUrl;
@@ -17,6 +18,7 @@ export class Business implements BaseEntity {
    */
   constructor(init: {
     businessId: string;
+    accountId?: string;
     companyName: string;
     ruc: string;
     pictureUrl: string;
@@ -24,6 +26,7 @@ export class Business implements BaseEntity {
     ownerId: string;
   }) {
     this._businessId = new BusinessId(init.businessId);
+    this._accountId = init.accountId ?? '';
     this._companyName = init.companyName;
     this._ruc = init.ruc;
     this._pictureUrl = new ImageUrl(init.pictureUrl);
@@ -40,6 +43,10 @@ export class Business implements BaseEntity {
 
   get businessId(): BusinessId {
     return this._businessId;
+  }
+
+  get accountId(): string {
+    return this._accountId;
   }
 
   get companyName(): string {

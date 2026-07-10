@@ -30,6 +30,13 @@ export class KitFormModalComponent implements OnInit {
   availableProducts = this.kitsStore.availableSupplies;
   loadingProducts = signal<boolean>(false);
 
+  readonly fallbackImage =
+    'https://st.depositphotos.com/9012638/52754/i/450/depositphotos_527544842-stock-photo-meal-kit-delivery-concept-set.jpg?h=400&w=600&fit=crop';
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.fallbackImage;
+  }
+
   recommendedPrice = computed(() =>
     this.includedProducts().reduce((acc, p) => acc + p.supply.unitPriceAmount * p.quantity, 0),
   );
@@ -83,14 +90,13 @@ export class KitFormModalComponent implements OnInit {
       sellingPrice: this.kitPrice(),
     };
     this.kitsStore.create(command, (newKitId: string) => {
-      const itemRequests = this.includedProducts().map((item) => {
-        return this.kitsStore.addItem({
-          productId: newKitId,
-          customSupplyId: item.supply.id,
-          quantity: item.quantity,
-        });
+      const items = this.includedProducts().map((item) => ({
+        customSupplyId: item.supply.id,
+        quantity: item.quantity,
+      }));
+      this.kitsStore.addItemsSequentially(newKitId, items, () => {
+        this.closeModal.emit();
       });
-      this.closeModal.emit();
     });
   }
 

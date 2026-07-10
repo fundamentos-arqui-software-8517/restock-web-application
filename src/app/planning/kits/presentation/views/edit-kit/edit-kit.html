@@ -40,13 +40,60 @@
         <div class="components-section">
           <div class="section-header-row">
             <label class="field-label">COMPONENT CONFIGURATION</label>
-            <button type="button" class="add-supply-btn">
+            <button type="button" class="add-supply-btn" (click)="toggleAddSupplyPanel()">
               <span class="plus-icon">⊕</span> Add Supply
             </button>
           </div>
 
+          @if (showAddSupplyPanel()) {
+            <div class="add-supply-panel">
+              <div class="input-field-group" style="flex: 1;">
+                <label class="field-label">SELECT PRODUCT</label>
+                <div class="input-wrapper">
+                  <select
+                    class="styled-input"
+                    [ngModel]="selectedSupplyId()"
+                    (ngModelChange)="selectedSupplyId.set($event)"
+                    [ngModelOptions]="{ standalone: true }"
+                  >
+                    <option value="" disabled selected>--- Select a product ---</option>
+                    @for (supply of getAvailableSuppliesToAdd(); track supply.id) {
+                      <option [value]="supply.id">{{ supply.name }} (S/ {{ supply.unitPriceAmount }})</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="input-field-group" style="width: 90px;">
+                <label class="field-label">QTY</label>
+                <div class="input-wrapper">
+                  <input
+                    type="number"
+                    class="styled-input"
+                    min="1"
+                    [ngModel]="newItemQuantity()"
+                    (ngModelChange)="newItemQuantity.set($event)"
+                    [ngModelOptions]="{ standalone: true }"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn-confirm-add-supply"
+                [disabled]="!selectedSupplyId()"
+                (click)="confirmAddSupply()"
+              >
+                Add
+              </button>
+              <button type="button" class="btn-cancel-add-supply" (click)="toggleAddSupplyPanel()">
+                Cancel
+              </button>
+            </div>
+          }
+
           <div class="components-list" formArrayName="items">
-            @for (itemGroup of itemsFormArray.controls; track $index) {
+            @for (itemGroup of itemsFormArray.controls; track itemGroup.get('customSupplyId')?.value) {
               <div class="component-item-card" [formGroupName]="$index">
                 <div class="component-info">
                   <span class="component-name">{{ itemGroup.get('productName')?.value }}</span>

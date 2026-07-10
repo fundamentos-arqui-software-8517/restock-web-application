@@ -7,46 +7,34 @@
   </div>
 
   <ul class="nav-list">
-    @for (item of navItems(); track item.labelKey) {
-      <li class="nav-block">
-        @if (item.children?.length) {
-          <a
-            class="nav-item nav-parent"
-            [routerLink]="item.link"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="sectionActiveMatch"
-          >
-            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-            <span class="nav-label">{{ item.labelKey | translate }}</span>
+    @for (item of filteredNavItems(); track item.labelKey) {
+    <li class="nav-block">
+      @if (item.children?.length) {
+      <a class="nav-item nav-parent" [routerLink]="item.link" routerLinkActive="active"
+        [routerLinkActiveOptions]="sectionActiveMatch">
+        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.labelKey | translate }}</span>
+      </a>
+      @if (inventorySubnavVisible() && item.link === '/inventory') {
+      <ul class="nav-sublist">
+        @for (sub of item.children; track sub.link) {
+        <li>
+          <a class="nav-subitem" [routerLink]="sub.link" routerLinkActive="active-sub"
+            [routerLinkActiveOptions]="{ exact: true }">
+            {{ sub.labelKey | translate }}
           </a>
-          @if (inventorySubnavVisible() && item.link === '/inventory') {
-            <ul class="nav-sublist">
-              @for (sub of item.children; track sub.link) {
-                <li>
-                  <a
-                    class="nav-subitem"
-                    [routerLink]="sub.link"
-                    routerLinkActive="active-sub"
-                    [routerLinkActiveOptions]="{ exact: true }"
-                  >
-                    {{ sub.labelKey | translate }}
-                  </a>
-                </li>
-              }
-            </ul>
-          }
-        } @else {
-          <a
-            class="nav-item"
-            [routerLink]="item.link"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: item.link === '/' }"
-          >
-            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-            <span class="nav-label">{{ item.labelKey | translate }}</span>
-          </a>
+        </li>
         }
-      </li>
+      </ul>
+      }
+      } @else {
+      <a class="nav-item" [routerLink]="item.link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.link === '/' }">
+        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.labelKey | translate }}</span>
+      </a>
+      }
+    </li>
     }
   </ul>
 </nav>

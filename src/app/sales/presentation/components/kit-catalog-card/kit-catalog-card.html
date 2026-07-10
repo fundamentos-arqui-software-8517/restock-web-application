@@ -1,0 +1,27 @@
+<article class="catalog-card">
+  <div class="thumb-wrapper">
+    <img
+      [src]="kit.imageUrl || fallbackImage"
+      (error)="onImageError($event)"
+      [alt]="kit.name"
+      class="thumb-image"
+    >
+    <span class="availability-pill" [class.low-stock]="kit.status === 'LOW_STOCK'">
+      {{ availabilityLabel }}
+    </span>
+  </div>
+
+  <div class="card-body">
+    <span class="card-sku">{{ kit.sku }}</span>
+    <h3 class="card-name">{{ kit.name }}</h3>
+    <div class="card-footer">
+      <span class="card-price">S/ {{ kit.sellingPrice.toFixed(2) }}</span>
+      <button
+        class="add-btn"
+        [disabled]="!isSellable"
+        (click)="add.emit(kit)"
+        [attr.aria-label]="'sales.kitCard.addToOrderAria' | translate"
+      >+</button>
+    </div>
+  </div>
+</article>

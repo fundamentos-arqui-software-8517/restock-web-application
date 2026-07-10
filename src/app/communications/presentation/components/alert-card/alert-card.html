@@ -1,0 +1,105 @@
+<article *ngIf="alert().isInconsistentReading" class="alert-card alert-card--mismatch" role="listitem">
+  <div class="alert-icon alert-type--mismatch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M4 6h16M4 12h10M4 18h10" />
+      <path d="M17 14l4 4m0-4l-4 4" />
+    </svg>
+  </div>
+
+  <div class="alert-body">
+    <div class="alert-header">
+      <span class="alert-label alert-type--mismatch">{{ alertTypeKey(alert().alertType) | translate }}</span>
+      <span class="alert-timestamp">{{ timeAgo(alert().detectedAt) }}</span>
+    </div>
+    <h2 class="alert-title">{{ alert().title || ('communications.card.discrepancyTitle' | translate) }}</h2>
+    <p class="alert-description">{{ alert().message }}</p>
+    <div class="alert-actions" (click)="stopPropagation($event)">
+      <button class="btn btn-primary" (click)="viewDetail.emit(alert()); stopPropagation($event)">{{ 'communications.card.investigate' | translate }}</button>
+      <button class="btn btn-ghost" (click)="resolve.emit(alert().id); stopPropagation($event)">{{ 'communications.card.markResolved' | translate }}</button>
+    </div>
+  </div>
+</article>
+<article *ngIf="alert().isConnectionLost" class="alert-card alert-card--offline" role="listitem">
+  <div class="alert-icon alert-type--offline">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="1" y1="1" x2="23" y2="23"></line>
+      <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.5"></path>
+      <path d="M5 12.5a10.94 10.94 0 0 1 5.83-2.84"></path>
+      <path d="M12 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"></path>
+    </svg>
+  </div>
+  <div class="alert-body">
+    <div class="alert-header">
+      <span class="alert-label alert-type--offline">{{ alertTypeKey(alert().alertType) | translate }}</span>
+      <span class="alert-timestamp">{{ timeAgo(alert().detectedAt) }}</span>
+    </div>
+    <h2 class="alert-title">{{ alert().title || ('communications.card.offlineTitle' | translate) }}</h2>
+    <p class="alert-description">{{ alert().message }}</p>
+    <div class="alert-actions" (click)="stopPropagation($event)">
+      <button class="btn btn-secondary" (click)="viewDetail.emit(alert()); stopPropagation($event)">{{ 'communications.card.viewDetails' | translate }}</button>
+      <button class="btn btn-ghost" (click)="acknowledge.emit(alert().id); stopPropagation($event)">{{ 'communications.card.acknowledge' | translate }}</button>
+    </div>
+  </div>
+</article>
+<article *ngIf="alert().isDeviceRegistered" class="alert-card alert-card--transfer" role="listitem">
+  <div class="alert-icon alert-type--transfer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7m16 0v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5m16 0h-4l-2 3h-4l-2-3H4"/>
+    </svg>
+  </div>
+  <div class="alert-body">
+    <div class="alert-header">
+      <span class="alert-label alert-type--transfer">{{ alertTypeKey(alert().alertType) | translate }}</span>
+      <span class="alert-timestamp">{{ timeAgo(alert().detectedAt) }}</span>
+    </div>
+    <h2 class="alert-title">{{ alert().title }}</h2>
+    <p class="alert-description">{{ alert().message }}</p>
+    <div class="alert-actions" (click)="stopPropagation($event)">
+      <button class="btn btn-secondary" (click)="viewDetail.emit(alert()); stopPropagation($event)">{{ 'communications.card.runDiagnostics' | translate }}</button>
+      <button class="btn btn-ghost" (click)="acknowledge.emit(alert().id); stopPropagation($event)">{{ 'communications.card.acknowledge' | translate }}</button>
+    </div>
+  </div>
+</article>
+<article *ngIf="alert().isManualTransfer" class="alert-card alert-card--transfer" role="listitem">
+  <div class="alert-icon alert-type--transfer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m16 3 4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16" />
+    </svg>
+  </div>
+  <div class="alert-body">
+    <div class="alert-header">
+      <span class="alert-label alert-type--transfer">{{ alertTypeKey(alert().alertType) | translate }}</span>
+      <span class="alert-timestamp">{{ timeAgo(alert().detectedAt) }}</span>
+    </div>
+    <h2 class="alert-title">{{ alert().title || ('communications.card.transferTitle' | translate) }}</h2>
+    <p class="alert-description">{{ alert().message }}</p>
+    <div class="alert-actions" (click)="stopPropagation($event)">
+      <button class="btn btn-transfer" (click)="viewDetail.emit(alert()); stopPropagation($event)">{{ 'communications.card.reviewConfirm' | translate }}</button>
+      <button class="btn btn-ghost" (click)="acknowledge.emit(alert().id); stopPropagation($event)">{{ 'communications.card.dismiss' | translate }}</button>
+    </div>
+  </div>
+</article>
+<article *ngIf="alert().isStockWarning" class="alert-card alert-card--mismatch" role="listitem">
+  <div class="alert-icon alert-type--mismatch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+      <path d="M12 7V3"></path>
+      <path d="M8 7V5"></path>
+      <path d="M16 7V5"></path>
+      <line x1="12" y1="12" x2="12" y2="16"></line>
+      <polyline points="9 14 12 17 15 14"></polyline>
+    </svg>
+  </div>
+  <div class="alert-body">
+    <div class="alert-header">
+      <span class="alert-label alert-type--mismatch">{{ alertTypeKey(alert().alertType) | translate }}</span>
+      <span class="alert-timestamp">{{ timeAgo(alert().detectedAt) }}</span>
+    </div>
+    <h2 class="alert-title">{{ alert().title || ('communications.card.stockWarningTitle' | translate) }}</h2>
+    <p class="alert-description">{{ alert().message }}</p>
+    <div class="alert-actions" (click)="stopPropagation($event)">
+      <button class="btn btn-primary" (click)="viewDetail.emit(alert()); stopPropagation($event)">{{ 'communications.card.investigate' | translate }}</button>
+      <button class="btn btn-ghost" (click)="resolve.emit(alert().id); stopPropagation($event)">{{ 'communications.card.markResolved' | translate }}</button>
+    </div>
+  </div>
+</article>

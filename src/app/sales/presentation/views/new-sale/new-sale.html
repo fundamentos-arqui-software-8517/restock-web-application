@@ -1,0 +1,102 @@
+<div class="pos-layout">
+  <section class="catalog-section">
+    <a class="back-link" (click)="onBackToSales()">{{ 'sales.newSale.back' | translate }}</a>
+    <h1 class="page-title">{{ 'sales.newSale.title' | translate }}</h1>
+
+    <div class="catalog-tabs">
+      <button class="tab-btn active">{{ 'sales.newSale.tabAll' | translate }}</button>
+      <button class="tab-btn">{{ 'sales.newSale.tabBest' | translate }}</button>
+    </div>
+
+    @if (branchError()) {
+      <div class="error-banner">
+        {{ branchError() }}
+        <button class="retry-btn" (click)="onRetryBranch()">{{ 'sales.newSale.retry' | translate }}</button>
+      </div>
+    } @else {
+      @if (store.error()) {
+        <div class="error-banner">{{ store.error() }}</div>
+      }
+
+      @if (kitsStore.loading()) {
+        <p class="loading-text">{{ 'sales.newSale.loading' | translate }}</p>
+      } @else {
+        <div class="catalog-grid">
+          @for (kit of kitsStore.kits(); track kit.id) {
+            <app-kit-catalog-card [kit]="kit" (add)="onAddKit($event)" />
+          } @empty {
+            <p class="empty-catalog">{{ 'sales.newSale.empty' | translate }}</p>
+          }
+
+          <div class="quick-add-card" (click)="openQuickAddModal()">
+            <div class="quick-add-content">
+              <span class="plus-icon">+</span>
+              <span class="quick-add-text">{{ 'sales.newSale.quickAdd' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </section>
+
+  <app-order-ticket
+    [order]="store.activeOrder()"
+    [saving]="store.saving()"
+    (adjustQuantity)="onAdjustQuantity($event)"
+    (removeItem)="onRemoveItem($event)"
+    (completeOrder)="onCompleteOrder()"
+    (clearOrder)="onClearOrder()"
+  />
+</div>
+
+<app-sale-success-modal
+  [order]="store.lastCompletedOrder()"
+  (startNewSale)="onStartNewSale()"
+  (backToSales)="onBackToSales()"
+/>
+
+<app-insufficient-stock-modal
+  [error]="store.insufficientStockError()"
+  [productName]="offendingItem()?.nameSnapshot ?? ''"
+  (removeItem)="onRemoveOffendingItem()"
+/>
+
+@if (showQuickAddModal()) {
+  <div class="modal-backdrop-custom" (click)="showQuickAddModal.set(false)">
+    <div class="quick-add-modal" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">{{ 'sales.quickAddModal.title' | translate }}</h2>
+      <p class="modal-subtitle">{{ 'sales.quickAddModal.subtitle' | translate }}</p>
+
+      <div class="form-tabs">
+        <button class="form-tab-btn" [class.active]="quickAddTab() === 'select'" (click)="quickAddTab.set('select')">{{ 'sales.quickAddModal.tabSelectKit' | translate }}</button>
+        <button class="form-tab-btn" [class.active]="quickAddTab() === 'manual'" (click)="quickAddTab.set('manual')">{{ 'sales.quickAddModal.tabCustomSupply' | translate }}</button>
+      </div>
+
+      @if (quickAddTab() === 'select') {
+        <div class="form-group">
+          <label class="form-label">{{ 'sales.quickAddModal.chooseKit' | translate }}</label>
+          <select class="form-select" #kitSelect>
+            @for (k of kitsStore.kits(); track k.id) {
+              <option [value]="k.id">{{ k.name }} (S/ {{ k.sellingPrice.toFixed(2) }})</option>
+            }
+          </select>
+        </div>
+        <button class="modal-primary-btn" (click)="onAddSelectedKit(kitSelect.value)">{{ 'sales.quickAddModal.addKitToOrder' | translate }}</button>
+      } @else {
+        <div class="form-group">
+          <label class="form-label">{{ 'sales.quickAddModal.chooseSupply' | translate }}</label>
+          <select class="form-select" #supplySelect>
+            @for (s of resourceStore.getCustomSupplies(); track s.id) {
+              <option [value]="s.id">{{ s.name }} (S/ {{ s.unitPrice.toFixed(2) }})</option>
+            } @empty {
+              <option value="" disabled>{{ 'sales.quickAddModal.noSupplies' | translate }}</option>
+            }
+          </select>
+        </div>
+        <button class="modal-primary-btn" [disabled]="!resourceStore.getCustomSupplies().length" (click)="onAddSupply(supplySelect.value)">{{ 'sales.quickAddModal.addSupplyToOrder' | translate }}</button>
+      }
+
+      <button class="modal-cancel-btn" (click)="showQuickAddModal.set(false)">{{ 'sales.quickAddModal.cancel' | translate }}</button>
+    </div>
+  </div>
+}

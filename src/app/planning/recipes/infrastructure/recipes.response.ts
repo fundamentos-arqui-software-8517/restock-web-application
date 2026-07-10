@@ -63,6 +63,7 @@ export interface UpdateProductBody {
   sku?: string;
   imageUrl?: string;
   sellingPrice?: number;
+  status?: string;
 }
 
 export interface AddIngredientBody {

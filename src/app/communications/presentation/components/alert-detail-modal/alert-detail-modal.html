@@ -1,0 +1,184 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-content" (click)="stopPropagation($event)">
+    <div class="modal-header">
+      <div class="header-title">
+        <svg *ngIf="alert().alertType === 'INCONSISTENT_READING' || alert().alertType === 'STOCK_WARNING'" class="header-icon mismatch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M4 6h16M4 12h10M4 18h10" />
+          <path d="M17 14l4 4m0-4l-4 4" />
+        </svg>
+        <svg *ngIf="alert().alertType === 'CONNECTION_LOST' || alert().alertType === 'DEVICE_REGISTERED'" class="header-icon" [class.mismatch]="alert().severity === 'CRITICAL'" [class.offline]="alert().severity !== 'CRITICAL'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <svg *ngIf="alert().alertType === 'MANUAL_TRANSFER'" class="header-icon" [class.mismatch]="alert().severity === 'CRITICAL'" [class.transfer]="alert().severity !== 'CRITICAL'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m16 3 4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16" />
+        </svg>
+        <div>
+          <h2 class="modal-title" [class]="alert().severity === 'CRITICAL' ? 'alert-type--mismatch' : alertTypeCls(alert().alertType)">
+            <ng-container *ngIf="alert().alertType === 'INCONSISTENT_READING' || alert().alertType === 'STOCK_WARNING'">{{ 'communications.modal.discrepancyTitle' | translate }}</ng-container>
+            <ng-container *ngIf="alert().alertType === 'CONNECTION_LOST' || alert().alertType === 'DEVICE_REGISTERED'">
+              {{ alert().title || ('communications.modal.offlineTitle' | translate) }}
+              <span *ngIf="alert().deviceDescription" class="modal-subtitle">{{ alert().deviceDescription }}</span>
+            </ng-container>
+            <ng-container *ngIf="alert().alertType === 'MANUAL_TRANSFER'">{{ 'communications.modal.transferTitle' | translate }}</ng-container>
+          </h2>
+          <span *ngIf="alert().severity && alert().severity !== 'INFO'" class="severity-badge" [class.critical]="alert().severity === 'CRITICAL'" [class.warning]="alert().severity === 'WARNING'">
+            {{ alert().severity }}
+          </span>
+        </div>
+      </div>
+      <button type="button" class="btn-close" (click)="close.emit()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <ng-container *ngIf="alert().alertType === 'INCONSISTENT_READING' || alert().alertType === 'STOCK_WARNING'">
+        <div class="detail-grid">
+          <div class="detail-card">
+            <label>{{ 'communications.modal.digitalRecord' | translate }}</label>
+            <p class="detail-value">{{ alert().detectedValue != null ? (alert().detectedValue + ' KG') : (alert().lastTelemetryKg != null ? (alert().lastTelemetryKg + ' KG') : '—') }}</p>
+          </div>
+          <div class="detail-card highlight">
+            <label>{{ 'communications.modal.varianceDetected' | translate }}</label>
+            <ng-container *ngIf="alert().detectedValue != null && alert().thresholdValue != null; else noVariance">
+              <p class="detail-value variance">Gap: {{ (alert().detectedValue! - alert().thresholdValue!).toFixed(1) }} kg</p>
+              <span class="variance-percent">({{ (((alert().detectedValue! - alert().thresholdValue!) / alert().thresholdValue!) * 100).toFixed(0) }}%)</span>
+            </ng-container>
+            <ng-template #noVariance>
+              <p class="detail-value variance" style="font-size: 13px; font-weight: 600;">{{ alert().message }}</p>
+            </ng-template>
+          </div>
+          <div class="detail-card">
+            <label>{{ 'communications.modal.scaleSensorReading' | translate }}</label>
+            <p class="detail-value">{{ alert().thresholdValue != null ? (alert().thresholdValue + ' KG') : '—' }}</p>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div>
+            <label>{{ 'communications.modal.supplyDevice' | translate }}</label>
+            <p>{{ alert().deviceDescription || alert().title || '—' }}</p>
+          </div>
+          <div>
+            <label>{{ 'communications.modal.detectionTime' | translate }}</label>
+            <p>{{ timeAgo(alert().detectedAt) }}</p>
+          </div>
+        </div>
+        <div class="hardware-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+          </svg>
+          <span class="info-label">{{ 'communications.modal.hardwareDiagnostics' | translate }}: {{ alert().deviceDescription || '—' }}</span>
+          <div class="status-items">
+            <span class="status-item" [class.online]="alert().status === 'ACTIVE'" [class.warning]="alert().status !== 'ACTIVE'">● {{ 'communications.modal.status' | translate }}: {{ alert().status }}</span>
+            <span class="status-item">⊙ {{ 'communications.modal.severity' | translate }}: {{ alert().severity }}</span>
+          </div>
+          <span class="status-item">◇ {{ 'communications.modal.lastTelemetry' | translate }}: {{ alert().lastTelemetryKg != null ? (alert().lastTelemetryKg + ' kg') : '—' }}</span>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="alert().alertType === 'MANUAL_TRANSFER'">
+        <div class="supply-section">
+          <div class="supply-image" style="background: transparent; width: 80px; height: 60px; padding: 0;">
+            <img [src]="supplyImgUrl() || 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&q=80'" alt="Supply Image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+          </div>
+          <div class="supply-info">
+            <span class="supply-label" style="color: #059669;">{{ 'communications.modal.supplyLabel' | translate }}</span>
+            <h3 class="supply-name">{{ alert().metadata?.productName || alert().deviceDescription || alert().title || 'Supply Item' }}</h3>
+            <p class="supply-batch">{{ 'communications.modal.batchLabel' | translate }} {{ alert().metadata?.batchNumber || alert().sourceEntityId || '#—' }}</p>
+          </div>
+        </div>
+        <div class="withdrawal-info" style="display: flex; align-items: baseline; gap: 8px; background: none; border: none; padding: 0;">
+          <label style="color: #374151; font-size: 11px; margin: 0;">{{ 'communications.modal.withdrawalAmount' | translate }}:</label>
+          <p class="withdrawal-amount" style="color: #059669; font-size: 32px; font-weight: 800;">{{ alert().metadata?.withdrawnAmount || '—' }}</p>
+        </div>
+        <div class="alert-box" style="background: #fff1f2; border-left: 3px solid #f43f5e; padding: 16px;">
+          <p style="color: #4b5563; font-size: 13px;">{{ alert().message || alert().metadata?.warning }}</p>
+        </div>
+        <div class="diagnostics-info" style="background: none; border: none; padding: 0; justify-content: flex-start; gap: 24px;">
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            {{ 'communications.modal.scaleWeightDiff' | translate }}: {{ alert().metadata?.scaleWeight || alert().metadata?.approxWeight || (alert().lastTelemetryKg != null ? ('-' + alert().lastTelemetryKg + 'kg') : '—') }}
+          </span>
+          <span>ID: {{ alert().metadata?.serialNumber || alert().id }}</span>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="alert().alertType === 'CONNECTION_LOST' || alert().alertType === 'DEVICE_REGISTERED'">
+        <p class="device-message" style="color: #475569; font-size: 14px; margin-bottom: 16px;">{{ alert().message }}</p>
+
+        <!-- Hardware Metrics Grid for Health Alerts -->
+        <div *ngIf="alert().alertType === 'CONNECTION_LOST'" class="detail-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
+          <div class="detail-card highlight" style="background: #fffbe6; border: 1px solid #fef08a; padding: 12px 16px; border-radius: 6px;">
+            <label style="font-size: 11px; font-weight: 700; color: #b45309; text-transform: uppercase;">Voltage Supply</label>
+            <p class="detail-value" style="color: #d97706; font-size: 20px; font-weight: 800; margin: 4px 0 0;">3.10 V <span style="font-size: 12px; font-weight: 500; color: #78350f;">(Limit: 3.30V)</span></p>
+          </div>
+          <div class="detail-card" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 6px;">
+            <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">CPU Usage</label>
+            <p class="detail-value" style="color: #1e293b; font-size: 20px; font-weight: 800; margin: 4px 0 0;">14.2 %</p>
+          </div>
+          <div class="detail-card" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 6px;">
+            <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Free RAM Memory</label>
+            <p class="detail-value" style="color: #1e293b; font-size: 20px; font-weight: 800; margin: 4px 0 0;">192 KB</p>
+          </div>
+          <div class="detail-card" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 6px;">
+            <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Board Temperature</label>
+            <p class="detail-value" style="color: #1e293b; font-size: 20px; font-weight: 800; margin: 4px 0 0;">41.5 °C</p>
+          </div>
+        </div>
+
+        <div class="telemetry-info" style="grid-template-columns: 1fr; gap: 0; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; background: #fff;">
+          <div class="telemetry-item" style="border: none; border-bottom: 1px solid #e5e7eb; border-radius: 0; display: flex; justify-content: space-between; padding: 12px 16px; background: transparent; text-align: left;">
+            <label style="margin: 0; color: #64748b; font-size: 12px; font-weight: 600;">DEVICE IDENTIFIER</label>
+            <p style="font-weight: 600; font-family: monospace; color: #0f172a;">{{ alert().sourceEntityId || alert().deviceId || '00:00:00:00:00:10' }}</p>
+          </div>
+          <div class="telemetry-item" style="border: none; border-bottom: 1px solid #e5e7eb; border-radius: 0; display: flex; justify-content: space-between; padding: 12px 16px; background: transparent; text-align: left;">
+            <label style="margin: 0; color: #64748b; font-size: 12px; font-weight: 600;">ASSIGNED BRANCH / LOCATION</label>
+            <p style="font-weight: 600; color: #0f172a;">branch-001 (Main Warehouse)</p>
+          </div>
+          <div class="telemetry-item" style="border: none; border-bottom: 1px solid #e5e7eb; border-radius: 0; display: flex; justify-content: space-between; padding: 12px 16px; background: transparent; text-align: left;">
+            <label style="margin: 0; color: #64748b; font-size: 12px; font-weight: 600;">{{ 'communications.modal.detectedAt' | translate }}</label>
+            <p style="font-weight: 600; color: #0f172a;">{{ timeAgo(alert().detectedAt) }}</p>
+          </div>
+          <div class="telemetry-item" style="border: none; border-radius: 0; display: flex; justify-content: space-between; padding: 12px 16px; background: transparent; text-align: left;">
+            <label style="margin: 0; color: #64748b; font-size: 12px; font-weight: 600;">SEVERITY LEVEL</label>
+            <p style="font-weight: 700; color: #d97706;">{{ alert().severity || 'WARNING' }}</p>
+          </div>
+        </div>
+
+        <div class="warning-box" style="display: flex; align-items: flex-start; gap: 10px; background: #fffbe6; border: 1px solid #fef08a; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 12px; margin-top: 16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; min-width: 20px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <p style="color: #78350f; font-size: 13px; font-weight: 600; margin: 0; line-height: 1.4;">{{ alert().metadata?.warning || 'Please check physical power adapter and local WiFi connectivity for this microcontroller scale.' }}</p>
+        </div>
+      </ng-container>
+    </div>
+    <div class="modal-footer">
+      <ng-container *ngIf="alert().alertType === 'INCONSISTENT_READING' || alert().alertType === 'STOCK_WARNING'">
+        <button type="button" class="btn btn-secondary" (click)="resolve.emit(alert().id)">
+          {{ 'communications.modal.resolveDiscrepancy' | translate }}
+        </button>
+        <button type="button" class="btn btn-ghost" (click)="close.emit()">
+          {{ 'communications.modal.recalibrateSensor' | translate }}
+        </button>
+      </ng-container>
+      <ng-container *ngIf="alert().alertType === 'MANUAL_TRANSFER'">
+        <button type="button" class="btn btn-ghost" (click)="close.emit()">
+          {{ 'communications.modal.rejectRecalculate' | translate }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="resolve.emit(alert().id)">
+          {{ 'communications.modal.confirmUpdateInventory' | translate }}
+        </button>
+      </ng-container>
+      <ng-container *ngIf="alert().alertType === 'CONNECTION_LOST' || alert().alertType === 'DEVICE_REGISTERED'">
+        <button type="button" class="btn btn-ghost" (click)="acknowledge.emit(alert().id)">
+          {{ 'communications.modal.acknowledgeDismiss' | translate }}
+        </button>
+        <button type="button" class="btn btn-dark" (click)="viewDetail()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-right: 4px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> {{ 'communications.modal.runRemoteDiagnostics' | translate }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>
+

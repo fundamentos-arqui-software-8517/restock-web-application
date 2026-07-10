@@ -1,6 +1,6 @@
 .batches-page {
-  --rs-green: #006d4e;
-  --rs-green-soft: rgba(0, 109, 78, 0.12);
+  --rs-green: #1a5c3a;
+  --rs-green-soft: rgba(26, 92, 58, 0.12);
   --rs-border: #e5e7eb;
   --rs-text: #111827;
   --rs-muted: #6b7280;
@@ -88,6 +88,12 @@
   border-radius: 6px !important;
   padding: 0 14px !important;
   height: 40px !important;
+}
+
+.btn-outline,
+.btn-outline.mat-mdc-outlined-button {
+  --mdc-outlined-button-hover-state-layer-color: #1a5c3a;
+  --mdc-outlined-button-hover-state-layer-opacity: 0.08;
 }
 
 .btn-outline mat-icon {

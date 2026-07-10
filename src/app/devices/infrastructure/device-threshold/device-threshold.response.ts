@@ -7,20 +7,21 @@ export interface DeviceThresholdResource extends BaseResource {
   minStock: number;
   maxStock: number;
   anomalyThreshold: number;
-  minTemperature: number | null;
-  maxTemperature: number | null;
-  minHumidity: number | null;
-  maxHumidity: number | null;
+  minTemperatureCelsius: number | null;
+  maxTemperatureCelsius: number | null;
+  minHumidityPercentage: number | null;
+  maxHumidityPercentage: number | null;
 }
 
 export interface CreateDeviceThresholdRequest {
+  deviceId: string;
   accountId: string;
   customSupplyId: string;
   minStock: number;
   maxStock: number;
   anomalyThreshold: number;
-  minTemperature?: number;
-  maxTemperature?: number;
-  minHumidity?: number;
-  maxHumidity?: number;
+  minTemperatureCelsius?: number;
+  maxTemperatureCelsius?: number;
+  minHumidityPercentage?: number;
+  maxHumidityPercentage?: number;
 }

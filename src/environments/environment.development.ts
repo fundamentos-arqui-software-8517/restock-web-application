@@ -1,51 +1,55 @@
-/**
- * Local / `ng serve` configuration (see `angular.json` → `development` → `fileReplacements`).
- *
- * When your Beeceptor endpoint exists: set `batchInventoryBaseUrl` and keep the path
- * in sync with your mock rule (or change `batchInventoryHttpPath` to match Beeceptor).
- */
 export const environment = {
   production: false,
-  resourceApi: {
-    // Example (uncomment when ready):
-    // batchInventoryBaseUrl: 'https://restock-inventory.free.beeceptor.com',
-    batchInventoryBaseUrl: null as string | null,
-    batchInventoryHttpPath: '/inventory/batch-inventory',
-  },
 
-  salesAPI: {
-    salesBaseUrl: '/api/v1',
-  },
+  baseUrl: 'http://localhost:8080/api/v1',
 
-  // Sales Management API
-  platformProviderSalesEndpointsPath: 'sales',
-
-  profilesApi: {
-    baseUrl: '/api/v1',
-    fallbackBaseUrl: '/api/v1',
-  },
-
-  // IAM & Profiles
-  platformProviderApiBaseUrl: '/api/v1',
-  platformProviderSignInEndpointPath: 'auth/sign-in',
+  // Authentication
   platformProviderSignUpEndpointPath: 'auth/sign-up',
-  platformProviderRegistrationBusinessDetailsEndpointPath: 'businesses',
-  platformProviderRegistrationPersonalProfileEndpointPath: 'profiles',
-
-  // Resources
-  platformProviderCustomSuppliesEndpointPath: 'custom-supplies',
-  platformProviderSuppliesEndpointPath: 'supplies',
-  platformProviderSupplyCategoriesEndpointPath: 'supplies/categories',
-
-  // IAM
-  platformProviderIamApiBaseUrlForSignIn: '/api/v1',
+  platformProviderSignInEndpointPath: 'auth/sign-in',
   platformProviderForgotPasswordEndpointPath: 'auth/forgot-password',
 
-  // Kits
-  platformProviderKitUpdateApiBaseUrl: '/api/v1',
-  platformProviderKitApiBaseUrl: '/api/v1',
-  platformProviderKitsRegisterEndpointPath: 'kits/register',
-  platformProviderKitsEndpointPath: 'kits',
-  platformProviderProductsEndpointPath: 'products',
-};
+  // Profiles & Businesses
+  platformProviderRegistrationPersonalProfileEndpointPath: 'profiles',
+  platformProviderRegistrationBusinessDetailsEndpointPath: 'businesses',
 
+  // Supplies
+  platformProviderSuppliesEndpointPath: 'supplies',
+  platformProviderSupplyCategoriesEndpointPath: 'supplies/categories',
+  platformProviderCustomSuppliesEndpointPath: 'custom-supplies',
+
+  // Inventory
+  platformProviderBatchesEndpointPath: 'batches',
+  platformProviderBranchesEndpointPath: 'branches',
+
+  // Devices & IoT
+  platformProviderDevicesEndpointPath: 'devices',
+  platformProviderDeviceThresholdsEndpointPath: 'device-thresholds',
+  platformProviderTelemetriesEndpointPath: 'telemetries',
+
+  // Products (Kits & Combos in the UI → /products on the backend)
+  platformProviderKitsEndpointPath: 'products',
+  platformProviderKitsRegisterEndpointPath: 'products',
+  platformProviderProductsEndpointPath: 'products',
+
+  // Notifications
+  platformProviderNotificationsEndpointPath: 'notifications',
+  notificationsByRecipientUserIdPath: 'notifications?recipientUserId={recipientUserId}',
+  notificationsByIdPath: 'notifications/{notificationId}',
+  platformProviderPushSubscriptionsEndpointPath: 'push-subscriptions',
+
+  // Stock Threshold Alerts
+  stockThresholdsEvaluatePath: 'alerts/stock-thresholds/evaluate',
+
+  // Analytics
+  platformProviderAnalyticsEndpointPath: 'metrics',
+  analyticsStockDiscrepanciesPath: '/custom-supplies/{id}/stock-discrepancies',
+  analyticsRecentSalesPath: '/accounts/{accountId}/recent-sales',
+  analyticsCriticalProductsPath: '/accounts/{accountId}/critical-products',
+  analyticsDefaultStockDiscrepanciesSupplyId: '' as string,
+
+  // Sales
+  platformProviderSalesEndpointsPath: 'sales',
+
+  // Tracking
+  platformProviderConciliationTasksEndpointPath: 'conciliation-tasks',
+};

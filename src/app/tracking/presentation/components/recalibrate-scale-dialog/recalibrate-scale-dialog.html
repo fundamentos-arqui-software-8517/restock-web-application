@@ -1,0 +1,76 @@
+<div class="modal-overlay">
+  <div class="modal-content modal-md">
+    <div class="modal-header">
+      <h2>{{ 'tracking.recalibrateDialog.title' | translate }}</h2>
+      <button class="close-btn" (click)="cancel()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="info-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#065f46" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <span>
+          {{ 'tracking.recalibrateDialog.infoText' | translate }}
+        </span>
+      </div>
+
+      <div class="section-block">
+        <h4>{{ 'tracking.recalibrateDialog.deviceInfo' | translate }}</h4>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">{{ 'tracking.recalibrateDialog.deviceId' | translate }}</span>
+            <span class="info-value">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">{{ 'tracking.recalibrateDialog.storageUnit' | translate }}</span>
+            <span class="info-value">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">{{ 'tracking.recalibrateDialog.lastCalibration' | translate }}</span>
+            <span class="info-value">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">{{ 'tracking.recalibrateDialog.currentReading' | translate }}</span>
+            <span class="info-value">--</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'tracking.recalibrateDialog.calibrationAction' | translate }}</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="calibrationAction" value="force_tare"
+                   [checked]="selectedAction() === 'force_tare'"
+                   (change)="selectedAction.set('force_tare')">
+            <div class="radio-content">
+              <strong>{{ 'tracking.recalibrateDialog.forceTare' | translate }}</strong>
+              <span>{{ 'tracking.recalibrateDialog.forceTareDesc' | translate }}</span>
+            </div>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="calibrationAction" value="schedule_maintenance"
+                   [checked]="selectedAction() === 'schedule_maintenance'"
+                   (change)="selectedAction.set('schedule_maintenance')">
+            <div class="radio-content">
+              <strong>{{ 'tracking.recalibrateDialog.scheduleMaintenance' | translate }}</strong>
+              <span>{{ 'tracking.recalibrateDialog.scheduleMaintenanceDesc' | translate }}</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'tracking.recalibrateDialog.recalibrationNote' | translate }}</label>
+        <textarea class="form-control" rows="3" [(ngModel)]="recalibrationNote"
+                  [placeholder]="'tracking.recalibrateDialog.notePlaceholder' | translate"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-cancel" (click)="cancel()">{{ 'tracking.recalibrateDialog.cancel' | translate }}</button>
+      <button class="btn btn-primary" (click)="confirm()">{{ 'tracking.recalibrateDialog.confirm' | translate }}</button>
+    </div>
+  </div>
+</div>

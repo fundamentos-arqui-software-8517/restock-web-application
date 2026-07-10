@@ -1,11 +1,8 @@
 <div class="shell">
   <app-navigator [navItems]="navItems()" />
   <div class="content-shell">
-    <app-top-bar
-      [userName]="userName()"
-      [userAvatarUrl]="userAvatarUrl()"
-      [searchPlaceholderKey]="searchPlaceholderKey()"
-    />
+    <app-top-bar [userName]="userName()" [userAvatarUrl]="userAvatarUrl()"
+      [searchPlaceholderKey]="searchPlaceholderKey()" />
     <main class="page-content">
       <router-outlet></router-outlet>
     </main>

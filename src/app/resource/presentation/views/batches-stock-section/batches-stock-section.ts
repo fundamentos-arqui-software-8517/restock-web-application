@@ -55,6 +55,11 @@ export class BatchesStockSection {
   protected readonly selectedBatch = signal<BatchRow | null>(null);
   protected readonly batchFormWarning = signal('');
 
+  protected get todayString(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
   protected readonly batchForm = {
     code: '',
     customSupplyId: '',
@@ -254,11 +259,25 @@ export class BatchesStockSection {
   protected createBatch(): void {
     const form = this.batchForm;
     this.batchFormWarning.set('');
-    if (!form.code || !form.customSupplyId || !form.branchId || form.currentStock <= 0) return;
+
+    if (!form.code) { this.batchFormWarning.set('Batch code is required'); return; }
+    if (!form.customSupplyId) { this.batchFormWarning.set('Please select a supply'); return; }
+    if (!form.branchId) { this.batchFormWarning.set('Branch information is missing'); return; }
+    if (form.currentStock <= 0) { this.batchFormWarning.set('Initial stock must be greater than 0'); return; }
     if (!this.validateBatchStockRange(Number(form.currentStock))) return;
 
     const requiresExpiration = this.selectedCustomSupplyRequiresExpiration();
-    if (requiresExpiration && !form.expirationDate) return;
+    if (requiresExpiration && !form.expirationDate) { this.batchFormWarning.set('Expiration date is required for perishable items'); return; }
+
+    if (requiresExpiration && form.expirationDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expDate = new Date(form.expirationDate);
+      if (expDate < today) {
+        this.batchFormWarning.set('Expiration date cannot be in the past');
+        return;
+      }
+    }
 
     this.store.createBatch({
       accountId: this.store.accountId(),

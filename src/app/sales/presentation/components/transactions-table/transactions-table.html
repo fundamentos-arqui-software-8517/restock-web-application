@@ -1,0 +1,47 @@
+<div class="table-wrapper">
+  <div class="table-header-row">
+    <span class="col-id">{{ 'sales.table.trxId' | translate }}</span>
+    <span class="col-date">{{ 'sales.table.timestamp' | translate }}</span>
+    <span class="col-items">{{ 'sales.table.itemsCount' | translate }}</span>
+    <span class="col-total">{{ 'sales.table.totalValue' | translate }}</span>
+    <span class="col-status">{{ 'sales.table.status' | translate }}</span>
+    <span class="col-actions">{{ 'sales.table.actions' | translate }}</span>
+  </div>
+
+  @for (order of paginatedOrders; track order.id) {
+    <div class="table-row">
+      <span class="col-id trx-id" [class.failed-id]="order.status === 'CANCELLED'">#{{ order.id.slice(0, 8).toUpperCase() }}</span>
+      <span class="col-date">{{ order.createdAt ? (order.createdAt | date: 'yyyy-MM-dd HH:mm:ss') : '—' }}</span>
+      <span class="col-items">{{ order.itemsCount }} {{ 'sales.table.itemsSuffix' | translate }}</span>
+      <span class="col-total total-value">S/ {{ order.totalAmount.toFixed(2) }}</span>
+      <span class="col-status">
+        <span class="status-pill" [ngClass]="statusClass(order.status)">{{ statusLabel(order.status) | translate }}</span>
+      </span>
+      <span class="col-actions">
+        <button class="icon-btn" (click)="viewDetail.emit(order.id)" [attr.aria-label]="'sales.table.viewDetailsAria' | translate">
+          <svg class="eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </span>
+    </div>
+  } @empty {
+    <div class="empty-row">{{ 'sales.table.empty' | translate }}</div>
+  }
+
+  <div class="table-footer">
+    <span class="footer-count">{{ 'sales.table.footer' | translate:{ start: startIndex, end: endIndex, total: totalOrdersCount } }}</span>
+    <div class="paginator">
+      <button class="page-btn nav-btn" [disabled]="currentPage === 1" (click)="setPage(currentPage - 1)">&lt;</button>
+      
+      @for (page of getPagesArray(); track page) {
+        <button class="page-btn" [class.active]="currentPage === page" (click)="setPage(page)">
+          {{ page }}
+        </button>
+      }
+
+      <button class="page-btn nav-btn" [disabled]="currentPage === totalPages" (click)="setPage(currentPage + 1)">&gt;</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+<div class="kpi-card">
+  <span class="kpi-label">{{ label }}</span>
+  <div class="kpi-value" [class.positive]="variant === 'positive'" [class.negative]="variant === 'negative'">
+    {{ value }}
+  </div>
+  @if (caption) {
+    <span class="kpi-caption"
+          [class.positive]="(captionVariant || variant) === 'positive'"
+          [class.negative]="(captionVariant || variant) === 'negative'">
+      {{ caption }}
+    </span>
+  }
+</div>

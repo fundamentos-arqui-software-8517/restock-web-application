@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ResourceStore } from '../../../application/resource.store';
 import { IamStore as AuthService } from '../../../../iam/application/iam.store';
 
@@ -9,7 +10,7 @@ const UNIT_MEASUREMENTS = ['Kilograms', 'Liters', 'Dozen', 'Grams', 'Units'] as 
 @Component({
   selector: 'app-create-custom-supply-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './create-custom-supply-dialog.html',
   styleUrl: './create-custom-supply-dialog.css'
 })

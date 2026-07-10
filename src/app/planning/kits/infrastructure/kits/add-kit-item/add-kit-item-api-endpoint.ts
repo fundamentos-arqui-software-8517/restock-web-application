@@ -10,7 +10,7 @@ import { KitEntity } from '../../../domain/model/kit.entity';
 import { UpdateKitResponse } from '../update-kit/update-kit.response';
 import { UpdateKitAssembler } from '../update-kit/update-kit.assembler';
 
-const kitsApiUrl = `${environment.platformProviderApiBaseUrl}/${environment.platformProviderProductsEndpointPath}`;
+const kitsApiUrl = `${environment.baseUrl}/${environment.platformProviderProductsEndpointPath}`;
 
 @Injectable({
   providedIn: 'root',

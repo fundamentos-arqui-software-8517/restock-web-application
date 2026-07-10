@@ -164,6 +164,51 @@
   gap: 4px;
 }
 
+.plus-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.add-supply-panel {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 12px;
+  background: #F9FAFB;
+  border-radius: 6px;
+  outline: 1px #E5E7EB solid;
+  outline-offset: -1px;
+}
+
+.btn-confirm-add-supply {
+  background: #1a5c3a;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-confirm-add-supply:disabled {
+  background: #BBCABF;
+  cursor: not-allowed;
+}
+
+.btn-cancel-add-supply {
+  background: transparent;
+  border: 1px #E5E7EB solid;
+  padding: 10px 16px;
+  border-radius: 4px;
+  color: #575E70;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .components-list {
   display: flex;
   flex-direction: column;
@@ -244,7 +289,7 @@
 }
 
 .btn-update {
-  background: #006C49;
+  background: #1a5c3a;
   border: none;
   padding: 8px 24px;
   border-radius: 4px;
@@ -257,4 +302,60 @@
 .btn-update:disabled {
   background: #BBCABF;
   cursor: not-allowed;
+}
+
+/* ==========================================
+   ESTILOS RESPONSIVE PARA EDIT KIT
+   ========================================== */
+@media (max-width: 768px) {
+  .edit-modal-box {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 95vh !important;
+  }
+  .modal-header, .modal-scroll-body, .modal-footer-bar {
+    padding: 16px !important;
+  }
+  .modal-title {
+    font-size: 20px;
+  }
+  .form-row-2col {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .add-supply-panel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .btn-confirm-add-supply, .btn-cancel-add-supply {
+    width: 100%;
+    justify-content: center;
+  }
+}
+@media (max-width: 480px) {
+  .modal-footer-bar {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+  .modal-footer-bar button {
+    width: 100%;
+  }
+}
+
+.qty-field::-webkit-outer-spin-button,
+.qty-field::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.qty-field {
+  -moz-appearance: textfield;
+}
+
+.quantity-input-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }

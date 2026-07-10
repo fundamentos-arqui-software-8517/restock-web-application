@@ -10,10 +10,10 @@ export class DeviceThresholdAssembler {
       minStock: resource.minStock,
       maxStock: resource.maxStock,
       anomalyThreshold: resource.anomalyThreshold,
-      minTemperature: resource.minTemperature,
-      maxTemperature: resource.maxTemperature,
-      minHumidity: resource.minHumidity,
-      maxHumidity: resource.maxHumidity,
+      minTemperature: resource.minTemperatureCelsius,
+      maxTemperature: resource.maxTemperatureCelsius,
+      minHumidity: resource.minHumidityPercentage,
+      maxHumidity: resource.maxHumidityPercentage,
     });
   }
 

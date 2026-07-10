@@ -1,6 +1,6 @@
 import { environment } from '../../../../environments/environment';
 
-const BASE = `${environment.platformProviderApiBaseUrl}/${environment.platformProviderCustomSuppliesEndpointPath}`;
+const BASE = `${environment.baseUrl}/${environment.platformProviderCustomSuppliesEndpointPath}`;
 
 export const CUSTOM_SUPPLIES_BY_ACCOUNT_URL = (accountId: string) => `${BASE}?accountId=${accountId}`;
 export const CREATE_CUSTOM_SUPPLY_URL = (accountId: string) => `${BASE}?accountId=${accountId}`;

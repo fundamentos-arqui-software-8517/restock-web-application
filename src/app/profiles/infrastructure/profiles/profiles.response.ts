@@ -4,13 +4,15 @@ import { BaseResource, BaseResponse } from '../../../shared/infrastructure/base-
  * Wire shape for one document in the `profiles` collection.
  */
 export interface ProfileResource extends BaseResource {
-  user_id: string;
+  accountId?: string;
+  userId: string;
   name: string;
-  last_name: string;
-  phone_number: string;
-  avatar_url: string;
+  lastName: string;
+  phoneNumber: string;
+  avatarUrl: string;
+  avatarPublicId?: string | null;
   gender: string;
-  birth_date: string;
+  birthDate: string;
 }
 
 /**

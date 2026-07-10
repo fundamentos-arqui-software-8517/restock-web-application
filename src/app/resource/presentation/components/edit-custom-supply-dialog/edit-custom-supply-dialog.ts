@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ResourceStore } from '../../../application/resource.store';
 import { CustomSupply } from '../../../domain/model/custom-supply.entity';
 
@@ -24,7 +25,7 @@ const UNIT_ALIASES: Record<string, string> = {
 @Component({
   selector: 'app-edit-custom-supply-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './edit-custom-supply-dialog.html',
   styleUrl: './edit-custom-supply-dialog.css'
 })

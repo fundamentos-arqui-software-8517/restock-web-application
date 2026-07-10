@@ -1,19 +1,11 @@
 import { Component } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { DashboardSectionComponent } from '../../../../analytics/presentation/views/dashboard-section/dashboard-section';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [TranslatePipe],
-  template: `<p class="home-line">{{ 'home.title' | translate }}</p>`,
-  styles: [
-    `
-      .home-line {
-        margin: 24px 28px;
-        font-size: 15px;
-        color: #374151;
-      }
-    `,
-  ],
+  imports: [DashboardSectionComponent],
+  template: `<app-dashboard-section />`,
 })
 export class HomePage {}
+

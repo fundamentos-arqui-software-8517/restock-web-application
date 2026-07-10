@@ -113,7 +113,7 @@
         @if (selectedCustomSupplyRequiresExpiration()) {
           <label class="form-field">
             <span>Expiration date</span>
-            <input name="expirationDate" type="date" [(ngModel)]="batchForm.expirationDate" required>
+            <input name="expirationDate" type="date" [(ngModel)]="batchForm.expirationDate" [min]="todayString" required>
           </label>
           <p class="field-hint">Required for perishable items</p>
         }

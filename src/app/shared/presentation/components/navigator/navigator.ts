@@ -4,6 +4,8 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, type IsActiveMatch
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map, startWith } from 'rxjs';
+
+import { IamStore } from '../../../../iam/application/iam.store';
 import type { NavItem } from './nav-item.model';
 
 @Component({
@@ -14,9 +16,24 @@ import type { NavItem } from './nav-item.model';
   styleUrl: './navigator.css',
 })
 export class Navigator {
-  navItems = input<NavItem[]>([]);
+  navItemsInput = input<NavItem[]>([], { alias: 'navItems' });
 
   private readonly router = inject(Router);
+  private readonly iamStore = inject(IamStore);
+
+  private readonly userRole = computed(() => this.iamStore.currentUser()?.roleId ?? '');
+
+  readonly filteredNavItems = computed(() => {
+    const currentRole = this.userRole();
+    const items = this.navItemsInput();
+
+    return items.filter(item => {
+      if (!item.allowedRoles || item.allowedRoles.length === 0) {
+        return true;
+      }
+      return item.allowedRoles.includes(currentRole);
+    });
+  });
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -27,10 +44,8 @@ export class Navigator {
     { initialValue: this.router.url.split('?')[0] ?? '' },
   );
 
-  /** Stock / Discrepancies only while the user is in the inventory section (after navigating there). */
   readonly inventorySubnavVisible = computed(() => this.currentUrl().startsWith('/inventory'));
 
-  /** Match when current URL extends this nav link (e.g. /inventory for /inventory/stock). */
   readonly sectionActiveMatch: IsActiveMatchOptions = {
     paths: 'subset',
     queryParams: 'ignored',

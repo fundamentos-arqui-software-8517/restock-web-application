@@ -16,19 +16,22 @@ export class DeviceThresholdsStore {
     if (!accountId) return;
     this.loading.set(true);
     this.error.set(null);
-    this.devicesApi.getThresholdsByAccountId(accountId).pipe(
-      tap(thresholds => this.thresholds.set(thresholds)),
-      catchError(err => {
-        this.error.set(err?.message ?? 'Failed to load thresholds');
-        return EMPTY;
-      }),
-      finalize(() => this.loading.set(false)),
-    ).subscribe();
+    this.devicesApi
+      .getThresholdsByAccountId(accountId)
+      .pipe(
+        tap((thresholds) => this.thresholds.set(thresholds)),
+        catchError((err) => {
+          this.error.set(err?.message ?? 'Failed to load thresholds');
+          return EMPTY;
+        }),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe();
   }
 
   createThreshold(body: CreateDeviceThresholdRequest): Observable<DeviceThreshold> {
-    return this.devicesApi.createThreshold(body).pipe(
-      tap(threshold => this.thresholds.update(list => [...list, threshold])),
-    );
+    return this.devicesApi
+      .createThreshold(body)
+      .pipe(tap((threshold) => this.thresholds.update((list) => [...list, threshold])));
   }
 }

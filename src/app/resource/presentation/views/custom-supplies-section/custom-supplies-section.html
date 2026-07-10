@@ -1,21 +1,21 @@
 <div class="custom-supplies-section">
   <div class="header-container">
     <div class="header-text">
-      <h1>Custom Supplies</h1>
-      <p>Manage and audit your organization's custom master supply list.</p>
+      <h1>{{ 'resource.customSupplies.list.title' | translate }}</h1>
+      <p>{{ 'resource.customSupplies.list.subtitle' | translate }}</p>
     </div>
     <button class="add-supply-btn" (click)="showCreateModal = true">
-      + Add Custom Supply
+      {{ 'resource.customSupplies.list.addBtn' | translate }}
     </button>
   </div>
 
   @if (loading()) {
     <div class="empty-state">
-      <p>Loading supplies…</p>
+      <p>{{ 'resource.customSupplies.list.loading' | translate }}</p>
     </div>
   } @else if (customSupplies().length === 0) {
     <div class="empty-state">
-      <p>No custom supplies found. Click <strong>+ Add Custom Supply</strong> to create one.</p>
+      <p [innerHTML]="'resource.customSupplies.list.empty' | translate"></p>
     </div>
   } @else {
     <div class="cards-grid">
@@ -48,11 +48,11 @@
   @if (supplyPendingDelete; as supplyToDelete) {
     <div class="modal-overlay">
       <div class="confirm-modal">
-        <h2>Delete custom supply?</h2>
-        <p>Are you sure you want to delete {{ supplyToDelete.name }} custom supply?</p>
+        <h2>{{ 'resource.customSupplies.list.deleteTitle' | translate }}</h2>
+        <p>{{ 'resource.customSupplies.list.deleteConfirm' | translate:{name: supplyToDelete.name} }}</p>
         <div class="confirm-actions">
-          <button type="button" class="btn btn-cancel" (click)="cancelDeleteSupply()">Cancel</button>
-          <button type="button" class="btn btn-delete" (click)="confirmDeleteSupply()">Delete</button>
+          <button type="button" class="btn btn-cancel" (click)="cancelDeleteSupply()">{{ 'resource.customSupplies.list.cancel' | translate }}</button>
+          <button type="button" class="btn btn-delete" (click)="confirmDeleteSupply()">{{ 'resource.customSupplies.list.delete' | translate }}</button>
         </div>
       </div>
     </div>

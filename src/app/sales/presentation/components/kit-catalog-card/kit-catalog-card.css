@@ -1,0 +1,107 @@
+.catalog-card {
+  width: 210px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 232px;
+}
+
+.thumb-wrapper {
+  position: relative;
+  height: 120px;
+  background: #E5E7EB;
+}
+
+.thumb-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.availability-pill {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.availability-pill.low-stock {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.card-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.card-sku {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9CA3AF;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin: 2px 0 0 0;
+  line-height: 1.3;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.card-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #047857;
+}
+
+.add-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid #10B981;
+  background: transparent;
+  color: #10B981;
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.add-btn:hover:not(:disabled) {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+.add-btn:disabled {
+  border-color: #D1D5DB;
+  color: #D1D5DB;
+  cursor: not-allowed;
+}

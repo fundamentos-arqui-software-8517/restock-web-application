@@ -5,6 +5,7 @@ import { filter, map, startWith } from 'rxjs';
 import { IamStore } from '../../../../iam/application/iam.store';
 import { ProfilesStore } from '../../../../profiles/application/profiles.store';
 import { LoadProfilesStateCommand } from '../../../../profiles/domain/model/load-profiles-state.command';
+import { ResourceStore } from '../../../../resource/application/resource.store';
 import type { NavItem } from '../navigator/nav-item.model';
 import { Navigator } from '../navigator/navigator';
 import { TopBar } from '../top-bar/top-bar';
@@ -20,6 +21,7 @@ export class Layout {
   private readonly router = inject(Router);
   private readonly iamStore = inject(IamStore);
   private readonly profilesStore = inject(ProfilesStore);
+  private readonly resourceStore = inject(ResourceStore);
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -41,7 +43,9 @@ export class Layout {
     return 'layout.search.default';
   });
 
-  navItems = signal<NavItem[]>([
+  private readonly userRole = computed(() => this.iamStore.currentUser()?.roleId ?? '');
+
+  private readonly allNavItems: NavItem[] = [
     { labelKey: 'nav.overview', icon: 'grid_view', link: '/home' },
     {
       labelKey: 'nav.inventory',
@@ -53,13 +57,34 @@ export class Layout {
         { labelKey: 'nav.discrepancies', link: '/inventory/discrepancies' },
       ],
     },
-    { labelKey: 'nav.recipes', icon: 'restaurant_menu', link: '/recipes' },
-    { labelKey: 'nav.kits', icon: 'inventory', link: '/kits' },
+    { 
+      labelKey: 'nav.recipes', 
+      icon: 'restaurant_menu', 
+      link: '/recipes',
+      allowedRoles: ['RESTAURANTADMIN']
+    },
+    { 
+      labelKey: 'nav.kits', 
+      icon: 'widgets', 
+      link: '/kits',
+      allowedRoles: ['RETAILADMIN']
+    },
     { labelKey: 'nav.sales', icon: 'trending_up', link: '/sales' },
     { labelKey: 'nav.alerts', icon: 'notifications', link: '/alerts' },
     { labelKey: 'nav.devices', icon: 'router', link: '/devices' },
     { labelKey: 'nav.settings', icon: 'settings', link: '/settings' },
-  ]);
+  ];
+
+  readonly navItems = computed(() => {
+    const currentRole = this.userRole();
+    
+    return this.allNavItems.filter(item => {
+      if (!item.allowedRoles || item.allowedRoles.length === 0) {
+        return true;
+      }
+      return item.allowedRoles.includes(currentRole);
+    });
+  });
 
   userName = computed(() => {
     const p = this.profilesStore.profile();
@@ -72,7 +97,10 @@ export class Layout {
   userAvatarUrl = computed(() => this.profilesStore.profile()?.avatarUrl.getValue() ?? null);
 
   constructor() {
-    /** Bootstrap aggregates for the shell (avatar, name) and any child views consuming {@link ProfilesStore}. */
     this.profilesStore.loadProfilesState(new LoadProfilesStateCommand());
+    const accountId = this.iamStore.currentUser()?.accountId ?? '';
+    if (accountId) {
+      this.resourceStore.setAccountId(accountId);
+    }
   }
 }

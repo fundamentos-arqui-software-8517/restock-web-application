@@ -1,1 +1,162 @@
-<p>dashboard-section works!</p>
+<div class="page-shell">
+  <div class="page-topbar">
+    <nav class="breadcrumb" aria-label="breadcrumb">
+      <span class="bc-root">{{ 'analytics.breadcrumb.root' | translate }}</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-current">{{ 'analytics.breadcrumb.overview' | translate }}</span>
+    </nav>
+    <div class="range-group" role="group" [attr.aria-label]="'analytics.dateRange.aria' | translate">
+      <button
+        type="button"
+        (click)="onRangeChange('7d')"
+        [class.range-active]="selectedRange() === '7d'"
+      >
+        {{ 'analytics.dateRange.last7' | translate }}
+      </button>
+      <button
+        type="button"
+        (click)="onRangeChange('30d')"
+        [class.range-active]="selectedRange() === '30d'"
+      >
+        {{ 'analytics.dateRange.last30' | translate }}
+      </button>
+      <button
+        type="button"
+        (click)="onRangeChange('90d')"
+        [class.range-active]="selectedRange() === '90d'"
+      >
+        {{ 'analytics.dateRange.last90' | translate }}
+      </button>
+    </div>
+  </div>
+  <div class="top-cards-row">
+    <div class="top-card">
+      <div class="top-card-header">
+        <span class="top-card-label">{{ 'analytics.activeMetrics.title' | translate }}</span>
+        <i class="ti ti-chart-bar top-card-icon" aria-hidden="true"></i>
+      </div>
+      <div class="top-card-headline">{{ (stockDiscrepancies().length + criticalProducts().length) }}/2</div>
+      <div class="top-card-sub">{{ 'analytics.activeMetrics.subtitle' | translate }}</div>
+      <div class="activity-bars" aria-hidden="true">
+        <span class="bar bar-full"></span>
+        <span class="bar bar-full"></span>
+        <span class="bar bar-full"></span>
+        <span class="bar bar-full"></span>
+        <span class="bar bar-full"></span>
+        <span class="bar bar-full"></span>
+        <span class="bar bar-mid"></span>
+      </div>
+    </div>
+    <div class="top-card top-card-secondary">
+      <div class="top-card-header">
+        <span class="top-card-label">{{ 'analytics.systemStatus.title' | translate }}</span>
+        <i class="ti ti-wifi top-card-icon" aria-hidden="true"></i>
+      </div>
+      <div class="status-pill">
+        <span class="status-dot" aria-hidden="true"></span>
+        {{ 'analytics.systemStatus.stable' | translate }}
+      </div>
+      <div class="top-card-sub top-card-sub--spaced">{{ 'analytics.systemStatus.subtitle' | translate }}</div>
+      <div class="activity-bars activity-bars-sm" aria-hidden="true">
+        <span class="bar bar-dim bar-short"></span>
+        <span class="bar bar-mid bar-short"></span>
+        <span class="bar bar-mid bar-short"></span>
+        <span class="bar bar-full bar-short"></span>
+        <span class="bar bar-full bar-short"></span>
+      </div>
+    </div>
+  </div>
+  <div class="summary-row">
+    <div class="summary-card">
+      <div class="summary-card-label">{{ 'analytics.summary.stockDiscrepancies' | translate }}</div>
+      <div class="summary-card-value" [class.value-danger]="highRiskDiscrepancies().length > 0">
+        {{ stockDiscrepancies().length }}
+      </div>
+      <div class="summary-card-sub">{{ highRiskDiscrepancies().length }} {{ 'analytics.summary.highRisk' | translate }}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-label">{{ 'analytics.summary.criticalProducts' | translate }}</div>
+      <div class="summary-card-value" [class.value-danger]="criticalProducts().length > 0">
+        {{ criticalProducts().length }}
+      </div>
+      <div class="summary-card-sub">{{ 'analytics.summary.deficit' | translate }} {{ totalStockDeficit() | number: '1.1-1' }}</div>
+    </div>
+  </div>
+  <div class="analytics-section" *ngIf="stockDiscrepancies().length > 0">
+    <div class="section-header">
+      <h2 class="section-title">{{ 'analytics.section.stockDiscrepancies' | translate }}</h2>
+      <span class="section-badge">{{ stockDiscrepancies().length }} {{ 'analytics.section.itemsBadge' | translate }}</span>
+    </div>
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'analytics.table.discrepancyId' | translate }}</th>
+              <th>{{ 'analytics.table.physicalStock' | translate }}</th>
+              <th>{{ 'analytics.table.systemStock' | translate }}</th>
+              <th class="col-right">{{ 'analytics.table.difference' | translate }}</th>
+              <th>{{ 'analytics.table.riskLevel' | translate }}</th>
+              <th>{{ 'analytics.table.reconciled' | translate }}</th>
+              <th>{{ 'analytics.table.status' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let disc of stockDiscrepancies()">
+              <td class="cell-mono">{{ disc.discrepancyId }}</td>
+              <td>{{ disc.physicalStock | number: '1.2-2' }}</td>
+              <td>{{ disc.systemStock | number: '1.2-2' }}</td>
+              <td class="col-right cell-bold" [class.value-danger]="disc.difference > 5">
+                {{ disc.difference | number: '1.2-2' }}
+              </td>
+              <td>
+                <span [class]="'badge badge-' + disc.riskLevel.toLowerCase()">
+                  {{ disc.riskLevel }}
+                </span>
+              </td>
+              <td>
+                <span [class]="disc.isConciliated ? 'status-resolved' : 'status-pending'">{{ disc.isConciliated ? ('analytics.table.yes' | translate) : ('analytics.table.no' | translate) }}</span>
+              </td>
+              <td><span [class]="disc.status === 'RESOLVED' ? 'status-resolved' : 'status-pending'">{{ disc.status }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="analytics-section" *ngIf="criticalProducts().length > 0">
+    <div class="section-header">
+      <h2 class="section-title">{{ 'analytics.section.criticalProducts' | translate }}</h2>
+      <span class="section-badge">{{ criticalProducts().length }} {{ 'analytics.section.productsBadge' | translate }}</span>
+    </div>
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'analytics.table.productName' | translate }}</th>
+              <th>{{ 'analytics.table.supplyId' | translate }}</th>
+              <th>{{ 'analytics.table.branch' | translate }}</th>
+              <th class="col-right">{{ 'analytics.table.totalStock' | translate }}</th>
+              <th class="col-right">{{ 'analytics.table.minStock' | translate }}</th>
+              <th class="col-right">{{ 'analytics.table.deficit' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of criticalProducts()">
+              <td class="cell-bold">{{ product.productName }}</td>
+              <td class="cell-mono">{{ product.description }}</td>
+              <td>{{ product.branchName }}</td>
+              <td class="col-right">{{ product.totalStock | number: '1.2-2' }}</td>
+              <td class="col-right">{{ product.minStock | number: '1.2-2' }}</td>
+              <td class="col-right cell-bold value-danger">{{ product.stockDeficit | number: '1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="empty-state" *ngIf="stockDiscrepancies().length === 0 && criticalProducts().length === 0">
+    <p>{{ 'analytics.empty' | translate }}</p>
+  </div>
+</div>

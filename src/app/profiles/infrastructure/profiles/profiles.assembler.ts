@@ -19,32 +19,29 @@ export class ProfilesAssembler implements BaseAssembler<Profile, ProfileResource
    * @param resource - Single profile document from the API.
    */
   toEntityFromResource(resource: ProfileResource): Profile {
-    const profileId = resource.id ?? String(resource.id);
     return new Profile({
-      profileId,
-      userId: resource.user_id ?? '',
+      profileId: resource.id ?? '',
+      userId: resource.userId ?? '',
+      accountId: resource.accountId ?? '',
       name: resource.name ?? '',
-      lastName: resource.last_name ?? '',
-      phoneNumber: resource.phone_number ?? '',
-      avatarUrl: resource.avatar_url ?? '',
+      lastName: resource.lastName ?? '',
+      phoneNumber: resource.phoneNumber ?? '',
+      avatarUrl: resource.avatarUrl ?? '',
       gender: resource.gender ?? '',
-      birthDate: resource.birth_date ?? '',
+      birthDate: resource.birthDate ?? '',
     });
   }
 
-  /**
-   * @param entity - Domain aggregate to send on create/update.
-   */
   toResourceFromEntity(entity: Profile): ProfileResource {
     return {
-      id: entity.profileId.getValue(),
-      user_id: entity.userId.getValue(),
+      accountId: entity.accountId,
+      userId: entity.userId.getValue(),
       name: entity.name,
-      last_name: entity.lastName,
-      phone_number: entity.phoneNumber.getValue(),
-      avatar_url: entity.avatarUrl.getValue(),
+      lastName: entity.lastName,
+      phoneNumber: entity.phoneNumber.getValue(),
+      avatarUrl: entity.avatarUrl.getValue() || 'https://placehold.co/150',
       gender: entity.gender,
-      birth_date: entity.birthDate.getValue(),
-    };
+      birthDate: entity.birthDate.getValue(),
+    } as ProfileResource;
   }
 }

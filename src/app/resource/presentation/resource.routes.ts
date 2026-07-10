@@ -3,7 +3,6 @@ import { Routes } from '@angular/router';
 const appTitle = 'RestockWebApplication';
 
 const batchesStockSection = () => import('./views/batches-stock-section/batches-stock-section').then((m) => m.BatchesStockSection);
-const inventoryDiscrepanciesPlaceholder = () => import('./views/inventory-discrepancies-placeholder/inventory-discrepancies-placeholder').then((m) => m.InventoryDiscrepanciesPlaceholder);
 const customSuppliesSection = () => import('./views/custom-supplies-section/custom-supplies-section').then((m) => m.CustomSuppliesSectionComponent);
 const customSupplyDetailSection = () => import('./views/custom-supply-detail-section/custom-supply-detail-section').then((m) => m.CustomSupplyDetailSectionComponent);
 
@@ -35,10 +34,5 @@ export const resourceInventoryRoutes: Routes = [
     path: 'custom-supplies/:id',
     loadComponent: customSupplyDetailSection,
     title: `${appTitle} · Inventory · Custom Supply Detail`,
-  },
-  {
-    path: 'discrepancies',
-    loadComponent: inventoryDiscrepanciesPlaceholder,
-    title: `${appTitle} · Inventory · Discrepancies`,
   },
 ];

@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CustomSupply } from '../../../domain/model/custom-supply.entity';
 
 @Component({
   selector: 'app-custom-supply-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './custom-supply-card.html',
   styleUrl: './custom-supply-card.css'
 })

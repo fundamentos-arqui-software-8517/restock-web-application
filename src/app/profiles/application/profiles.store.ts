@@ -2,6 +2,7 @@ import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, forkJoin, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
 import { ProfilesApi } from '../infrastructure/profiles-api';
 import { Profile } from '../domain/model/profile.entity';
 import { Business } from '../domain/model/business.entity';
@@ -9,6 +10,7 @@ import { LoadProfilesStateCommand } from '../domain/model/load-profiles-state.co
 import { UpdateProfileCommand } from '../domain/model/update-profile.command';
 import { UpdateBusinessCommand } from '../domain/model/update-business.command';
 import { IamStore } from '../../iam/application/iam.store';
+import { userErrorMessage } from '../../shared/infrastructure/user-error-message';
 
 const PROFILE_BRANCH_ID_KEY = 'restock.profile.currentBranchId';
 
@@ -19,6 +21,7 @@ const PROFILE_BRANCH_ID_KEY = 'restock.profile.currentBranchId';
 export class ProfilesStore {
   private readonly destroyRef = inject(DestroyRef);
   private readonly iamStore = inject(IamStore);
+  private readonly translate = inject(TranslateService);
 
   private readonly profileSignal = signal<Profile | null>(null);
   private readonly businessSignal = signal<Business | null>(null);
@@ -219,27 +222,7 @@ export class ProfilesStore {
    * @param fallback - Default message if it's not an instance of `Error`.
    */
   private formatError(error: unknown, fallback: string): string {
-    if (error instanceof HttpErrorResponse) {
-      if (error.status === 404) {
-        return `${fallback}: Not found`;
-      }
-
-      if (error.error?.message) {
-        return error.error.message;
-      }
-
-      if (error.message) {
-        return error.message;
-      }
-    }
-
-    if (error instanceof Error) {
-      return error.message.includes('Resource not found')
-        ? `${fallback}: Not found`
-        : error.message;
-    }
-
-    return fallback;
+    return userErrorMessage(error, fallback, (key, params) => this.translate.instant(key, params));
   }
 
   private loadCurrentBranchId(): string {

@@ -1,0 +1,15 @@
+<div class="alert-stack" aria-live="polite" aria-atomic="false">
+  @for (alert of alerts.alerts(); track alert.id) {
+    <article class="app-alert" [ngClass]="'app-alert--' + alert.tone">
+      <span class="alert-dot" aria-hidden="true"></span>
+      <p>
+        @if (alert.messageKey) {
+          {{ alert.messageKey | translate: alert.params }}
+        } @else {
+          {{ alert.message }}
+        }
+      </p>
+      <button type="button" class="alert-close" (click)="alerts.dismiss(alert.id)" [attr.aria-label]="'shared.alerts.dismiss' | translate">x</button>
+    </article>
+  }
+</div>

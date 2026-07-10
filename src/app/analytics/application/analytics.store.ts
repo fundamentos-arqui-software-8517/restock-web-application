@@ -1,13 +1,16 @@
 import { signal, computed, Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Metric } from '../domain/model/metric.entity';
 import { StockDiscrepancy } from '../domain/model/stock-discrepancy.entity';
 import { RecentSale } from '../domain/model/recent-sale.entity';
 import { CriticalProduct } from '../domain/model/critical-product.entity';
 import { AnalyticsApi } from '../infrastructure/analytics-api';
+import { userErrorMessage } from '../../shared/infrastructure/user-error-message';
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsStore {
   private readonly analyticsApi = inject(AnalyticsApi);
+  private readonly translate = inject(TranslateService);
   readonly metrics = signal<Metric[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly selectedRange = signal<'7d' | '30d' | '90d'>('7d');
@@ -48,7 +51,7 @@ export class AnalyticsStore {
         this.stockDiscrepanciesLoading.set(false);
       },
       error: (error) => {
-        this.stockDiscrepanciesError.set(error.message ?? 'Error loading stock discrepancies');
+        this.stockDiscrepanciesError.set(this.friendlyError(error, 'shared.errors.loadStockDiscrepancies'));
         this.stockDiscrepanciesLoading.set(false);
       },
     });
@@ -71,7 +74,7 @@ export class AnalyticsStore {
         }
       },
       error: (error) => {
-        this.recentSalesError.set(error.message ?? 'Error loading recent sales');
+        this.recentSalesError.set(this.friendlyError(error, 'shared.errors.loadRecentSales'));
         this.recentSalesLoading.set(false);
       },
     });
@@ -96,7 +99,7 @@ export class AnalyticsStore {
             this.criticalProductsLoading.set(false);
           },
           error: (error) => {
-            this.criticalProductsError.set(error.message ?? 'Error loading critical products');
+            this.criticalProductsError.set(this.friendlyError(error, 'shared.errors.loadCriticalProducts'));
             this.criticalProductsLoading.set(false);
           },
         });
@@ -108,11 +111,19 @@ export class AnalyticsStore {
             this.criticalProductsLoading.set(false);
           },
           error: (error) => {
-            this.criticalProductsError.set(error.message ?? 'Error loading critical products');
+            this.criticalProductsError.set(this.friendlyError(error, 'shared.errors.loadCriticalProducts'));
             this.criticalProductsLoading.set(false);
           },
         });
       },
     });
+  }
+
+  private friendlyError(error: unknown, fallbackKey: string): string {
+    return userErrorMessage(
+      error,
+      this.translate.instant(fallbackKey),
+      (key, params) => this.translate.instant(key, params),
+    );
   }
 }

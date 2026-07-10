@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
+import { userErrorMessage } from './user-error-message';
 
 /**
  * Provides reusable HTTP error translation for infrastructure services.
@@ -16,14 +17,7 @@ export abstract class ErrorHandlingEnabledBaseType {
    */
   protected handleError(operation: string) {
     return (error: HttpErrorResponse): Observable<never> => {
-      let errorMessage = operation;
-      if (error.status === 404) {
-        errorMessage = `${operation}: Resource not found`;
-      } else if (error.error instanceof ErrorEvent) {
-        errorMessage = `${operation}: ${error.error.message}`;
-      } else {
-        errorMessage = `${operation}: ${error.status || 'Unexpected error'}`;
-      }
+      const errorMessage = userErrorMessage(error, operation);
       return throwError(() => new Error(errorMessage));
     };
   }

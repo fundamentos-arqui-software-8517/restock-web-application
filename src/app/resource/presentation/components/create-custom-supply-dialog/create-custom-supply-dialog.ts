@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ResourceStore } from '../../../application/resource.store';
 import { IamStore as AuthService } from '../../../../iam/application/iam.store';
+import { userErrorMessage } from '../../../../shared/infrastructure/user-error-message';
 
 const UNIT_MEASUREMENTS = ['Kilograms', 'Liters', 'Dozen', 'Grams', 'Units'] as const;
 
@@ -20,6 +21,7 @@ export class CreateCustomSupplyDialogComponent implements OnInit {
 
   private readonly store = inject(ResourceStore);
   private readonly authService = inject(AuthService);
+  private readonly translate = inject(TranslateService);
 
   readonly supplyTemplates = this.store.supplyTemplates;
   readonly unitMeasurements = UNIT_MEASUREMENTS;
@@ -99,32 +101,32 @@ export class CreateCustomSupplyDialogComponent implements OnInit {
     const name = (this.formData.name || this.selectedSupplyName).trim();
 
     if (!accountId) {
-      this.formWarning = 'No account was found for the current user.';
+      this.formWarning = this.t('shared.validation.accountMissing');
       return;
     }
 
     if (!this.formData.supplyId || !selectedSupply) {
-      this.formWarning = 'Please select a base supply.';
+      this.formWarning = this.t('shared.validation.chooseSupply');
       return;
     }
 
     if (!name) {
-      this.formWarning = 'Custom supply name is required.';
+      this.formWarning = this.t('shared.validation.supplyNameRequired');
       return;
     }
 
     if (this.formData.minimumStock === null || this.formData.minimumStock < 0) {
-      this.formWarning = 'Minimum stock must be zero or greater.';
+      this.formWarning = this.t('shared.validation.minStockNonNegative');
       return;
     }
 
     if (this.formData.maximumStock === null || this.formData.maximumStock < this.formData.minimumStock) {
-      this.formWarning = 'Maximum stock must be greater than or equal to minimum stock.';
+      this.formWarning = this.t('shared.validation.maxStockAboveMin');
       return;
     }
 
     if (this.formData.unitPriceAmount === null || this.formData.unitPriceAmount < 0) {
-      this.formWarning = 'Unit price must be zero or greater.';
+      this.formWarning = this.t('shared.validation.unitPriceNonNegative');
       return;
     }
 
@@ -133,7 +135,7 @@ export class CreateCustomSupplyDialogComponent implements OnInit {
       .some((supply) => supply.supplyId === this.formData.supplyId);
 
     if (duplicatedBySupply) {
-      this.formWarning = `${selectedSupply.name} is already registered as a custom supply for this account.`;
+      this.formWarning = this.t('shared.validation.supplyAlreadyRegistered', { name: selectedSupply.name });
       return;
     }
 
@@ -143,7 +145,7 @@ export class CreateCustomSupplyDialogComponent implements OnInit {
       .some((supply) => supply.name.trim().toLowerCase() === normalizedName);
 
     if (duplicatedByName) {
-      this.formWarning = `A custom supply named ${name} already exists for this account.`;
+      this.formWarning = this.t('shared.validation.supplyNameDuplicate', { name });
       return;
     }
 
@@ -171,17 +173,17 @@ export class CreateCustomSupplyDialogComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.formWarning = this.extractErrorMessage(error, 'Custom supply could not be created.');
+        this.formWarning = userErrorMessage(
+          error,
+          this.t('shared.errors.createSupply'),
+          (key, params) => this.t(key, params),
+        );
       },
     });
   }
 
-  private extractErrorMessage(error: any, fallback: string): string {
-    return error?.error?.message
-      || error?.error?.detail
-      || error?.error?.error
-      || error?.message
-      || fallback;
+  private t(key: string, params?: Record<string, string>): string {
+    return this.translate.instant(key, params);
   }
 }
 

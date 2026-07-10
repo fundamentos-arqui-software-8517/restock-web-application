@@ -3,10 +3,11 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { ResourceStore } from '../../../application/resource.store';
 import { IamStore as AuthService } from '../../../../iam/application/iam.store';
+import { userErrorMessage } from '../../../../shared/infrastructure/user-error-message';
 import type { BatchRow } from '../../../infrastructure/batch/batch.assembler';
 import {
   BatchStockTableComponent,
@@ -31,6 +32,7 @@ type CategoryFilter = string;
 export class BatchesStockSection {
   private readonly store = inject(ResourceStore);
   private readonly authService = inject(AuthService);
+  private readonly translate = inject(TranslateService);
 
   protected readonly loading = this.store.loading;
   protected readonly loadError = this.store.loadError;
@@ -262,21 +264,21 @@ export class BatchesStockSection {
     const form = this.batchForm;
     this.batchFormWarning.set('');
 
-    if (!form.code) { this.batchFormWarning.set('Batch code is required'); return; }
-    if (!form.customSupplyId) { this.batchFormWarning.set('Please select a supply'); return; }
-    if (!form.branchId) { this.batchFormWarning.set('Branch information is missing'); return; }
-    if (form.currentStock <= 0) { this.batchFormWarning.set('Initial stock must be greater than 0'); return; }
+    if (!form.code) { this.batchFormWarning.set(this.t('shared.validation.batchCodeRequired')); return; }
+    if (!form.customSupplyId) { this.batchFormWarning.set(this.t('shared.validation.chooseSupply')); return; }
+    if (!form.branchId) { this.batchFormWarning.set(this.t('shared.validation.chooseBranch')); return; }
+    if (form.currentStock <= 0) { this.batchFormWarning.set(this.t('shared.validation.stockPositive')); return; }
     if (!this.validateBatchStockRange(Number(form.currentStock))) return;
 
     const requiresExpiration = this.selectedCustomSupplyRequiresExpiration();
-    if (requiresExpiration && !form.expirationDate) { this.batchFormWarning.set('Expiration date is required for perishable items'); return; }
+    if (requiresExpiration && !form.expirationDate) { this.batchFormWarning.set(this.t('shared.validation.expirationRequired')); return; }
 
     if (requiresExpiration && form.expirationDate) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const expDate = new Date(form.expirationDate);
       if (expDate < today) {
-        this.batchFormWarning.set('Expiration date cannot be in the past');
+        this.batchFormWarning.set(this.t('shared.validation.expirationPast'));
         return;
       }
     }
@@ -296,7 +298,11 @@ export class BatchesStockSection {
       },
       error: (error) => {
         this.batchSaving.set(false);
-        this.batchFormWarning.set(this.extractErrorMessage(error, 'Batch could not be created'));
+        this.batchFormWarning.set(userErrorMessage(
+          error,
+          this.t('shared.errors.createBatch'),
+          (key, params) => this.t(key, params),
+        ));
       },
     });
   }
@@ -323,7 +329,11 @@ export class BatchesStockSection {
       },
       error: (error) => {
         this.batchSaving.set(false);
-        this.batchFormWarning.set(this.extractErrorMessage(error, 'Batch could not be updated'));
+        this.batchFormWarning.set(userErrorMessage(
+          error,
+          this.t('shared.errors.updateBatch'),
+          (key, params) => this.t(key, params),
+        ));
       },
     });
   }
@@ -396,7 +406,11 @@ export class BatchesStockSection {
 
     if (stock < supply.minStock || stock > supply.maxStock) {
       this.batchFormWarning.set(
-        `Initial stock must be between ${supply.minStock} and ${supply.maxStock} for ${supply.name}.`,
+        this.t('shared.validation.stockRange', {
+          min: supply.minStock,
+          max: supply.maxStock,
+          name: supply.name,
+        }),
       );
       return false;
     }
@@ -404,11 +418,7 @@ export class BatchesStockSection {
     return true;
   }
 
-  private extractErrorMessage(error: any, fallback: string): string {
-    return error?.error?.message
-      || error?.error?.detail
-      || error?.error?.error
-      || error?.message
-      || fallback;
+  private t(key: string, params?: Record<string, string | number>): string {
+    return this.translate.instant(key, params);
   }
 }

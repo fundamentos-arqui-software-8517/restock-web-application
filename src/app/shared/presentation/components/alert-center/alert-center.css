@@ -1,0 +1,67 @@
+.alert-stack {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10000;
+  display: grid;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.app-alert {
+  display: grid;
+  grid-template-columns: 10px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #172033;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
+  pointer-events: auto;
+}
+
+.app-alert p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+.app-alert--success .alert-dot {
+  background: #16a34a;
+}
+
+.app-alert--warning .alert-dot {
+  background: #d97706;
+}
+
+.app-alert--error .alert-dot {
+  background: #dc2626;
+}
+
+.alert-close {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.alert-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}

@@ -1,13 +1,13 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { IamStore } from '../application/iam.store';
+import { IamSessionService } from '../application/iam-session.service';
 
 /**
  * Blocks unauthenticated access to application routes.
  */
 export const requireAuthGuard: CanActivateFn = () => {
-  const iamStore = inject(IamStore);
+  const session = inject(IamSessionService);
   const router = inject(Router);
 
-  return iamStore.isAuthenticated() ? true : router.parseUrl('/sign-in');
+  return session.isAuthenticated() ? true : router.parseUrl('/sign-in');
 };

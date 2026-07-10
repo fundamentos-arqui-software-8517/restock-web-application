@@ -1,10 +1,11 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, forkJoin, of, switchMap, tap } from 'rxjs';
 import { IamApi } from '../infrastructure/iam-api';
 import { IamRegisteredUsersStorage } from '../infrastructure/iam-registered-users.storage';
-import { IamSessionStorage } from '../infrastructure/iam-session.storage';
+import { IamSessionService } from './iam-session.service';
 import { SignUpCommand } from '../domain/model/sign-up.command';
 import { User } from '../domain/model/user.entity';
 import { SignInCommand } from '../domain/model/sign-in.command';
@@ -12,6 +13,7 @@ import { ForgotPasswordCommand } from '../domain/model/forgot-password.command';
 import { ProfilesApi } from '../../profiles/infrastructure/profiles-api';
 import { Profile } from '../../profiles/domain/model/profile.entity';
 import { Business } from '../../profiles/domain/model/business.entity';
+import { userErrorMessage } from '../../shared/infrastructure/user-error-message';
 
 /**
  * IamStore
@@ -21,11 +23,11 @@ import { Business } from '../../profiles/domain/model/business.entity';
 export class IamStore {
   private readonly router = inject(Router);
   private readonly iamApi = inject(IamApi);
-  private readonly sessionStorage = inject(IamSessionStorage);
+  private readonly session = inject(IamSessionService);
   private readonly registeredUsers = inject(IamRegisteredUsersStorage);
   private readonly profilesApi = inject(ProfilesApi);
+  private readonly translate = inject(TranslateService);
 
-  private readonly currentUserSignal = signal<User | null>(this.sessionStorage.load());
   private readonly errorSignal = signal<string | null>(null);
   private readonly loadingSignal = signal(false);
   private readonly successMessageSignal = signal<string | null>(null);
@@ -41,12 +43,12 @@ export class IamStore {
   } | null>(null);
   private readonly pendingAccountIdSignal = signal<string | null>(null);
 
-  readonly currentUser = this.currentUserSignal.asReadonly();
+  readonly currentUser = this.session.currentUser;
   readonly pendingAccountId = this.pendingAccountIdSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly successMessage = this.successMessageSignal.asReadonly();
-  readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
+  readonly isAuthenticated = this.session.isAuthenticated;
 
   setPendingCredentials(email: string, password: string): void {
     this.pendingEmailSignal.set(email);
@@ -163,7 +165,7 @@ export class IamStore {
 
       error: (error) => {
         if (error instanceof HttpErrorResponse && error.status === 409) {
-          this.errorSignal.set('The email address is already registered.');
+          this.errorSignal.set(this.translate.instant('shared.errors.emailAlreadyRegistered'));
           this.loadingSignal.set(false);
           return;
         }
@@ -197,8 +199,7 @@ export class IamStore {
   }
 
   private clearAuthSession(): void {
-    this.currentUserSignal.set(null);
-    this.sessionStorage.clear();
+    this.session.clear();
   }
 
   /**
@@ -236,35 +237,13 @@ export class IamStore {
   }
 
   private setCurrentUser(user: User | null): void {
-    this.currentUserSignal.set(user);
-
-    if (user) {
-      this.sessionStorage.save(user);
-    } else {
-      this.sessionStorage.clear();
-    }
+    this.session.setUser(user);
   }
 
   /**
    * Formats error messages for display.
    */
   private formatError(error: unknown, fallback: string): string {
-    if (error instanceof HttpErrorResponse) {
-      if (error.error?.message) {
-        return error.error.message;
-      }
-
-      if (error.message) {
-        return error.message;
-      }
-    }
-
-    if (error instanceof Error && error.message) {
-      return error.message.includes('Resource not found')
-        ? `${fallback}: recurso no encontrado.`
-        : error.message;
-    }
-
-    return fallback;
+    return userErrorMessage(error, fallback, (key, params) => this.translate.instant(key, params));
   }
 }

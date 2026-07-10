@@ -1,13 +1,13 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { IamStore } from '../application/iam.store';
+import { IamSessionService } from '../application/iam-session.service';
 
 /**
  * Redirects authenticated users away from sign-in / sign-up / forgot-password.
  */
 export const guestOnlyGuard: CanActivateFn = () => {
-  const iamStore = inject(IamStore);
+  const session = inject(IamSessionService);
   const router = inject(Router);
 
-  return iamStore.isAuthenticated() ? router.parseUrl('/home') : true;
+  return session.isAuthenticated() ? router.parseUrl('/home') : true;
 };

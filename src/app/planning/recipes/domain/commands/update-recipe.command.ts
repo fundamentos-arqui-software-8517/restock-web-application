@@ -8,4 +8,5 @@ export interface UpdateRecipeCommand {
   sku?: string;
   imageUrl?: string;
   sellingPrice?: number;
+  status?: string;
 }

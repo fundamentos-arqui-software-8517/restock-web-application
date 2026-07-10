@@ -1,0 +1,76 @@
+@if (order) {
+  <div class="drawer-backdrop" (click)="close.emit()">
+    <aside class="drawer-panel" (click)="$event.stopPropagation()">
+      <header class="drawer-header">
+        <div class="header-left">
+          <h2 class="drawer-title">{{ 'sales.transactionDetail.title' | translate:{ id: order.id.slice(0, 8).toUpperCase() } }}</h2>
+          <span class="status-badge" [ngClass]="statusClass(order.status)">{{ statusLabel(order.status) | translate }}</span>
+        </div>
+        <button class="close-btn" (click)="close.emit()" [attr.aria-label]="'sales.transactionDetail.closeAria' | translate">✕</button>
+      </header>
+
+      <div class="processed-at">
+        {{ 'sales.transactionDetail.processedAt' | translate:{ time: order.createdAt ? (order.createdAt | date: 'HH:mm:ss') : '—' } }}
+      </div>
+
+      <section class="items-section">
+        <div class="section-header-row">
+          <span class="section-title">{{ 'sales.transactionDetail.soldItems' | translate }}</span>
+          <span class="items-count">{{ order.items.length }} {{ 'sales.transactionDetail.itemsSuffix' | translate }}</span>
+        </div>
+
+        @for (item of order.items; track item.id) {
+          <div class="sold-item-row">
+            <div class="sold-item-thumb">
+              @if (getKitImage(item.productId)) {
+                <img [src]="getKitImage(item.productId)" [alt]="item.nameSnapshot" class="item-img">
+              } @else {
+                <div class="sold-item-thumb icon-thumb">
+                  <svg class="wine-glass-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                  </svg>
+                </div>
+              }
+            </div>
+            <div class="sold-item-info">
+              <span class="sold-item-name">{{ item.nameSnapshot }}</span>
+              <span class="sold-item-meta">{{ 'sales.transactionDetail.unitAndId' | translate:{ qty: item.quantity, id: item.productId.slice(0, 8).toUpperCase() } }}</span>
+            </div>
+            <span class="sold-item-price">S/ {{ item.lineTotal.toFixed(2) }}</span>
+          </div>
+        }
+      </section>
+
+      <div class="total-row">
+        <span>{{ 'sales.transactionDetail.total' | translate }}</span>
+        <span class="total-value">S/ {{ order.totalAmount.toFixed(2) }}</span>
+      </div>
+
+      <section class="deduction-section">
+        <span class="section-title">{{ 'sales.transactionDetail.deductionLog' | translate }}</span>
+        <div class="deduction-box">
+          @for (entry of deductionLog; track $index) {
+            <div class="deduction-entry">
+              <div class="deduction-check-icon">
+                <svg class="check-circle-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </div>
+              <span class="deduction-label">{{ entry.label }}</span>
+              <span class="deduction-time">{{ entry.time }}</span>
+            </div>
+          } @empty {
+            <div class="deduction-empty">{{ 'sales.transactionDetail.emptyDeductions' | translate }}</div>
+          }
+        </div>
+      </section>
+
+      <footer class="drawer-footer">
+        <button class="close-details-btn" (click)="close.emit()">{{ 'sales.transactionDetail.closeDetails' | translate }}</button>
+      </footer>
+    </aside>
+  </div>
+}

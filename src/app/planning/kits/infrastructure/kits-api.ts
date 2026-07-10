@@ -49,19 +49,19 @@ export class KitsApiEndpoint {
   }
 
   getSupplies(accountId: string): Observable<CustomSupplyEntity[]> {
-    const url = `${environment.platformProviderApiBaseUrl}/custom-supplies?accountId=${accountId}`;
+    const url = `${environment.baseUrl}/custom-supplies?accountId=${accountId}`;
     return this.http.get<CustomSupplyEntity[]>(url);
   }
 
   getAllKits(accountId: string) {
     return this.http.get<KitEntity[]>(
-      `${environment.platformProviderApiBaseUrl}/products?accountId=${accountId}`,
+      `${environment.baseUrl}/products?accountId=${accountId}`,
     );
   }
 
   getKitById(kitId: string): Observable<KitEntity> {
     return this.http
-      .get<any>(`${environment.platformProviderApiBaseUrl}/products/${kitId}`)
+      .get<any>(`${environment.baseUrl}/products/${kitId}`)
       .pipe(map((r) => this._mapToKitEntity(r)));
   }
 

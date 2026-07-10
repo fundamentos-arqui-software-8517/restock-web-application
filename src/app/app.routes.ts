@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { requireAuthGuard } from './iam/infrastructure/require-auth.guard';
 import { Layout } from './shared/presentation/components/layout/layout';
 import { resourceInventoryRoutes } from './resource/presentation/resource.routes';
+import { trackingInventoryRoutes } from './tracking/presentation/tracking.routes';
 
 const baseTitle = 'RestockWebApplication';
 
@@ -11,6 +12,9 @@ const salesRoute = () =>import('./sales/presentation/sales.routes').then((m) => 
 const profilesRoute = () =>import('./profiles/presentation/profiles.routes').then((m) => m.profilesRoutes);
 const recipesRoute = () =>import('./planning/recipes/presentation/recipes.routes').then((m) => m.recipesRoutes);
 const kitsRoute = () =>import('./planning/kits/presentation/kits.routes').then((m) => m.kitsRoutes);
+const analyticsRoute = () =>import('./analytics/presentation/analytics.routes').then((m) => m.analyticsRoutes);
+const subscriptionsRoute = () =>import('./subscriptions/presentation/subscriptions.routes').then((m) => m.subscriptionsRoutes);
+const communicationsRoute = () =>import('./communications/presentation/communications.routes').then((m) => m.communicationsRoutes);
 const homePage = () =>import('./shared/presentation/views/home/home-page').then((m) => m.HomePage);
 const pageNotFound = () =>import('./shared/presentation/views/page-not-found/page-not-found').then((m) => m.PageNotFound,);
 const placeholder = () =>import('./shared/presentation/views/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage,);
@@ -19,6 +23,7 @@ const placeholder = () =>import('./shared/presentation/views/placeholder-page/pl
  * Application routes configuration.
  * Defines the routing structure for the Angular application, including lazy-loaded components and child routes.
  */
+
 export const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'sign-in' },
   { path: 'login', pathMatch: 'full', redirectTo: 'sign-in' },
@@ -33,10 +38,12 @@ export const appRoutes: Routes = [
       { path: '', loadComponent: homePage, title: `${baseTitle} · Overview` },
       { path: 'home', loadComponent: homePage, title: `${baseTitle} · Overview` },
 
-      { path: 'inventory', children: resourceInventoryRoutes },
+      { path: 'inventory', children: [...resourceInventoryRoutes, ...trackingInventoryRoutes] },
       { path: 'recipes', loadChildren: recipesRoute, title: `${baseTitle} · Recipes` },
       { path: 'kits', loadChildren: kitsRoute, title: `${baseTitle} · Kits` },
       { path: 'sales', loadChildren: salesRoute, title: `${baseTitle} · Sales` },
+      { path: 'analytics', loadChildren: analyticsRoute, title: `${baseTitle} · Analytics` },
+      { path: 'subscriptions', loadChildren: subscriptionsRoute, title: `${baseTitle} · Subscriptions` },
 
       {
         path: 'settings',
@@ -46,7 +53,7 @@ export const appRoutes: Routes = [
       },
       {
         path: 'alerts',
-        loadComponent: placeholder,
+        loadChildren: communicationsRoute,
         data: { titleKey: 'nav.alerts' },
         title: `${baseTitle} · Alerts`,
       },

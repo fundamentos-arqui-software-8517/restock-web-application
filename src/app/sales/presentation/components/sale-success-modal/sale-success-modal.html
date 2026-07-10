@@ -1,0 +1,19 @@
+@if (order) {
+  <div class="modal-backdrop">
+    <div class="success-modal">
+      <div class="success-icon">
+        <svg class="check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h2 class="success-title">{{ 'sales.saleSuccess.title' | translate }}</h2>
+      <span class="trx-badge">{{ 'sales.saleSuccess.transactionBadge' | translate:{ id: order.id.slice(0, 8).toUpperCase() } }}</span>
+      <p class="success-description">
+        {{ 'sales.saleSuccess.description' | translate }}
+      </p>
+
+      <button class="start-new-btn" (click)="startNewSale.emit()">{{ 'sales.saleSuccess.startNewSale' | translate }}</button>
+      <button class="back-to-sales-btn" (click)="backToSales.emit()">{{ 'sales.saleSuccess.backToSales' | translate }}</button>
+    </div>
+  </div>
+}

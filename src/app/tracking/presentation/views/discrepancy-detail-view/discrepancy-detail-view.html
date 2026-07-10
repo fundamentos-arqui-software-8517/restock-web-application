@@ -1,0 +1,128 @@
+<div class="detail-section">
+  <div class="page-header">
+    <div class="page-header-left">
+      <a class="back-link" routerLink="/inventory/discrepancies/list" [attr.aria-label]="'tracking.backToDiscrepancies' | translate">&larr;</a>
+      <div>
+        <nav class="breadcrumb">
+          <span>{{ 'tracking.discrepancyDetail.breadcrumbInventory' | translate }}</span>
+          <span class="sep">›</span>
+          <span>{{ 'tracking.discrepancyDetail.breadcrumbTasks' | translate }}</span>
+          <span class="sep">›</span>
+          <span class="current">{{ 'tracking.discrepancyDetail.breadcrumbDetail' | translate }}</span>
+        </nav>
+        <div class="title-row">
+          <h1 class="page-title">{{ 'tracking.discrepancyDetail.title' | translate }}</h1>
+          <span class="status-badge badge-critical">{{ 'tracking.discrepancyDetail.criticalBadge' | translate }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline" (click)="openRecalibrateDialog()">{{ 'tracking.discrepancyDetail.recalibrateSensor' | translate }}</button>
+      <button class="btn btn-primary" (click)="openResolveDialog()">{{ 'tracking.discrepancyDetail.resolveDiscrepancy' | translate }}</button>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="left-column">
+      <div class="card comparison-card">
+        <h3 class="card-title">{{ 'tracking.discrepancyDetail.stockComparison' | translate }}</h3>
+        <div class="comparison-grid">
+          <div class="comparison-item">
+            <span class="comparison-label">{{ 'tracking.discrepancyDetail.digitalRecord' | translate }}</span>
+            <span class="comparison-value">--</span>
+            <span class="comparison-unit">{{ 'tracking.discrepancyDetail.units' | translate }}</span>
+          </div>
+          <div class="comparison-vs">
+            <span>{{ 'tracking.discrepancyDetail.vs' | translate }}</span>
+          </div>
+          <div class="comparison-item">
+            <span class="comparison-label">{{ 'tracking.discrepancyDetail.scaleSensorReading' | translate }}</span>
+            <span class="comparison-value">--</span>
+            <span class="comparison-unit">{{ 'tracking.discrepancyDetail.units' | translate }}</span>
+          </div>
+        </div>
+        <div class="gap-section">
+          <span class="gap-label">{{ 'tracking.discrepancyDetail.detectedGap' | translate }}</span>
+          <span class="gap-value gap-negative">-- {{ 'tracking.discrepancyDetail.units' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <h3 class="card-title">{{ 'tracking.discrepancyDetail.weightVsTime' | translate }}</h3>
+        <div class="chart-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          <p>{{ 'tracking.discrepancyDetail.chartPlaceholder' | translate }}</p>
+          <small>{{ 'tracking.discrepancyDetail.chartSubtitle' | translate }}</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card device-card">
+        <h3 class="card-title">{{ 'tracking.discrepancyDetail.smartScaleInfo' | translate }}</h3>
+        <div class="info-fields">
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.heartbeat' | translate }}</span>
+            <span class="field-value">--</span>
+          </div>
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.signalStrength' | translate }}</span>
+            <span class="field-value">-- dBm</span>
+          </div>
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.calibrationStatus' | translate }}</span>
+            <span class="field-value">--</span>
+          </div>
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.temperature' | translate }}</span>
+            <span class="field-value">-- °C</span>
+          </div>
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.humidity' | translate }}</span>
+            <span class="field-value">-- %</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card metadata-card">
+        <h3 class="card-title">{{ 'tracking.discrepancyDetail.assetMetadata' | translate }}</h3>
+        <div class="info-fields">
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.assetId' | translate }}</span>
+            <span class="field-value">--</span>
+          </div>
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.storageUnit' | translate }}</span>
+            <span class="field-value">--</span>
+          </div>
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.branch' | translate }}</span>
+            <span class="field-value">--</span>
+          </div>
+          <div class="info-field">
+            <span class="field-label">{{ 'tracking.discrepancyDetail.zone' | translate }}</span>
+            <span class="field-value">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="event-log-bar">
+    <span class="event-log-label">{{ 'tracking.discrepancyDetail.systemEventLog' | translate }}</span>
+    <button class="btn btn-sm btn-outline">{{ 'tracking.discrepancyDetail.jumpToLog' | translate }}</button>
+  </div>
+</div>
+
+@if (showResolveDialog) {
+  <app-resolve-discrepancy-dialog
+    [conciliationTaskId]="resolveTaskId"
+    (onClose)="closeResolveDialog()"
+    (onResolve)="closeResolveDialog()" />
+}
+
+@if (showRecalibrateDialog) {
+  <app-recalibrate-scale-dialog (onClose)="closeRecalibrateDialog()" (onRecalibrate)="closeRecalibrateDialog()" />
+}

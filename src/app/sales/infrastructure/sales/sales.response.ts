@@ -1,65 +1,53 @@
-import { BaseResource, BaseResponse } from '../../../shared/infrastructure/base-response';
-
 /**
- * SaleResource
- * Represents a single sale record.
+ * Raw JSON shapes returned by the Sales bounded context API.
+ * Mirror the backend records exactly (SalesOrderResource et al.).
  */
-export interface SaleResource extends BaseResource {
-  branchId: string;
-  businessId: string;
-  registeredByUserId: string;
-  customer: CustomerResource | string;
-  currency: CurrencyResource | string;
-  saleItems: SaleItemResource[];
-  saleTotal: SaleTotalResource;
-  saleStatus: string;
-  date: string;
+export interface BatchConsumptionResource {
+  batchId: string;
+  quantityToConsume: number;
 }
 
-/**
- * CustomerResource
- * Represents a customer in a sale.
- */
-export interface CustomerResource {
+export interface IngredientResolvedResource {
+  customSupplyId: string;
   name: string;
+  quantityRequired: number;
+  batchesReserved: BatchConsumptionResource[];
 }
 
-/**
- * CurrencyResource
- * Represents a currency in a sale.
- */
-export interface CurrencyResource {
-  code: string;
-  symbol: string;
-}
-
-/**
- * SaleItemResource
- * Represents an item in a sale.
- */
-export interface SaleItemResource {
-  itemId: string;
+export interface SalesOrderItemResource {
+  id: string;
+  productId: string;
+  productType: string;
   nameSnapshot: string;
   unitPrice: number;
   quantity: number;
-  lineTotal: number;
-  imageUrl?: string;
+  ingredientsResolved: IngredientResolvedResource[];
+}
+
+export interface SalesOrderResource {
+  id: string;
+  branchId: string;
+  status: string;
+  items: SalesOrderItemResource[];
+  subtotalAmount: number;
+  taxAmount: number;
+  totalAmount: number;
+  currency: string;
+  createdAt: string | null;
 }
 
 /**
- * SaleTotalResource
- * Represents the total amount of a sale.
+ * Structured body of a 422 response thrown when there isn't enough physical
+ * stock to resolve a sale (see GlobalExceptionHandler#handleInsufficientStockException).
  */
-export interface SaleTotalResource {
-  subTotal: number;
-  tax: number;
-  total: number;
-}
-
-/**
- * SaleResponse
- * Represents the response returned by the get sale endpoint.
- */
-export interface SalesResponse extends BaseResponse, SaleResource {
-  sales: SaleResource[];
+export interface InsufficientStockErrorResource {
+  timestamp: string;
+  status: number;
+  error: string;
+  message: string;
+  path: string;
+  customSupplyId: string;
+  supplyName: string;
+  quantityNeeded: number;
+  quantityAvailable: number;
 }

@@ -7,16 +7,18 @@ import { RemoveKitItemCommand } from '../domain/command/remove-kit-item.command'
 import { DeleteKitCommand } from '../domain/command/delete-kit.command';
 import { KitsApiEndpoint } from '../infrastructure/kits-api';
 import { CustomSupplyEntity } from '../domain/model/custom-supply.entity';
+import { IamStore } from '../../../iam/application/iam.store';
 
 export type ModalMode = 'create' | 'edit' | null;
 
 @Injectable({ providedIn: 'root' })
 export class KitStore {
   private readonly api = inject(KitsApiEndpoint);
+  private readonly iamStore = inject(IamStore);
 
   readonly kits = signal<KitEntity[]>([]);
   readonly availableSupplies = signal<CustomSupplyEntity[]>([]);
-  readonly accountId = signal<string>('6a21a239af5d1ab5fca17747');
+  readonly accountId = computed(() => this.iamStore.currentUser()?.accountId ?? '');
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
@@ -27,9 +29,15 @@ export class KitStore {
   loadAllKits(): void {
     if (this.loading()) return;
 
+    const accId = this.accountId();
+    if (!accId) {
+      console.warn('Se intentó cargar kits pero el Account ID está vacío.');
+      return;
+    }
+
     this.loading.set(true);
 
-    this.api.getAllKits(this.accountId()).subscribe({
+    this.api.getAllKits(accId).subscribe({
       next: (data) => {
         this.kits.set(data);
         this.loading.set(false);
@@ -78,12 +86,13 @@ export class KitStore {
     });
   }
 
-  addItem(cmd: AddKitItemCommand): void {
+  addItem(cmd: AddKitItemCommand, onDone?: (entity: KitEntity) => void): void {
     this.saving.set(true);
     this.api.addItem(cmd).subscribe({
       next: (entity) => {
         this._patchKit(entity);
         this.saving.set(false);
+        onDone?.(entity);
       },
       error: (err) => {
         this.error.set(err.message);
@@ -92,12 +101,29 @@ export class KitStore {
     });
   }
 
-  removeItem(cmd: RemoveKitItemCommand): void {
+  addItemsSequentially(
+    productId: string,
+    items: { customSupplyId: string; quantity: number }[],
+    onDone: () => void,
+    index = 0,
+  ): void {
+    if (index >= items.length) {
+      onDone();
+      return;
+    }
+    const { customSupplyId, quantity } = items[index];
+    this.addItem({ productId, customSupplyId, quantity }, () => {
+      this.addItemsSequentially(productId, items, onDone, index + 1);
+    });
+  }
+
+  removeItem(cmd: RemoveKitItemCommand, onDone?: () => void): void {
     this.saving.set(true);
     this.api.removeItem(cmd).subscribe({
-      next: () => {
-        this.loadAllKits();
+      next: (entity) => {
+        this._patchKit(entity);
         this.saving.set(false);
+        onDone?.();
       },
       error: (err) => {
         this.error.set(err.message);
@@ -121,8 +147,14 @@ export class KitStore {
   }
 
   loadSupplies(): void {
+    const accId = this.accountId();
+    if (!accId) {
+      console.warn('Se intentó cargar supplies pero el Account ID está vacío.');
+      return;
+    }
+
     this.loading.set(true);
-    this.api.getSupplies(this.accountId()).subscribe({
+    this.api.getSupplies(accId).subscribe({
       next: (supplies) => {
         this.availableSupplies.set(supplies);
         this.loading.set(false);

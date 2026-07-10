@@ -11,7 +11,7 @@ import { User } from '../../domain/model/user.entity';
 import { IamRegisteredUsersStorage } from '../iam-registered-users.storage';
 import { signInWithLocalFallback } from './sign-in-fallback';
 
-const signInApiUrl = `${environment.platformProviderApiBaseUrl}/${environment.platformProviderSignInEndpointPath}`;
+const signInApiUrl = `${environment.baseUrl}/${environment.platformProviderSignInEndpointPath}`;
 
 /**
  * Endpoint for IAM sign-in requests.

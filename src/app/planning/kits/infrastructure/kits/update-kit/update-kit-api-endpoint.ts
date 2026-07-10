@@ -8,7 +8,7 @@ import { environment } from '../../../../../../environments/environment';
 import { ErrorHandlingEnabledBaseType } from '../../../../../shared/infrastructure/error-handling-enabled-base-type';
 import { UpdateKitCommand } from '../../../domain/command/update-kit.command';
 
-const kitsApiUrl = `${environment.platformProviderApiBaseUrl}/${environment.platformProviderProductsEndpointPath}`;
+const kitsApiUrl = `${environment.baseUrl}/${environment.platformProviderProductsEndpointPath}`;
 
 @Injectable({
   providedIn: 'root',

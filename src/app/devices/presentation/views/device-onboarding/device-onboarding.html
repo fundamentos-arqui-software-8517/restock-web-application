@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <div class="header-left">
-        <button class="back-btn" type="button" (click)="goToList()" aria-label="Back to device list">
+        <button class="back-btn" type="button" (click)="goToList()" [attr.aria-label]="'devices.onboarding.backAria' | translate">
           <mat-icon>arrow_back</mat-icon>
         </button>
         <div class="header-text">
-          <span class="eyebrow">Device onboarding</span>
-          <h1 class="device-title">Supply Keeper</h1>
+          <span class="eyebrow">{{ 'devices.onboarding.eyebrow' | translate }}</span>
+          <h1 class="device-title">{{ 'devices.onboarding.eyebrow' | translate }}</h1>
           <div class="device-meta-row">
             <span class="mac-chip">{{ device.macAddress }}</span>
             @if (device.description) {
@@ -20,15 +20,16 @@
 
       <div class="header-actions">
         <span class="status-badge"
-          [class.badge-pending]="device.status === 'REGISTERED'"
-          [class.badge-configured]="device.status === 'CONFIGURED'"
-          [class.badge-active]="device.status === 'ACTIVE'"
-          [class.badge-inactive]="device.status === 'INACTIVE'">
-          {{ statusLabel(device.status) }}
+              [class.badge-pending]="device.status === 'REGISTERED'"
+              [class.badge-configured]="device.status === 'CONFIGURED'"
+              [class.badge-active]="device.status === 'CALIBRATED'"
+              [class.badge-active]="device.status === 'ACTIVE'"
+              [class.badge-inactive]="device.status === 'INACTIVE'">
+          {{ statusLabel(device.status) | translate }}
         </span>
         <button class="btn-outline" type="button">
           <mat-icon>edit</mat-icon>
-          Edit info
+          {{ 'devices.onboarding.editInfo' | translate }}
         </button>
       </div>
     </div>
@@ -41,22 +42,32 @@
       <div class="progress-steps">
         <div class="progress-step" [class.complete]="!!device.assignedBatchId" [class.active]="!device.assignedBatchId">
           <span class="step-dot">1</span>
-          <span>Batch</span>
+          <span>{{ 'devices.onboarding.steps.batch' | translate }}</span>
         </div>
         <div class="progress-line" [class.complete]="hasSpecifications(device)"></div>
         <div class="progress-step" [class.complete]="hasSpecifications(device)" [class.active]="!!device.assignedBatchId && !hasSpecifications(device)">
           <span class="step-dot">2</span>
-          <span>Hardware</span>
+          <span>{{ 'devices.onboarding.steps.hardware' | translate }}</span>
         </div>
         <div class="progress-line" [class.complete]="!!device.branchId"></div>
         <div class="progress-step" [class.complete]="!!device.branchId" [class.active]="hasSpecifications(device) && !device.branchId">
           <span class="step-dot">3</span>
-          <span>Branch</span>
+          <span>{{ 'devices.onboarding.steps.branch' | translate }}</span>
         </div>
-        <div class="progress-line" [class.complete]="device.status === 'CONFIGURED' || device.status === 'ACTIVE'"></div>
-        <div class="progress-step" [class.complete]="device.status === 'CONFIGURED' || device.status === 'ACTIVE'" [class.active]="!!device.assignedBatchId && hasSpecifications(device) && !!device.branchId">
+        <div class="progress-line" [class.complete]="device.status === 'CONFIGURED' || device.status === 'CALIBRATED' || device.status === 'ACTIVE'"></div>
+        <div class="progress-step" [class.complete]="device.status === 'CONFIGURED' || device.status === 'CALIBRATED' || device.status === 'ACTIVE'" [class.active]="!!device.assignedBatchId && hasSpecifications(device) && !!device.branchId">
           <span class="step-dot">4</span>
-          <span>Alerts</span>
+          <span>{{ 'devices.onboarding.steps.alerts' | translate }}</span>
+        </div>
+        <div class="progress-line" [class.complete]="device.status === 'CALIBRATED' || device.status === 'ACTIVE'"></div>
+        <div class="progress-step" [class.complete]="device.status === 'CALIBRATED' || device.status === 'ACTIVE'" [class.active]="device.status === 'CONFIGURED'">
+          <span class="step-dot">5</span>
+          <span>{{ 'devices.onboarding.steps.calibration' | translate }}</span>
+        </div>
+        <div class="progress-line" [class.complete]="hasDisplayMode(device)"></div>
+        <div class="progress-step" [class.complete]="hasDisplayMode(device)" [class.active]="hasCalibration(device) && !hasDisplayMode(device)">
+          <span class="step-dot">6</span>
+          <span>{{ 'devices.onboarding.steps.displayMode' | translate }}</span>
         </div>
       </div>
     </section>
@@ -68,8 +79,8 @@
             <div class="step-heading">
               <span class="step-number">1</span>
               <div>
-                <h3 class="panel-title">Inventory assignment</h3>
-                <p class="panel-subtitle">Connect this scale to the supply batch it will monitor.</p>
+                <h3 class="panel-title">{{ 'devices.onboarding.inventoryAssignment.title' | translate }}</h3>
+                <p class="panel-subtitle">{{ 'devices.onboarding.inventoryAssignment.subtitle' | translate }}</p>
               </div>
             </div>
           </div>
@@ -80,24 +91,24 @@
                 <mat-icon>inventory_2</mat-icon>
               </div>
               <div>
-                <p class="empty-title">No batch assigned</p>
-                <p class="empty-desc">Assign an inventory batch before configuring alerts or activating monitoring.</p>
+                <p class="empty-title">{{ 'devices.onboarding.inventoryAssignment.noBatchAssigned' | translate }}</p>
+                <p class="empty-desc">{{ 'devices.onboarding.inventoryAssignment.noBatchDesc' | translate }}</p>
               </div>
             </div>
 
             <button class="btn-primary full-width mt-16" type="button" (click)="openAssignBatchDialog()">
               <mat-icon>add_link</mat-icon>
-              Assign batch
+              {{ 'devices.onboarding.inventoryAssignment.assignBatch' | translate }}
             </button>
           } @else {
             <div class="selected-batch">
               <div>
-                <span class="meta-label">Current batch</span>
+                <span class="meta-label">{{ 'devices.onboarding.inventoryAssignment.currentBatch' | translate }}</span>
                 <h4 class="batch-name">{{ batchName(device.assignedBatchId!) }}</h4>
               </div>
               <button class="btn-outline" type="button" (click)="openAssignBatchDialog()">
                 <mat-icon>swap_horiz</mat-icon>
-                Change
+                {{ 'devices.onboarding.inventoryAssignment.change' | translate }}
               </button>
             </div>
           }
@@ -108,42 +119,42 @@
             <div class="step-heading">
               <span class="step-number">2</span>
               <div>
-                <h3 class="panel-title">Hardware specifications</h3>
-                <p class="panel-subtitle">Identify the equipment version used by operations and support.</p>
+                <h3 class="panel-title">{{ 'devices.onboarding.hardwareSpecs.title' | translate }}</h3>
+                <p class="panel-subtitle">{{ 'devices.onboarding.hardwareSpecs.subtitle' | translate }}</p>
               </div>
             </div>
             @if (!device.assignedBatchId) {
-              <span class="lock-pill"><mat-icon>lock</mat-icon> Locked</span>
+              <span class="lock-pill"><mat-icon>lock</mat-icon> {{ 'devices.onboarding.hardwareSpecs.locked' | translate }}</span>
             }
           </div>
 
           <form [formGroup]="specificationsForm" class="section-form">
             <div class="spec-grid">
               <div class="field-group">
-                <label class="field-label-caps">Manufacturer</label>
-                <input formControlName="manufacturer" placeholder="Restock" class="form-input" [disabled]="!device.assignedBatchId" />
+                <label class="field-label-caps">{{ 'devices.onboarding.hardwareSpecs.manufacturer' | translate }}</label>
+                <input formControlName="manufacturer" [placeholder]="'devices.onboarding.hardwareSpecs.manufacturerPlaceholder' | translate" class="form-input" [disabled]="!device.assignedBatchId" />
               </div>
               <div class="field-group">
-                <label class="field-label-caps">Model</label>
-                <input formControlName="model" placeholder="Supply Keeper" class="form-input" [disabled]="!device.assignedBatchId" />
+                <label class="field-label-caps">{{ 'devices.onboarding.hardwareSpecs.model' | translate }}</label>
+                <input formControlName="model" [placeholder]="'devices.onboarding.hardwareSpecs.modelPlaceholder' | translate" class="form-input" [disabled]="!device.assignedBatchId" />
               </div>
               <div class="field-group">
-                <label class="field-label-caps">Firmware version</label>
-                <input formControlName="firmwareVersion" placeholder="1.0.0" class="form-input" [disabled]="!device.assignedBatchId" />
+                <label class="field-label-caps">{{ 'devices.onboarding.hardwareSpecs.firmwareVersion' | translate }}</label>
+                <input formControlName="firmwareVersion" [placeholder]="'devices.onboarding.hardwareSpecs.firmwarePlaceholder' | translate" class="form-input" [disabled]="!device.assignedBatchId" />
               </div>
             </div>
 
             <div class="section-actions">
               <button class="btn-outline" type="button"
-                [disabled]="!device.assignedBatchId || specificationsForm.invalid || loading() || (hasSpecifications(device) && !specificationsChanged(device))"
-                (click)="saveSpecifications()">
+                      [disabled]="!device.assignedBatchId || specificationsForm.invalid || loading() || (hasSpecifications(device) && !specificationsChanged(device))"
+                      (click)="saveSpecifications()">
                 <mat-icon>save</mat-icon>
                 @if (loading()) {
                   <mat-spinner diameter="16"></mat-spinner>
                 } @else if (hasSpecifications(device)) {
-                  Update hardware
+                  {{ 'devices.onboarding.hardwareSpecs.update' | translate }}
                 } @else {
-                  Save hardware
+                  {{ 'devices.onboarding.hardwareSpecs.save' | translate }}
                 }
               </button>
             </div>
@@ -155,32 +166,44 @@
             <div class="step-heading">
               <span class="step-number">3</span>
               <div>
-                <h3 class="panel-title">Branch assignment</h3>
-                <p class="panel-subtitle">Place the device in the store branch where readings belong.</p>
+                <h3 class="panel-title">{{ 'devices.onboarding.branchAssignment.title' | translate }}</h3>
+                <p class="panel-subtitle">{{ 'devices.onboarding.branchAssignment.subtitle' | translate }}</p>
               </div>
             </div>
             @if (!device.assignedBatchId) {
-              <span class="lock-pill"><mat-icon>lock</mat-icon> Locked</span>
+              <span class="lock-pill"><mat-icon>lock</mat-icon> {{ 'devices.onboarding.hardwareSpecs.locked' | translate }}</span>
             }
           </div>
 
           <form [formGroup]="branchForm" class="section-form">
             <div class="field-group">
-              <label class="field-label-caps">Branch ID</label>
-              <input formControlName="branchId" placeholder="branch_01" class="form-input" [disabled]="!device.assignedBatchId" />
+              <label class="field-label-caps">{{ 'devices.onboarding.branchAssignment.branch' | translate }}</label>
+              @if (resourceStore.branches().length === 0) {
+                <div class="empty-batches-notice">
+                  <mat-icon>storefront</mat-icon>
+                  <span>{{ 'devices.onboarding.branchAssignment.noBranches' | translate }}</span>
+                </div>
+              } @else {
+                <select formControlName="branchId" class="form-select" [disabled]="!device.assignedBatchId">
+                  <option value="" disabled>{{ 'devices.onboarding.branchAssignment.selectBranch' | translate }}</option>
+                  @for (branch of resourceStore.branches(); track branch.id) {
+                    <option [value]="branch.id">{{ branch.name }}</option>
+                  }
+                </select>
+              }
             </div>
 
             <div class="section-actions">
               <button class="btn-outline" type="button"
-                [disabled]="!device.assignedBatchId || branchForm.invalid || loading() || (!!device.branchId && !branchChanged(device))"
-                (click)="saveBranch()">
+                      [disabled]="!device.assignedBatchId || branchForm.invalid || loading() || (!!device.branchId && !branchChanged(device))"
+                      (click)="saveBranch()">
                 <mat-icon>storefront</mat-icon>
                 @if (loading()) {
                   <mat-spinner diameter="16"></mat-spinner>
                 } @else if (device.branchId) {
-                  Update branch
+                  {{ 'devices.onboarding.branchAssignment.update' | translate }}
                 } @else {
-                  Assign branch
+                  {{ 'devices.onboarding.branchAssignment.assign' | translate }}
                 }
               </button>
             </div>
@@ -192,40 +215,47 @@
             <div class="step-heading">
               <span class="step-number">4</span>
               <div>
-                <h3 class="panel-title">Alert thresholds</h3>
-                <p class="panel-subtitle">Define stock and environmental limits for automatic monitoring.</p>
+                <h3 class="panel-title">{{ 'devices.onboarding.alertThresholds.title' | translate }}</h3>
+                <p class="panel-subtitle">{{ 'devices.onboarding.alertThresholds.subtitle' | translate }}</p>
               </div>
             </div>
             @if (!device.assignedBatchId) {
-              <span class="lock-pill"><mat-icon>lock</mat-icon> Locked</span>
+              <span class="lock-pill"><mat-icon>lock</mat-icon> {{ 'devices.onboarding.hardwareSpecs.locked' | translate }}</span>
             }
           </div>
 
           @if (!device.assignedBatchId) {
             <div class="locked-empty">
               <mat-icon>lock</mat-icon>
-              <span>Assign a batch to enable stock, temperature, and humidity thresholds.</span>
+              <span>{{ 'devices.onboarding.alertThresholds.lockedDesc' | translate }}</span>
             </div>
           } @else {
             <form [formGroup]="thresholdsForm" class="section-form">
               <div class="threshold-section">
                 <div class="section-header-sm">
                   <mat-icon>inventory</mat-icon>
-                  <h4>Stock limits</h4>
+                  <h4>{{ 'devices.onboarding.alertThresholds.stockAnomaly' | translate }}</h4>
                 </div>
-                <div class="threshold-row-2 mt-12">
+                <div class="threshold-row-3 mt-12" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
                   <div class="field-group">
-                    <label class="field-label-caps">Minimum stock alert</label>
+                    <label class="field-label-caps">{{ 'devices.onboarding.alertThresholds.minStock' | translate }}</label>
                     <div class="input-with-unit">
                       <input type="number" formControlName="minStock" class="form-input" />
-                      <span class="unit-tag">units</span>
+                      <span class="unit-tag">{{ 'devices.onboarding.alertThresholds.units' | translate }}</span>
                     </div>
                   </div>
                   <div class="field-group">
-                    <label class="field-label-caps">Maximum capacity</label>
+                    <label class="field-label-caps">{{ 'devices.onboarding.alertThresholds.maxCapacity' | translate }}</label>
                     <div class="input-with-unit">
                       <input type="number" formControlName="maxStock" class="form-input" />
-                      <span class="unit-tag">units</span>
+                      <span class="unit-tag">{{ 'devices.onboarding.alertThresholds.units' | translate }}</span>
+                    </div>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label-caps">{{ 'devices.onboarding.alertThresholds.weightAnomaly' | translate }}</label>
+                    <div class="input-with-unit">
+                      <input type="number" formControlName="anomalyThreshold" placeholder="15.0" class="form-input" />
+                      <span class="unit-tag">%</span>
                     </div>
                   </div>
                 </div>
@@ -234,30 +264,30 @@
               <div class="threshold-section mt-24">
                 <div class="section-header-sm">
                   <mat-icon>thermostat</mat-icon>
-                  <h4>Environmental limits</h4>
+                  <h4>{{ 'devices.onboarding.alertThresholds.environmental' | translate }}</h4>
                 </div>
                 <div class="environment-grid mt-12">
                   <div class="range-card">
                     <div class="range-copy">
-                      <span class="env-label">Temperature</span>
-                      <span class="env-hint">Allowed sensor range in C</span>
+                      <span class="env-label">{{ 'devices.onboarding.alertThresholds.temperature' | translate }}</span>
+                      <span class="env-hint">{{ 'devices.onboarding.alertThresholds.tempHint' | translate }}</span>
                     </div>
                     <div class="range-row">
-                      <input type="number" formControlName="minTemperature" placeholder="Min" class="form-input range-input" />
-                      <span class="range-dash">to</span>
-                      <input type="number" formControlName="maxTemperature" placeholder="Max" class="form-input range-input" />
+                      <input type="number" formControlName="minTemperature" [placeholder]="'devices.onboarding.alertThresholds.min' | translate" class="form-input range-input" />
+                      <span class="range-dash">{{ 'devices.onboarding.alertThresholds.to' | translate }}</span>
+                      <input type="number" formControlName="maxTemperature" [placeholder]="'devices.onboarding.alertThresholds.max' | translate" class="form-input range-input" />
                     </div>
                   </div>
 
                   <div class="range-card">
                     <div class="range-copy">
-                      <span class="env-label">Humidity</span>
-                      <span class="env-hint">Allowed relative humidity</span>
+                      <span class="env-label">{{ 'devices.onboarding.alertThresholds.humidity' | translate }}</span>
+                      <span class="env-hint">{{ 'devices.onboarding.alertThresholds.humidityHint' | translate }}</span>
                     </div>
                     <div class="range-row">
-                      <input type="number" formControlName="minHumidity" placeholder="Min" class="form-input range-input" />
-                      <span class="range-dash">to</span>
-                      <input type="number" formControlName="maxHumidity" placeholder="Max" class="form-input range-input" />
+                      <input type="number" formControlName="minHumidity" [placeholder]="'devices.onboarding.alertThresholds.min' | translate" class="form-input range-input" />
+                      <span class="range-dash">{{ 'devices.onboarding.alertThresholds.to' | translate }}</span>
+                      <input type="number" formControlName="maxHumidity" [placeholder]="'devices.onboarding.alertThresholds.max' | translate" class="form-input range-input" />
                     </div>
                   </div>
                 </div>
@@ -265,13 +295,137 @@
 
               <div class="threshold-footer">
                 <button class="btn-primary" type="button"
-                  [disabled]="thresholdsForm.invalid || specificationsForm.invalid || branchForm.invalid || loading()"
-                  (click)="saveThresholds()">
+                        [disabled]="thresholdsForm.invalid || specificationsForm.invalid || branchForm.invalid || loading()"
+                        (click)="saveThresholds()">
                   <mat-icon>task_alt</mat-icon>
                   @if (loading()) {
                     <mat-spinner diameter="16"></mat-spinner>
                   } @else {
-                    Complete setup
+                    {{ 'devices.onboarding.alertThresholds.save' | translate }}
+                  }
+                </button>
+              </div>
+            </form>
+          }
+        </section>
+
+        <section class="panel-card setup-card" [class.is-locked]="device.status !== 'CONFIGURED' && device.status !== 'CALIBRATED' && device.status !== 'ACTIVE'">
+          <div class="panel-header">
+            <div class="step-heading">
+              <span class="step-number">5</span>
+              <div>
+                <h3 class="panel-title">{{ 'devices.onboarding.calibration.title' | translate }}</h3>
+                <p class="panel-subtitle">{{ 'devices.onboarding.calibration.subtitle' | translate }}</p>
+              </div>
+            </div>
+            @if (device.status !== 'CONFIGURED' && device.status !== 'CALIBRATED' && device.status !== 'ACTIVE') {
+              <span class="lock-pill"><mat-icon>lock</mat-icon> {{ 'devices.onboarding.hardwareSpecs.locked' | translate }}</span>
+            }
+          </div>
+
+          @if (device.status !== 'CONFIGURED' && device.status !== 'CALIBRATED' && device.status !== 'ACTIVE') {
+            <div class="locked-empty">
+              <mat-icon>lock</mat-icon>
+              <span>{{ 'devices.onboarding.calibration.lockedDesc' | translate }}</span>
+            </div>
+          } @else {
+            <form [formGroup]="calibrationForm" class="section-form">
+              <div class="modal-grid">
+                <div class="field-group">
+                  <label class="field-label-caps">{{ 'devices.onboarding.calibration.weightUnit' | translate }}</label>
+                  <select class="form-select" formControlName="weightUnitName" (change)="onWeightUnitChange($event)">
+                    @for (u of weightUnits; track u.name) {
+                      <option [value]="u.name">{{ u.name }} ({{ u.abbr }})</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label-caps">{{ 'devices.onboarding.calibration.unitWeight' | translate }}</label>
+                  <div class="input-with-unit">
+                    <input type="number" formControlName="unitStockWeight" class="form-input" />
+                    <span class="unit-tag">{{ calibrationForm.get('weightUnitAbbreviation')?.value }}</span>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label-caps">{{ 'devices.onboarding.calibration.tareWeight' | translate }}</label>
+                  <div class="input-with-unit">
+                    <input type="number" formControlName="tareWeight" class="form-input" />
+                    <span class="unit-tag">{{ calibrationForm.get('weightUnitAbbreviation')?.value }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn-outline-full" type="button" (click)="resetTare()">
+                <mat-icon>refresh</mat-icon>
+                {{ 'devices.onboarding.calibration.resetScale' | translate }}
+              </button>
+
+              <div class="warning-box">
+                <mat-icon class="warning-icon">warning_amber</mat-icon>
+                <span>{{ 'devices.onboarding.calibration.tareWarning' | translate }}</span>
+              </div>
+
+              <div class="section-actions">
+                <button class="btn-primary" type="button"
+                        [disabled]="calibrationForm.invalid || loading()"
+                        (click)="saveCalibration()">
+                  <mat-icon>scale</mat-icon>
+                  @if (loading()) {
+                    <mat-spinner diameter="16"></mat-spinner>
+                  } @else if (hasCalibration(device)) {
+                    {{ 'devices.onboarding.calibration.update' | translate }}
+                  } @else {
+                    {{ 'devices.onboarding.calibration.calibrate' | translate }}
+                  }
+                </button>
+              </div>
+            </form>
+          }
+        </section>
+
+        <section class="panel-card setup-card" [class.is-locked]="!hasCalibration(device)">
+          <div class="panel-header">
+            <div class="step-heading">
+              <span class="step-number">6</span>
+              <div>
+                <h3 class="panel-title">{{ 'devices.onboarding.displayMode.title' | translate }}</h3>
+                <p class="panel-subtitle">{{ 'devices.onboarding.displayMode.subtitle' | translate }}</p>
+              </div>
+            </div>
+            @if (!hasCalibration(device)) {
+              <span class="lock-pill"><mat-icon>lock</mat-icon> {{ 'devices.onboarding.hardwareSpecs.locked' | translate }}</span>
+            }
+          </div>
+
+          @if (!hasCalibration(device)) {
+            <div class="locked-empty">
+              <mat-icon>lock</mat-icon>
+              <span>{{ 'devices.onboarding.displayMode.lockedDesc' | translate }}</span>
+            </div>
+          } @else {
+            <form [formGroup]="displayModeForm" class="section-form">
+              <div class="field-group">
+                <label class="field-label-caps">{{ 'devices.onboarding.displayMode.select' | translate }}</label>
+                <select formControlName="displayMode" class="form-select">
+                  @for (option of displayModeOptions; track option.value) {
+                    <option [value]="option.value">{{ option.labelKey | translate }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="section-actions">
+                <button class="btn-outline" type="button"
+                        [disabled]="displayModeForm.invalid || loading() || (hasDisplayMode(device) && !displayModeChanged(device))"
+                        (click)="saveDisplayMode()">
+                  <mat-icon>desktop_windows</mat-icon>
+                  @if (loading()) {
+                    <mat-spinner diameter="16"></mat-spinner>
+                  } @else if (hasDisplayMode(device)) {
+                    {{ 'devices.onboarding.displayMode.update' | translate }}
+                  } @else {
+                    {{ 'devices.onboarding.displayMode.save' | translate }}
                   }
                 </button>
               </div>
@@ -284,25 +438,25 @@
         <section class="panel-card summary-card">
           <div class="panel-header compact">
             <mat-icon class="panel-icon">monitoring</mat-icon>
-            <h3 class="panel-title">Operational summary</h3>
+            <h3 class="panel-title">{{ 'devices.onboarding.operationalSummary.title' | translate }}</h3>
           </div>
 
           <div class="summary-list">
             <div class="summary-item">
-              <span class="summary-label">Batch</span>
-              <span class="summary-value">{{ device.assignedBatchId ? batchName(device.assignedBatchId) : 'Not assigned' }}</span>
+              <span class="summary-label">{{ 'devices.onboarding.operationalSummary.batch' | translate }}</span>
+              <span class="summary-value">{{ device.assignedBatchId ? batchName(device.assignedBatchId) : ('devices.onboarding.operationalSummary.notAssigned' | translate) }}</span>
             </div>
             <div class="summary-item">
-              <span class="summary-label">Branch</span>
-              <span class="summary-value">{{ device.branchId || 'Not assigned' }}</span>
+              <span class="summary-label">{{ 'devices.onboarding.operationalSummary.branch' | translate }}</span>
+              <span class="summary-value">{{ device.branchId ? branchName(device.branchId) : ('devices.onboarding.operationalSummary.notAssigned' | translate) }}</span>
             </div>
             <div class="summary-item">
-              <span class="summary-label">Firmware</span>
-              <span class="summary-value">{{ device.firmwareVersion || 'Not set' }}</span>
+              <span class="summary-label">{{ 'devices.onboarding.operationalSummary.firmware' | translate }}</span>
+              <span class="summary-value">{{ device.firmwareVersion || ('devices.onboarding.operationalSummary.notSet' | translate) }}</span>
             </div>
             <div class="summary-item">
-              <span class="summary-label">Last calibration</span>
-              <span class="summary-value">{{ device.calibrationDate ?? 'Not calibrated' }}</span>
+              <span class="summary-label">{{ 'devices.onboarding.operationalSummary.lastCalibration' | translate }}</span>
+              <span class="summary-value">{{ device.calibrationDate ?? ('devices.onboarding.operationalSummary.notCalibrated' | translate) }}</span>
             </div>
           </div>
         </section>
@@ -310,104 +464,194 @@
         <section class="panel-card action-card">
           <div class="panel-header compact">
             <mat-icon class="panel-icon">scale</mat-icon>
-            <h3 class="panel-title">Scale actions</h3>
+            <h3 class="panel-title">{{ 'devices.onboarding.scaleActions.title' | translate }}</h3>
           </div>
 
-          <button class="btn-outline-full" type="button" [disabled]="!device.assignedBatchId || loading()" (click)="resetTare()">
+          <button class="btn-outline-full" type="button" [disabled]="(device.status !== 'CONFIGURED' && device.status !== 'CALIBRATED' && device.status !== 'ACTIVE') || loading()" (click)="resetTare()">
             <mat-icon>refresh</mat-icon>
-            Reset tare
+            {{ 'devices.onboarding.scaleActions.resetTare' | translate }}
           </button>
           <p class="tare-hint">
             <mat-icon class="hint-icon">info_outline</mat-icon>
-            Empty the physical scale before applying tare.
+            {{ 'devices.onboarding.scaleActions.tareHint' | translate }}
           </p>
         </section>
 
         <section class="panel-card danger-card">
-          <span class="danger-label">Danger zone</span>
-          <p class="danger-desc">Disconnecting stops monitoring for this Supply Keeper.</p>
+          <span class="danger-label">{{ 'devices.onboarding.dangerZone.title' | translate }}</span>
+          <p class="danger-desc">{{ 'devices.onboarding.dangerZone.desc' | translate }}</p>
           <button class="btn-danger-text" type="button" (click)="openUnlinkConfirm()">
             <mat-icon>{{ device.assignedBatchId ? 'link_off' : 'delete' }}</mat-icon>
-            {{ device.assignedBatchId ? 'Unlink Supply Keeper' : 'Delete registration' }}
+            {{ device.assignedBatchId ? ('devices.onboarding.dangerZone.unlink' | translate) : ('devices.onboarding.dangerZone.delete' | translate) }}
           </button>
         </section>
       </aside>
     </div>
+
+    <!-- Telemetry Readings Table -->
+    <section class="panel-card telemetry-section" aria-label="Device telemetry readings">
+      <div class="panel-header">
+        <div class="step-heading">
+          <mat-icon class="panel-icon">history_edu</mat-icon>
+          <div>
+            <h3 class="panel-title">{{ 'devices.onboarding.deviceHistory.title' | translate }}</h3>
+            <p class="panel-subtitle">{{ 'devices.onboarding.deviceHistory.subtitle' | translate }}</p>
+          </div>
+        </div>
+        <div class="tab-header">
+          <button type="button" class="tab-btn" [class.active]="historyTab() === 'weight'" (click)="setHistoryTab('weight')">
+            {{ 'devices.onboarding.deviceHistory.weightLog' | translate }}
+          </button>
+          <button type="button" class="tab-btn" [class.active]="historyTab() === 'health'" (click)="setHistoryTab('health')">
+            {{ 'devices.onboarding.deviceHistory.healthLog' | translate }}
+          </button>
+        </div>
+      </div>
+
+      @if (historyTab() === 'weight') {
+        @if (telemetryReadings().length === 0) {
+          <div class="empty-log-state">
+            <mat-icon>sensors_off</mat-icon>
+            <span>{{ 'devices.onboarding.deviceHistory.noWeightRecords' | translate }}</span>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="telemetry-table" aria-label="Telemetry readings">
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colTimestamp' | translate }}</th>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colPhysicalStock' | translate }}</th>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colTemperature' | translate }}</th>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colHumidity' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (reading of telemetryReadings(); track reading.id) {
+                  <tr>
+                    <td class="cell-mono">{{ reading.timestamp | date:'dd/MM/yyyy · HH:mm:ss' }}</td>
+                    <td>
+                      <span class="cell-value-primary">{{ reading.physicalStock }}</span>
+                      <span class="cell-unit">{{ device.weightUnitAbbreviation || 'g' }}</span>
+                    </td>
+                    <td>
+                      @if (reading.temperature != null) {
+                        <span class="sensor-chip chip-temp">
+                          <mat-icon>thermostat</mat-icon>
+                          {{ reading.temperature | number:'1.1-1' }}°C
+                        </span>
+                      } @else {
+                        <span class="cell-empty">—</span>
+                      }
+                    </td>
+                    <td>
+                      @if (reading.humidity != null) {
+                        <span class="sensor-chip chip-humidity">
+                          <mat-icon>water_drop</mat-icon>
+                          {{ reading.humidity | number:'1.0-0' }}%
+                        </span>
+                      } @else {
+                        <span class="cell-empty">—</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      } @else {
+        @if (healthLogs().length === 0) {
+          <div class="empty-log-state">
+            <mat-icon>monitor_heart</mat-icon>
+            <span>{{ 'devices.onboarding.deviceHistory.noHealthLogs' | translate }}</span>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="telemetry-table" aria-label="Health logs">
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colTimestamp' | translate }}</th>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colVoltage' | translate }}</th>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colCpu' | translate }}</th>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colRam' | translate }}</th>
+                  <th scope="col">{{ 'devices.onboarding.deviceHistory.colTempHealth' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (log of healthLogs(); track log.id) {
+                  <tr>
+                    <td class="cell-mono">{{ log.timestamp | date:'dd/MM/yyyy · HH:mm:ss' }}</td>
+                    <td>
+                      <span class="cell-value-primary">{{ log.voltageVolts | number:'1.2-2' }}</span>
+                      <span class="cell-unit">V</span>
+                    </td>
+                    <td>
+                      <span class="cell-value-primary">{{ log.cpuUsagePercentage | number:'1.1-1' }}</span>
+                      <span class="cell-unit">%</span>
+                    </td>
+                    <td>
+                      <span class="cell-value-primary">{{ log.memoryFreeBytes / 1024 | number:'1.0-0' }}</span>
+                      <span class="cell-unit">KB</span>
+                    </td>
+                    <td>
+                      <span class="sensor-chip chip-temp">
+                        <mat-icon>thermostat</mat-icon>
+                        {{ log.temperatureInCelsius | number:'1.1-1' }}°C
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    </section>
+
   </div>
 
   @if (showAssignBatchDialog()) {
     <div class="modal-backdrop" (click)="closeAssignBatchDialog()">
       <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3 class="modal-title">Assign batch</h3>
-          <p class="modal-subtitle">Set inventory and scale reference values for {{ device.description || device.macAddress }}.</p>
+          <h3 class="modal-title">{{ 'devices.onboarding.assignBatch.title' | translate }}</h3>
+          <p class="modal-subtitle">{{ 'devices.onboarding.assignBatch.subtitle' | translate : { device: device.description || device.macAddress } }}</p>
         </div>
 
         <form [formGroup]="assignBatchForm" class="modal-body">
           <div class="field-group">
-            <label class="field-label-caps">Select batch</label>
-            @if (resourceStore.customSupplies().length === 0) {
+            <label class="field-label-caps">{{ 'devices.onboarding.assignBatch.selectBatch' | translate }}</label>
+            @if (resourceStore.loading()) {
+              <div class="empty-batches-notice">
+                <mat-icon>hourglass_empty</mat-icon>
+                <span>{{ 'devices.onboarding.assignBatch.loading' | translate }}</span>
+              </div>
+            } @else if (resourceStore.rows().length === 0) {
               <div class="empty-batches-notice">
                 <mat-icon>inventory_2</mat-icon>
-                <span>No batches available. Add items in Inventory first.</span>
+                <span>{{ 'devices.onboarding.assignBatch.noBatches' | translate }}</span>
               </div>
             } @else {
               <select formControlName="batchId" class="form-select">
-                <option value="" disabled selected>Select a batch...</option>
-                @for (batch of resourceStore.customSupplies(); track batch.id) {
-                  <option [value]="batch.id">{{ batch.name }}</option>
+                <option value="" disabled selected>{{ 'devices.onboarding.assignBatch.selectPlaceholder' | translate }}</option>
+                @for (batch of resourceStore.rows(); track batch.id) {
+                  <option [value]="batch.id">{{ batch.code }} · {{ batch.supplyName }}</option>
                 }
               </select>
             }
           </div>
 
-          <div class="modal-grid mt-16">
-            <div class="field-group">
-              <label class="field-label-caps">Weight unit</label>
-              <select class="form-select" formControlName="weightUnitName" (change)="onWeightUnitChange($event)">
-                @for (u of weightUnits; track u.name) {
-                  <option [value]="u.name">{{ u.name }} ({{ u.abbr }})</option>
-                }
-              </select>
-            </div>
-
-            <div class="field-group">
-              <label class="field-label-caps">Unit weight</label>
-              <div class="input-with-unit">
-                <input type="number" formControlName="netWeight" class="form-input" />
-                <span class="unit-tag">{{ assignBatchForm.get('weightUnitAbbreviation')?.value }}</span>
-              </div>
-            </div>
-
-            <div class="field-group">
-              <label class="field-label-caps">Tare weight</label>
-              <div class="input-with-unit">
-                <input type="number" formControlName="tareWeight" class="form-input" />
-                <span class="unit-tag">{{ assignBatchForm.get('weightUnitAbbreviation')?.value }}</span>
-              </div>
-            </div>
-          </div>
-
-          <button class="btn-outline-full mt-16" type="button" (click)="resetTare()">
-            <mat-icon>refresh</mat-icon>
-            Reset scale to zero
-          </button>
-
-          <div class="warning-box mt-12">
-            <mat-icon class="warning-icon">warning_amber</mat-icon>
-            <span>Empty the physical scale before applying tare. The current weight becomes the zero reference point.</span>
-          </div>
         </form>
 
         <div class="modal-footer">
-          <button class="btn-ghost" type="button" (click)="closeAssignBatchDialog()">Cancel</button>
+          <button class="btn-ghost" type="button" (click)="closeAssignBatchDialog()">{{ 'devices.onboarding.assignBatch.cancel' | translate }}</button>
           <button class="btn-primary" type="button"
-            [disabled]="assignBatchForm.invalid || loading()"
-            (click)="submitAssignBatch()">
+                  [disabled]="assignBatchForm.invalid || loading()"
+                  (click)="submitAssignBatch()">
             @if (loading()) {
               <mat-spinner diameter="16"></mat-spinner>
             } @else {
-              Save assignment
+              {{ 'devices.onboarding.assignBatch.save' | translate }}
             }
           </button>
         </div>
@@ -420,33 +664,33 @@
       <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header danger-modal-header">
           <mat-icon class="danger-header-icon">warning</mat-icon>
-          <h3 class="modal-title">Unlink Supply Keeper</h3>
+          <h3 class="modal-title">{{ 'devices.onboarding.unlinkDialog.title' | translate }}</h3>
         </div>
 
         <div class="modal-body">
-          <p class="modal-body-text">Unlinking this Supply Keeper will stop real-time monitoring. Historical data will be retained.</p>
+          <p class="modal-body-text">{{ 'devices.onboarding.unlinkDialog.body' | translate }}</p>
 
           <div class="info-display-field">
-            <span class="meta-label">Device ID</span>
+            <span class="meta-label">{{ 'devices.onboarding.unlinkDialog.deviceId' | translate }}</span>
             <div class="info-display-value">{{ device.id }}</div>
           </div>
 
           <div class="field-group mt-16">
-            <label class="field-label-caps">Confirmation required</label>
+            <label class="field-label-caps">{{ 'devices.onboarding.unlinkDialog.confirmLabel' | translate }}</label>
             <input [(ngModel)]="unlinkConfirmText"
-              placeholder="Write the scale name to confirm"
-              class="form-input" />
+                   [placeholder]="'devices.onboarding.unlinkDialog.confirmPlaceholder' | translate"
+                   class="form-input" />
           </div>
         </div>
 
         <div class="modal-footer">
-          <button class="btn-ghost" type="button" (click)="closeUnlinkConfirm()">Cancel</button>
+          <button class="btn-ghost" type="button" (click)="closeUnlinkConfirm()">{{ 'devices.onboarding.unlinkDialog.cancel' | translate }}</button>
           <button class="btn-danger" type="button" [disabled]="loading()" (click)="confirmUnlink()">
             <mat-icon>link_off</mat-icon>
             @if (loading()) {
               <mat-spinner diameter="16"></mat-spinner>
             } @else {
-              Unlink scale
+              {{ 'devices.onboarding.unlinkDialog.confirm' | translate }}
             }
           </button>
         </div>

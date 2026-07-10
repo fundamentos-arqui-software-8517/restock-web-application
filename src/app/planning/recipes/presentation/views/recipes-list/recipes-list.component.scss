@@ -1,5 +1,5 @@
-$emerald: #0F766E;
-$emerald-hover: #0D9488;
+$emerald: #1a5c3a;
+$emerald-hover: #13462b;
 $emerald-light: #D1FAE5;
 $emerald-dark: #065F46;
 $red: #EF4444;
@@ -120,8 +120,17 @@ $radius-pill: 9999px;
 .recipe-card {
   background: $white; border: 1px solid $gray-200; border-radius: $radius;
   box-shadow: $shadow-sm; overflow: hidden; display: flex; flex-direction: column;
-  transition: box-shadow .2s, transform .2s;
+  transition: box-shadow .25s ease, transform .25s ease, opacity .25s ease, filter .25s ease;
   &:hover { box-shadow: 0 8px 24px rgba(0,0,0,.1); transform: translateY(-2px); }
+
+  &.inactive-card {
+    opacity: 0.65;
+    filter: grayscale(40%);
+    &:hover {
+      opacity: 0.95;
+      filter: grayscale(10%);
+    }
+  }
 }
 
 .card-image-wrapper {
@@ -135,14 +144,42 @@ $radius-pill: 9999px;
 .status-badge {
   position: absolute; top: 10px; left: 10px;
   display: flex; align-items: center; gap: 5px;
-  padding: 3px 10px 3px 7px; border-radius: $radius-pill;
-  font-size: 0.7rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: $radius-pill;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  border: 1px solid transparent;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
   .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
 
-  &.badge-active   { background: $emerald-light; color: $emerald-dark; .badge-dot { background: $emerald-dark; } }
-  &.badge-inactive { background: $gray-100; color: $gray-500; .badge-dot { background: $gray-400; } }
-  &.badge-lowstock { background: #FEF3C7; color: #92400E; .badge-dot { background: #D97706; } }
+  &.badge-active   {
+    background: $emerald;
+    color: #ffffff;
+    border-color: $emerald-dark;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .badge-dot {
+      background: #ffffff;
+      box-shadow: 0 0 6px #ffffff;
+    }
+  }
+  &.badge-inactive {
+    background: #ffffff;
+    color: #111827;
+    border-color: #d1d5db;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .badge-dot {
+      background: #6b7280;
+    }
+  }
+  &.badge-lowstock {
+    background: rgba(245, 158, 11, 0.12);
+    color: #b45309;
+    border-color: rgba(245, 158, 11, 0.3);
+    .badge-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 8px #f59e0b;
+    }
+  }
 }
 
 .card-body {

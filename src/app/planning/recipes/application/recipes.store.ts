@@ -10,11 +10,9 @@ import { forkJoin } from 'rxjs';
 
 export type ModalMode = 'create' | 'edit' | null;
 
-/** Transient ingredient row used inside the Create/Edit modal before saving */
 export interface PendingIngredient {
   supply: CustomSupplyEntity;
   quantity: number;
-  /** estimated local cost (supply.unitPriceAmount × quantity) — for display only */
   localCost: number;
 }
 
@@ -25,22 +23,20 @@ export class RecipesStore {
 
   private readonly api = inject(RecipesApiEndpoint);
 
-  // ── Primary account id (set externally, e.g. from AuthStore) ─────────────
-  readonly accountId = signal<string>('acc-1'); // ← inject real accountId here
-
   // ── State ─────────────────────────────────────────────────────────────────
-  readonly recipes         = signal<RecipeEntity[]>([]);
-  readonly customSupplies  = signal<CustomSupplyEntity[]>([]);
-  readonly selectedRecipe  = signal<RecipeEntity | null>(null);
-  readonly loading         = signal(false);
-  readonly saving          = signal(false);
-  readonly error           = signal<string | null>(null);
-  readonly searchQuery     = signal('');
+  // Nota: accountId ya no es un signal de estado interno.
+  readonly recipes = signal<RecipeEntity[]>([]);
+  readonly customSupplies = signal<CustomSupplyEntity[]>([]);
+  readonly selectedRecipe = signal<RecipeEntity | null>(null);
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly searchQuery = signal('');
 
   // Modal state
-  readonly modalMode        = signal<ModalMode>(null);
-  readonly showDeleteModal  = signal(false);
-  readonly recipeToDelete   = signal<RecipeEntity | null>(null);
+  readonly modalMode = signal<ModalMode>(null);
+  readonly showDeleteModal = signal(false);
+  readonly recipeToDelete = signal<RecipeEntity | null>(null);
 
   // ── Derived ───────────────────────────────────────────────────────────────
 
@@ -57,17 +53,13 @@ export class RecipesStore {
   readonly metrics = computed(() => {
     const all = this.recipes();
     return {
-      total:    all.length,
-      active:   all.filter(r => r.status === 'ACTIVE').length,
+      total: all.length,
+      active: all.filter(r => r.status === 'ACTIVE').length,
       inactive: all.filter(r => r.status === 'INACTIVE').length,
       lowStock: all.filter(r => r.status === 'LOW_STOCK').length,
     };
   });
 
-  /**
-   * Returns a resolved ingredient list for a given recipe,
-   * joining IngredientEntryEntity with CustomSupplyEntity by customSupplyId.
-   */
   resolveIngredients(recipe: RecipeEntity): Array<{
     entry: IngredientEntryEntity;
     supply: CustomSupplyEntity | undefined;
@@ -80,17 +72,22 @@ export class RecipesStore {
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
-  loadAll(): void {
+  loadAll(accountId: string): void {
+    console.log('[RecipesStore] Account ID recibido para cargar datos:', accountId);
+
+    if (!accountId) {
+      console.warn('[RecipesStore] Se intentó cargar datos pero el Account ID está vacío.');
+      return;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 
     forkJoin({
-      // Usamos el método renombrado que sí acepta el parámetro
-      products:       this.api.getAllByAccountId(this.accountId()),
-      customSupplies: this.api.getCustomSupplies(this.accountId()),
+      products: this.api.getAllByAccountId(accountId),
+      customSupplies: this.api.getCustomSupplies(accountId),
     }).subscribe({
       next: ({ products, customSupplies }) => {
-        // La API ya devuelve Entidades, no hay que transformarlas
         this.recipes.set(products);
         this.customSupplies.set(customSupplies);
         this.loading.set(false);
@@ -106,23 +103,21 @@ export class RecipesStore {
     this.selectedRecipe.set(recipe);
   }
 
-  // ── CREATE (product only — ingredients added afterwards) ──────────────────
+  // ── CREATE ────────────────────────────────────────────────────────────────
 
   create(cmd: CreateRecipeCommand, pendingIngredients: PendingIngredient[]): void {
     this.saving.set(true);
     this.api.createProduct({
-      accountId:    cmd.accountId,
-      name:         cmd.name,
-      description:  cmd.description ?? '',
-      sku:          cmd.sku,
-      type:         'RECIPE',
-      imageUrl:     cmd.imageUrl ?? '',
+      accountId: cmd.accountId, // El comando ya incluye el accountId
+      name: cmd.name,
+      description: cmd.description ?? '',
+      sku: cmd.sku,
+      type: 'RECIPE',
+      imageUrl: cmd.imageUrl ?? '',
       sellingPrice: cmd.sellingPrice,
     }).subscribe({
       next: entity => {
         this.recipes.update(list => [entity, ...list]);
-
-        // Add each pending ingredient sequentially
         this._addIngredientsBatch(entity.id, pendingIngredients, () => {
           this.saving.set(false);
           this.closeModal();
@@ -135,16 +130,17 @@ export class RecipesStore {
     });
   }
 
-  // ── UPDATE (product metadata only) ───────────────────────────────────────
+  // ── UPDATE ────────────────────────────────────────────────────────────────
 
   update(cmd: UpdateRecipeCommand): void {
     this.saving.set(true);
     this.api.updateProduct(cmd.id, {
-      name:         cmd.name,
-      description:  cmd.description ?? '',
-      sku:          cmd.sku,
-      imageUrl:     cmd.imageUrl ?? '',
+      name: cmd.name,
+      description: cmd.description ?? '',
+      sku: cmd.sku,
+      imageUrl: cmd.imageUrl ?? '',
       sellingPrice: cmd.sellingPrice,
+      status: cmd.status,
     }).subscribe({
       next: entity => {
         this._patchRecipe(entity);
@@ -158,13 +154,13 @@ export class RecipesStore {
     });
   }
 
-  // ── ADD INGREDIENT (in real-time from edit modal) ─────────────────────────
+  // ── ADD INGREDIENT ────────────────────────────────────────────────────────
 
   addIngredient(cmd: AddIngredientCommand): void {
     this.saving.set(true);
     this.api.addIngredient(cmd.productId, {
       customSupplyId: cmd.customSupplyId,
-      quantity:       cmd.quantity,
+      quantity: cmd.quantity,
     }).subscribe({
       next: entity => {
         this._patchRecipe(entity);
@@ -222,19 +218,17 @@ export class RecipesStore {
 
   // ── Modal controls ────────────────────────────────────────────────────────
 
-  openCreateModal(): void  { this.modalMode.set('create'); }
+  openCreateModal(): void { this.modalMode.set('create'); }
 
   openEditModal(recipe: RecipeEntity): void {
     this.selectedRecipe.set(recipe);
     this.modalMode.set('edit');
   }
 
-  closeModal(): void         { this.modalMode.set(null); }
-  closeDeleteModal(): void   { this.showDeleteModal.set(false); this.recipeToDelete.set(null); }
+  closeModal(): void { this.modalMode.set(null); }
+  closeDeleteModal(): void { this.showDeleteModal.set(false); this.recipeToDelete.set(null); }
 
   setSearch(query: string): void { this.searchQuery.set(query); }
-
-  setAccountId(id: string): void { this.accountId.set(id); }
 
   // ── Private helpers ───────────────────────────────────────────────────────
 
@@ -242,10 +236,6 @@ export class RecipesStore {
     this.recipes.update(list => list.map(r => r.id === updated.id ? updated : r));
   }
 
-  /**
-   * Sequentially adds all pending ingredients to a newly created product.
-   * Each call waits for the previous to complete (server must confirm).
-   */
   private _addIngredientsBatch(
     productId: string,
     pending: PendingIngredient[],

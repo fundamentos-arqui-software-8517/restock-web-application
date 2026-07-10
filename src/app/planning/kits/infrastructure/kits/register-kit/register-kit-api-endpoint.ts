@@ -8,7 +8,7 @@ import { ErrorHandlingEnabledBaseType } from '../../../../../shared/infrastructu
 import { RegisterKitCommand } from '../../../domain/command/register-kit.command';
 import { KitEntity } from '../../../domain/model/kit.entity';
 
-const kitsApiUrl = `${environment.platformProviderApiBaseUrl}/${environment.platformProviderProductsEndpointPath}`;
+const kitsApiUrl = `${environment.baseUrl}/${environment.platformProviderProductsEndpointPath}`;
 
 /**
  * Infrastructure endpoint adapter for specialized Kit registration HTTP operations.

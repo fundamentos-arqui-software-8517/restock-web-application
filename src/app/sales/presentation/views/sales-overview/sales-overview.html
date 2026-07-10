@@ -1,0 +1,77 @@
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title">{{ 'sales.overview.title' | translate }}</h1>
+    <div class="header-actions">
+      <button class="export-btn" (click)="onExportCSV()">{{ 'sales.overview.exportCsv' | translate }}</button>
+      <button class="filters-btn" (click)="toggleFilters()">{{ 'sales.overview.advancedFilters' | translate }}</button>
+      <button class="primary-btn" (click)="goToNewSale()">{{ 'sales.overview.newSale' | translate }}</button>
+    </div>
+  </header>
+
+  @if (showFilters()) {
+    <div class="filters-panel">
+      <div class="filter-group">
+        <label class="filter-label">{{ 'sales.overview.filters.status' | translate }}</label>
+        <select class="filter-select" (change)="onStatusFilterChange($event)">
+          <option value="ALL">{{ 'sales.overview.filters.allStatuses' | translate }}</option>
+          <option value="COMPLETED">{{ 'sales.overview.filters.statusLogged' | translate }}</option>
+          <option value="CANCELLED">{{ 'sales.overview.filters.statusFailed' | translate }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">{{ 'sales.overview.filters.minValue' | translate }}</label>
+        <input class="filter-input" type="number" placeholder="0.00" (input)="onMinAmountChange($event)">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">{{ 'sales.overview.filters.searchTrxId' | translate }}</label>
+        <input class="filter-input" type="text" [placeholder]="'sales.overview.filters.searchPlaceholder' | translate" (input)="onSearchTermChange($event)">
+      </div>
+    </div>
+  }
+
+  @if (store.error()) {
+    <div class="error-banner">{{ store.error() }}</div>
+  }
+
+  <div class="kpi-grid">
+    <app-kpi-card
+      [label]="'sales.overview.kpi.totalSales' | translate"
+      [value]="'S/ ' + store.totalSalesAmount().toFixed(2)"
+      [caption]="salesDeltaCaption()"
+      [variant]="(store.salesDeltaPercent() ?? 0) >= 0 ? 'positive' : 'negative'"
+    />
+    <app-kpi-card
+      [label]="'sales.overview.kpi.transactionCount' | translate"
+      [value]="store.transactionCount().toString()"
+      [caption]="store.orders().length + ' ' + ('sales.overview.kpi.ordersSuffix' | translate)"
+      variant="neutral"
+    />
+    <app-kpi-card
+      [label]="'sales.overview.kpi.failedSyncRate' | translate"
+      [value]="failedSyncRate().toFixed(2) + '%'"
+      [caption]="failedSyncCaption()"
+      variant="negative"
+    />
+    <app-kpi-card
+      [label]="'sales.overview.kpi.activeTerminals' | translate"
+      value="6"
+      [caption]="'sales.overview.kpi.allSystemsOperational' | translate"
+      variant="neutral"
+      captionVariant="positive"
+    />
+  </div>
+
+  @if (store.loading()) {
+    <p class="loading-text">{{ 'sales.overview.loading' | translate }}</p>
+  } @else {
+    <app-transactions-table
+      [orders]="filteredOrders()"
+      (viewDetail)="onViewDetail($event)"
+    />
+  }
+</div>
+
+<app-transaction-detail-drawer
+  [order]="selectedOrder()"
+  (close)="onCloseDrawer()"
+/>

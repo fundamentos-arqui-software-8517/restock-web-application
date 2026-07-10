@@ -12,11 +12,14 @@ export interface DeviceResource extends BaseResource {
   branchId: string | null;
   assignedBatchId: string | null;
   supplyThresholdId: string | null;
-  netWeight: number | null;
+  unitStockWeight?: number | null;
+  netWeight?: number | null;
   tareWeight: number | null;
   grossWeight: number | null;
   calibrationDate: string | null;
-  weightUnitName: string | null;
+  weightUnit: string | null;
+  weightUnitName?: string | null;
   weightUnitAbbreviation: string | null;
   justifiedWithdrawnStock: number;
+  displayMode?: string | null;
 }

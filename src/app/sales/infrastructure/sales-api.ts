@@ -1,36 +1,52 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { BaseApi } from '../../shared/infrastructure/base-api';
-import {
-  SalesApiEndpoint,
-} from './sales/sales-endpoint';
+import { SalesOrderEntity } from '../domain/model/sales-order.entity';
+import { CreateSalesOrderCommand } from '../domain/command/create-sales-order.command';
+import { AddProductToOrderCommand } from '../domain/command/add-product-to-order.command';
+import { RemoveProductFromOrderCommand } from '../domain/command/remove-product-from-order.command';
+import { SalesApiEndpoint } from './sales/sales-api-endpoint';
 
 /**
- * Api service for register-sale operations.
- * Handles HTTP requests and responses related to register-sale operations.
+ * Single entry point the application layer (SalesStore) talks to.
+ * Hides the fact that there could be more than one endpoint/sub-resource
+ * under the Sales bounded context down the line.
  */
 @Injectable({ providedIn: 'root' })
 export class SalesApi extends BaseApi {
+  private readonly salesOrdersEndpoint: SalesApiEndpoint;
 
-
-  private readonly salesApiEndpoint: SalesApiEndpoint;
-
-  /**
-   * Constructor for SalesApi.
-   * @param http - HttpClient instance for making HTTP requests.
-   * @private Constructor for SalesApi.
-   */
   constructor(http: HttpClient) {
     super();
-    this.salesApiEndpoint = new SalesApiEndpoint(http);
+    this.salesOrdersEndpoint = new SalesApiEndpoint(http);
   }
 
-  /**
-   * Retrieves sales by branch id from the API endpoint.
-   * @param branchId - The id of the branch for which to retrieve sales.
-   * @returns An Observable that emits an array of Sale entities.
-   */
-  getSalesByBranchId(branchId: string) {
-    return this.salesApiEndpoint.getSalesByBranchId(branchId);
+  getOrdersByAccount(accountId: string): Observable<SalesOrderEntity[]> {
+    return this.salesOrdersEndpoint.getOrdersByAccount(accountId);
+  }
+
+  getOrderById(orderId: string): Observable<SalesOrderEntity> {
+    return this.salesOrdersEndpoint.getOrderById(orderId);
+  }
+
+  createOrder(accountId: string, command: CreateSalesOrderCommand): Observable<SalesOrderEntity> {
+    return this.salesOrdersEndpoint.create(accountId, command);
+  }
+
+  addItem(command: AddProductToOrderCommand): Observable<SalesOrderEntity> {
+    return this.salesOrdersEndpoint.addItem(command);
+  }
+
+  removeItem(command: RemoveProductFromOrderCommand): Observable<SalesOrderEntity> {
+    return this.salesOrdersEndpoint.removeItem(command);
+  }
+
+  completeOrder(orderId: string, accountId?: string): Observable<SalesOrderEntity> {
+    return this.salesOrdersEndpoint.complete(orderId, accountId);
+  }
+
+  cancelOrder(orderId: string): Observable<SalesOrderEntity> {
+    return this.salesOrdersEndpoint.cancel(orderId);
   }
 }

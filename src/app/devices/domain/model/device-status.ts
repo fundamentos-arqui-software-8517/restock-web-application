@@ -1,1 +1,1 @@
-export type DeviceStatus = 'REGISTERED' | 'CONFIGURED' | 'ACTIVE' | 'INACTIVE';
+export type DeviceStatus = 'REGISTERED' | 'CONFIGURED' | 'CALIBRATED' | 'ACTIVE' | 'INACTIVE';

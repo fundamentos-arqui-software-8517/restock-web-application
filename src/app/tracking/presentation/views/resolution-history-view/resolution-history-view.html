@@ -1,0 +1,136 @@
+<section class="history-page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <a class="back-link" [routerLink]="discrepanciesPath" [attr.aria-label]="'tracking.backToDiscrepancies' | translate">&larr;</a>
+      <h1 class="page-title">{{ 'tracking.resolutionHistory.title' | translate }}</h1>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline" (click)="null">{{ 'tracking.resolutionHistory.exportCsv' | translate }}</button>
+      <button class="btn btn-outline" (click)="null">{{ 'tracking.resolutionHistory.filterView' | translate }}</button>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-card-header">
+        <span class="kpi-label">{{ 'tracking.resolutionHistory.totalResolved' | translate }}</span>
+        <span class="kpi-icon kpi-icon-green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+      </div>
+      <span class="kpi-value">{{ store.totalResolved() }}</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-header">
+        <span class="kpi-label">{{ 'tracking.resolutionHistory.criticalDeviations' | translate }}</span>
+        <span class="kpi-icon kpi-icon-red">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </span>
+      </div>
+      <span class="kpi-value">{{ criticalDeviations() }}</span>
+    </div>
+  </div>
+
+  <div class="table-panel">
+    <div class="tabs-header">
+      <button class="tab-btn" [class.active]="activeTab() === 'resolved'" (click)="setTab('resolved')">{{ 'tracking.resolutionHistory.tabResolved' | translate }}</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'pending'" (click)="setTab('pending')">{{ 'tracking.resolutionHistory.tabPending' | translate }}</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'archived'" (click)="setTab('archived')">{{ 'tracking.resolutionHistory.tabArchived' | translate }}</button>
+    </div>
+
+    @if (activeTab() === 'resolved') {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'tracking.resolutionHistory.tableResolvedAt' | translate }}</th>
+            <th>{{ 'tracking.resolutionHistory.tableSupply' | translate }}</th>
+            <th>{{ 'tracking.resolutionHistory.tableDigitalStock' | translate }}</th>
+            <th>{{ 'tracking.resolutionHistory.tablePhysicalStock' | translate }}</th>
+            <th>{{ 'tracking.resolutionHistory.tableDifference' | translate }}</th>
+            <th>{{ 'tracking.resolutionHistory.tableReason' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (filteredHistory.length === 0) {
+            <tr class="empty-row">
+              <td colspan="6">
+                <span class="empty-text">{{ 'tracking.resolutionHistory.emptyResolved' | translate }}</span>
+              </td>
+            </tr>
+          }
+          @for (entry of filteredHistory; track entry.id) {
+            <tr>
+              <td>{{ entry.resolvedAt ? (entry.resolvedAt | date:'medium') : '—' }}</td>
+              <td class="col-supply">{{ entry.customSupplyName }}</td>
+              <td>{{ entry.digitalStock | number }}</td>
+              <td>{{ entry.devicePhysicalStock | number }}</td>
+              <td>
+                <span class="deviation-value" [ngClass]="getDeviationClass(entry.difference)">
+                  {{ entry.difference > 0 ? '+' : '' }}{{ entry.difference | number }}
+                </span>
+              </td>
+              <td>
+                <span class="reason-badge" [ngClass]="getReasonClass(entry.resolutionReason)">
+                  {{ entry.resolutionReason ?? '—' }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    @if (activeTab() === 'pending') {
+      <div class="tab-empty">
+        <p>{{ 'tracking.resolutionHistory.emptyPending' | translate }}</p>
+      </div>
+    }
+
+    @if (activeTab() === 'archived') {
+      <div class="tab-empty">
+        <p>{{ 'tracking.resolutionHistory.emptyArchived' | translate }}</p>
+      </div>
+    }
+  </div>
+
+  <div class="chart-card">
+    <h3 class="card-title">{{ 'tracking.resolutionHistory.topReasons' | translate }}</h3>
+    <div class="bar-chart-placeholder">
+      <div class="bar-row">
+        <span class="bar-label">{{ 'tracking.resolutionHistory.reasonWaste' | translate }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 45%"></div>
+        </div>
+        <span class="bar-count">45%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">{{ 'tracking.resolutionHistory.reasonTheft' | translate }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 25%"></div>
+        </div>
+        <span class="bar-count">25%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">{{ 'tracking.resolutionHistory.reasonUnregistered' | translate }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 15%"></div>
+        </div>
+        <span class="bar-count">15%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">{{ 'tracking.resolutionHistory.reasonTransfer' | translate }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 10%"></div>
+        </div>
+        <span class="bar-count">10%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">{{ 'tracking.resolutionHistory.reasonSensorFault' | translate }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 5%"></div>
+        </div>
+        <span class="bar-count">5%</span>
+      </div>
+    </div>
+  </div>
+</section>

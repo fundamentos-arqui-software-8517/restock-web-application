@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ResourceStore } from '../../../application/resource.store';
 import { IamStore as AuthService } from '../../../../iam/application/iam.store';
 import { CustomSupply } from '../../../domain/model/custom-supply.entity';
@@ -15,6 +16,7 @@ import { RESOURCE_PATHS } from '../../resource-paths';
   imports: [
     CommonModule,
     RouterModule,
+    TranslatePipe,
     CustomSupplyCardComponent,
     CreateCustomSupplyDialogComponent,
     EditCustomSupplyDialogComponent,

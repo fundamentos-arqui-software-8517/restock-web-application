@@ -1,23 +1,25 @@
 import { BaseEntity } from '../../../shared/domain/model/base-entity';
-import { SeverityType, IssueType } from './enums';
 
 /**
- * Aggregate representing a health check performed on an IoT smart scale device.
- *
- * Captures hardware diagnostics such as signal strength, temperature, and
- * detected issues to determine whether the device requires maintenance.
+ * Aggregate representing a device health / microcontroller status reading
+ * for an IoT smart scale device, as reported by the cloud's
+ * /api/v1/devices-health endpoint.
  */
 export class DeviceHealthCheck implements BaseEntity {
   private constructor(
     public readonly id: string,
-    public readonly signalStrengthInDbm: number,
-    public readonly hardwareTemperature: number,
-    public readonly issueType: IssueType | null,
-    public readonly timestamp: string,
-    public readonly detectedAt: string,
-    public readonly severity: SeverityType,
-    public readonly needsMaintenance: boolean,
     public readonly deviceId: string,
+    public readonly branchId: string | null,
+    public readonly alertType: string | null,
+    public readonly metric: string | null,
+    public readonly value: string | null,
+    public readonly threshold: string | null,
+    public readonly message: string | null,
+    public readonly cpuUsagePercentage: number | null,
+    public readonly memoryFreeBytes: number | null,
+    public readonly voltageVolts: number | null,
+    public readonly temperatureInCelsius: number | null,
+    public readonly timestamp: string,
   ) {
     this.validate();
   }
@@ -25,38 +27,50 @@ export class DeviceHealthCheck implements BaseEntity {
   /**
    * Creates a new DeviceHealthCheck instance.
    *
-   * @param id Unique health check identifier.
-   * @param signalStrengthInDbm Signal strength in dBm.
-   * @param hardwareTemperature Hardware temperature in Celsius.
-   * @param issueType Detected issue type, or null if healthy.
-   * @param timestamp ISO-8601 timestamp of the health check.
-   * @param detectedAt ISO-8601 timestamp when the issue was detected.
-   * @param severity Severity level of the detected issue.
-   * @param needsMaintenance Whether the device requires maintenance.
+   * @param id Unique health reading identifier.
    * @param deviceId Identifier of the IoT device.
+   * @param branchId Branch the device belongs to, if known.
+   * @param alertType Alert type raised by the device, or null if none.
+   * @param metric Name of the metric that triggered the alert, if any.
+   * @param value Reading value associated with the alert, if any.
+   * @param threshold Configured threshold breached, if any.
+   * @param message Human readable message describing the reading.
+   * @param cpuUsagePercentage Microcontroller CPU usage percentage.
+   * @param memoryFreeBytes Microcontroller free memory in bytes.
+   * @param voltageVolts Supply voltage in volts.
+   * @param temperatureInCelsius Microcontroller temperature in Celsius.
+   * @param timestamp ISO-8601 timestamp of the reading.
    * @returns A new DeviceHealthCheck instance.
    */
   static create(
     id: string,
-    signalStrengthInDbm: number,
-    hardwareTemperature: number,
-    issueType: IssueType | null,
-    timestamp: string,
-    detectedAt: string,
-    severity: SeverityType,
-    needsMaintenance: boolean,
     deviceId: string,
+    branchId: string | null,
+    alertType: string | null,
+    metric: string | null,
+    value: string | null,
+    threshold: string | null,
+    message: string | null,
+    cpuUsagePercentage: number | null,
+    memoryFreeBytes: number | null,
+    voltageVolts: number | null,
+    temperatureInCelsius: number | null,
+    timestamp: string,
   ): DeviceHealthCheck {
     return new DeviceHealthCheck(
       id,
-      signalStrengthInDbm,
-      hardwareTemperature,
-      issueType,
-      timestamp,
-      detectedAt,
-      severity,
-      needsMaintenance,
       deviceId,
+      branchId,
+      alertType,
+      metric,
+      value,
+      threshold,
+      message,
+      cpuUsagePercentage,
+      memoryFreeBytes,
+      voltageVolts,
+      temperatureInCelsius,
+      timestamp,
     );
   }
 
@@ -66,42 +80,17 @@ export class DeviceHealthCheck implements BaseEntity {
    * @returns An empty DeviceHealthCheck instance.
    */
   static empty(): DeviceHealthCheck {
-    return new DeviceHealthCheck('', 0, 0, null, '', '', SeverityType.LOW, false, '');
+    return new DeviceHealthCheck('', '', null, null, null, null, null, null, null, null, null, null, '');
   }
 
   /**
-   * Evaluates the overall health of the device based on signal strength,
-   * hardware temperature, and the presence of critical issues.
+   * Whether this reading represents an active alert condition, as reported
+   * by the cloud (an alertType is present).
    *
-   * @returns 'healthy' if no issues, 'warning' if borderline, 'critical' if urgent.
+   * @returns True if the device reported an alert type.
    */
-  evaluateHealth(): 'healthy' | 'warning' | 'critical' {
-    if (this.severity === SeverityType.CRITICAL) {
-      return 'critical';
-    }
-
-    if (this.issueType !== null) {
-      return 'warning';
-    }
-
-    if (this.signalStrengthInDbm < -90) {
-      return 'warning';
-    }
-
-    if (this.hardwareTemperature > 75) {
-      return 'warning';
-    }
-
-    return 'healthy';
-  }
-
-  /**
-   * Determines whether the detected issue is critical based on severity.
-   *
-   * @returns True if the issue severity is CRITICAL.
-   */
-  isCriticalIssue(): boolean {
-    return this.severity === SeverityType.CRITICAL;
+  hasAlert(): boolean {
+    return this.alertType !== null && this.alertType !== '';
   }
 
   private validate(): void {
@@ -109,8 +98,8 @@ export class DeviceHealthCheck implements BaseEntity {
       throw new Error('DeviceHealthCheck id cannot be empty.');
     }
 
-    if (this.hardwareTemperature < -40 || this.hardwareTemperature > 125) {
-      throw new Error('DeviceHealthCheck hardwareTemperature must be between -40 and 125 Celsius.');
+    if (!this.deviceId) {
+      throw new Error('DeviceHealthCheck deviceId cannot be empty.');
     }
   }
 }

@@ -26,9 +26,10 @@ import { TELEMETRY_ENDPOINT } from './telemetry/telemetry.endpoint';
 import { assembleTelemetryReading } from './telemetry/telemetry.assembler';
 
 
-import { DEVICE_HEALTH_ENDPOINT, RECALIBRATE_DEVICE_URL } from './device-health/device-health.endpoint';
+import { DEVICE_HEALTH_ENDPOINT } from './device-health/device-health.endpoint';
 import type { DeviceHealthCheckResponse } from './device-health/device-health.response';
 import { assembleDeviceHealthCheck } from './device-health/device-health.assembler';
+import { UPDATE_DEVICE_STATUS_URL } from '../../devices/infrastructure/devices.endpoint';
 import { Discrepancy } from '../domain/model/discrepancy.entity';
 import { TelemetryReading } from '../domain/model/telemetry-reading.entity';
 import { DeviceHealthCheck } from '../domain/model/device-health-check.entity';
@@ -127,14 +128,15 @@ export class TrackingApi {
   }
 
   /**
-   * Sends a recalibration request for a device.
+   * Requests recalibration of a device by transitioning it back to the
+   * CALIBRATED status. The cloud has no dedicated recalibration endpoint
+   * (no support for distinct actions such as "force tare" or "schedule
+   * maintenance"), so this reuses the device status transition endpoint.
    *
    * @param deviceId The device identifier.
-   * @param action The calibration action.
-   * @param note Optional note for the recalibration.
    * @returns An observable that completes when recalibration is requested.
    */
-  recalibrateDevice(deviceId: string, action: string, note: string): Observable<void> {
-    return this.http.post<void>(RECALIBRATE_DEVICE_URL(deviceId), { action, note });
+  recalibrateDevice(deviceId: string): Observable<void> {
+    return this.http.patch<void>(UPDATE_DEVICE_STATUS_URL(deviceId), { status: 'CALIBRATED' });
   }
 }

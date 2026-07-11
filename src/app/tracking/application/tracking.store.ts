@@ -148,11 +148,11 @@ export class TrackingStore {
       .subscribe();
   }
 
-  recalibrateScale(deviceId: string, action: string, note: string): void {
+  recalibrateScale(deviceId: string): void {
     this.loading.set(true);
 
     this.trackingApi
-      .recalibrateDevice(deviceId, action, note)
+      .recalibrateDevice(deviceId)
       .pipe(
         tap(() => this.loadDiscrepancies()),
         catchError(() => {

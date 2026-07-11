@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
 
-  baseUrl: 'http://localhost:8080/api/v1',
+  baseUrl: '/api/v1',
   // baseUrl: 'https://restock-web-service.onrender.com/api/v1',
 
   // Authentication

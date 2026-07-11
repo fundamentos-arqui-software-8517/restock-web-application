@@ -1,18 +1,17 @@
 export interface DeviceHealthCheckResponse {
   id: string;
-  signalStrengthInDbm: number;
-  hardwareTemperature: number;
-  issueType: string | null;
-  timestamp: string;
-  detectedAt: string;
-  severity: string;
-  needsMaintenance: boolean;
   deviceId: string;
-}
-
-export interface RecalibrateDeviceRequest {
-  action: string;
-  note: string;
+  branchId: string | null;
+  alertType: string | null;
+  metric: string | null;
+  value: string | null;
+  threshold: string | null;
+  message: string | null;
+  cpuUsagePercentage: number | null;
+  memoryFreeBytes: number | null;
+  voltageVolts: number | null;
+  temperatureInCelsius: number | null;
+  timestamp: string;
 }
 
 export type DeviceHealthCheckListResponse = DeviceHealthCheckResponse[];

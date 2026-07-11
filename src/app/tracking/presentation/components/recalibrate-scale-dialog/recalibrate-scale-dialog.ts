@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -21,6 +21,7 @@ type CalibrationAction = 'force_tare' | 'schedule_maintenance';
   styleUrl: './recalibrate-scale-dialog.css',
 })
 export class RecalibrateScaleDialog {
+  @Input() deviceId = '';
   @Output() onClose = new EventEmitter<void>();
   @Output() onRecalibrate = new EventEmitter<void>();
 
@@ -34,7 +35,7 @@ export class RecalibrateScaleDialog {
   }
 
   confirm(): void {
-    this.store.recalibrateScale('', this.selectedAction(), this.recalibrationNote);
+    this.store.recalibrateScale(this.deviceId);
     this.onRecalibrate.emit();
   }
 }

@@ -1,11 +1,9 @@
-import { IssueType, SeverityType } from '../model/enums';
-
-
 export interface CreateDeviceHealthCheckCommand {
   deviceId: string;
-  signalStrengthInDbm: number;
-  hardwareTemperature: number;
-  issueType: IssueType | null;
-  severity: SeverityType;
-  needsMaintenance: boolean;
+  branchId: string | null;
+  alertType: string | null;
+  metric: string | null;
+  value: string | null;
+  threshold: string | null;
+  message: string | null;
 }

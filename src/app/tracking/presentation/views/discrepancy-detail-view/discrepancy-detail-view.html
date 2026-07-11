@@ -124,5 +124,8 @@
 }
 
 @if (showRecalibrateDialog) {
-  <app-recalibrate-scale-dialog (onClose)="closeRecalibrateDialog()" (onRecalibrate)="closeRecalibrateDialog()" />
+  <app-recalibrate-scale-dialog
+    [deviceId]="store.selectedDiscrepancy()?.deviceId ?? ''"
+    (onClose)="closeRecalibrateDialog()"
+    (onRecalibrate)="closeRecalibrateDialog()" />
 }
